@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>myFinanceExchangeWindow</class>
+ <widget class="QDialog" name="myFinanceExchangeWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>564</width>
+    <height>296</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>资产变化</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>260</y>
+     <width>161</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QWidget" name="formLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>10</y>
+     <width>202</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="formLayout">
+    <property name="horizontalSpacing">
+     <number>10</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QLabel" name="timeLabel">
+      <property name="text">
+       <string>交易时间</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QDateTimeEdit" name="timeDateTimeEdit">
+      <property name="displayFormat">
+       <string>yyyy-M-d HH:mm:ss</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="labelType">
+      <property name="text">
+       <string>交易类别</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="typeLineEdit"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QTabWidget" name="tabWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>60</y>
+     <width>541</width>
+     <height>191</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="tab_1">
+    <attribute name="title">
+     <string>交易</string>
+    </attribute>
+    <widget class="QWidget" name="verticalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>18</x>
+       <y>20</y>
+       <width>511</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="vlMoneyAccount" stretch="0,0">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="8,2,2,1">
+        <item>
+         <widget class="QLabel" name="labelAccount1">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>交易帐户</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelExchangeFee">
+          <property name="text">
+           <string>交易费：</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="exchangeFeeSpinBox">
+          <property name="maximum">
+           <double>100000.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelExchangeFee_2">
+          <property name="text">
+           <string>元</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,2">
+        <item>
+         <widget class="QComboBox" name="moneyAccount"/>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayoutAccount" columnstretch="1,5,5,1,5">
+          <property name="horizontalSpacing">
+           <number>10</number>
+          </property>
+          <item row="0" column="4">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="labelMoney">
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string>资金</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>元</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QDoubleSpinBox" name="moneySpinBox">
+            <property name="minimum">
+             <double>-10000000.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>10000000.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>18</x>
+       <y>87</y>
+       <width>509</width>
+       <height>74</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2">
+      <item>
+       <layout class="QGridLayout" name="gridLayoutAsset" rowstretch="1,0,0" columnstretch="1,2,1,2">
+        <property name="horizontalSpacing">
+         <number>10</number>
+        </property>
+        <item row="2" column="2">
+         <widget class="QLabel" name="labelPrice">
+          <property name="text">
+           <string>单价</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="labelAmount">
+          <property name="text">
+           <string>数量</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSpinBox" name="amountSpinBox">
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>100000000</number>
+          </property>
+          <property name="singleStep">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QDoubleSpinBox" name="priceSpinBox">
+          <property name="minimum">
+           <double>0.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>1000000.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="labelName">
+          <property name="text">
+           <string>名称</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelCode">
+          <property name="text">
+           <string>代号</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="codeLineEdit"/>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLineEdit" name="nameLineEdit"/>
+        </item>
+        <item row="0" column="1">
+         <layout class="QHBoxLayout" name="hlMarket">
+          <item>
+           <widget class="QRadioButton" name="radioSH">
+            <property name="text">
+             <string>上海</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioSZ">
+            <property name="text">
+             <string>深圳</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioOther">
+            <property name="text">
+             <string>其它</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="3">
+         <layout class="QHBoxLayout" name="hlBuySell">
+          <item>
+           <widget class="QRadioButton" name="radioBuy">
+            <property name="text">
+             <string>买入</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioSell">
+            <property name="text">
+             <string>卖出</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <attribute name="title">
+     <string>转帐</string>
+    </attribute>
+    <widget class="QWidget" name="verticalLayoutWidget_4">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>20</y>
+       <width>171</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="vlMoneyAccount_2" stretch="1,0">
+      <item>
+       <widget class="QLabel" name="labelAccount1_2">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>资金帐户  --&gt;  转出</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1">
+        <item>
+         <widget class="QComboBox" name="moneyAccountOut"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_5">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>90</y>
+       <width>171</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="vlMoneyAccount_3" stretch="1,0">
+      <item>
+       <widget class="QLabel" name="labelAccount1_3">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>资金帐户  &lt;--  转入</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1">
+        <item>
+         <widget class="QComboBox" name="moneyAccountIn"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>80</y>
+       <width>191</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayoutAccount_2" columnstretch="1,0,0">
+      <property name="horizontalSpacing">
+       <number>10</number>
+      </property>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="moneyTransferSpinBox">
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10000000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>元</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelMoney_2">
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>转移资金</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+  </widget>
+  <zorder>formLayoutWidget</zorder>
+  <zorder>buttonBox</zorder>
+  <zorder>tabWidget</zorder>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>myFinanceExchangeWindow</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>398</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>246</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>myFinanceExchangeWindow</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>466</x>
+     <y>230</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>246</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
