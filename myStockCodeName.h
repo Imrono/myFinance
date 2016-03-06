@@ -3,10 +3,11 @@
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
 
 #include <QtCore/QFile>
 
-class myStockCodeName
+class myStockCodeName : public QObject
 {
     Q_OBJECT
 public:
@@ -24,6 +25,11 @@ private:
         REQUEST_CODE = 0
     };
     E_RequestTpye requestType;
+
+
+    QString allCodeStart;
+    QString allCodeMid;
+    QString allCodeEnd;
 
 private slots:
     void replyFinished(QNetworkReply* data);
