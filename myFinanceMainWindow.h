@@ -6,6 +6,8 @@
 #include <QWidget>
 #include "myAssetModel.h"
 
+#include "myStockCodeName.h"
+
 namespace Ui {
 class myFinanceMainWindow;
 }
@@ -27,6 +29,8 @@ private slots:
 private:
     Ui::myFinanceMainWindow *ui;
     myAssetModel *assetModel;
+
+    myStockCodeName stockCode;
 };
 
 #endif // MYFINANCEMAINWINDOW_H

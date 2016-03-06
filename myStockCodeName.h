@@ -26,10 +26,7 @@ private:
     };
     E_RequestTpye requestType;
 
-
-    QString allCodeStart;
-    QString allCodeMid;
-    QString allCodeEnd;
+    void analyzeStockCode(QString fileName);
 
 private slots:
     void replyFinished(QNetworkReply* data);

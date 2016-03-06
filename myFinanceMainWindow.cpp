@@ -49,5 +49,6 @@ void myFinanceMainWindow::on_new_account_clicked()
 void myFinanceMainWindow::on_reflash_clicked()
 {
     assetModel->doReflash();
+    stockCode.getStockCode();
     ui->treeView->expandAll();
 }
