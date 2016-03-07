@@ -6,6 +6,7 @@
 #include <QtNetwork/QNetworkReply>
 
 #include <QtCore/QFile>
+#include <QtCore/QMap>
 
 class myStockCodeName : public QObject
 {
@@ -16,6 +17,9 @@ public:
 
     void getStockCode();
     void getStockAbbreviation();
+    bool getIsInitialed() { return isInitialed;}
+
+    QMap <QString, QString> codeName;
 
 
 private:
@@ -25,6 +29,7 @@ private:
         REQUEST_CODE = 0
     };
     E_RequestTpye requestType;
+    bool isInitialed;
 
     void analyzeStockCode(QString fileName);
 

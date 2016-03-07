@@ -2,10 +2,14 @@
 #include <QApplication>
 #include <QtCore/QTextCodec>
 
+#include "myStockCodeName.h"
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    myFinanceMainWindow w;
+    myStockCodeName stockCode;
+
+    myFinanceMainWindow w(&stockCode);
     w.show();
 
 

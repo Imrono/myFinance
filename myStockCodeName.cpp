@@ -6,7 +6,8 @@
 
 #include <QtDebug>
 myStockCodeName::myStockCodeName()
-    : manager(nullptr), ntRequest(QUrl(""))
+    : manager(nullptr), ntRequest(QUrl("")),
+      isInitialed(false)
 {
     manager = new QNetworkAccessManager();
     connect(manager, SIGNAL(finished(QNetworkReply*)),
@@ -57,19 +58,41 @@ void myStockCodeName::analyzeStockCode(QString fileName) {
     QString allCodeMid = ".html\">";
     QString allCodeEnd = "</a></li>";
 
-    QString pattern("%1(.*)%2=(.*)%3");
-    QRegExp reg(pattern);
-    QString line;
+    QString pattern = QString("%1(.*)%2(.*)%3").arg(allCodeBeg).arg(allCodeMid).arg(allCodeEnd);
+    QRegExp rx(pattern);
 
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
         qDebug() << "无法创建文件";
         return;
     }
-
     QTextStream stream(&file);
+
+    codeName.clear();
+    isInitialed = false;
+    QString line;
+    QRegExp rxCode("([a-zA-Z]*)([0-9]*)");
+    QRegExp rxName("[(][0-9]*[)]");
     while (!stream.atEnd()) {
         line = stream.readLine();
+        int pos = line.indexOf(rx);
+        if (pos >= 0) {
+            QString code;
+            QString name;
+            QString a = rx.cap(1);
+            QString b = rx.cap(2);
+            qDebug() << a << b;
+            pos = a.indexOf(rxCode);
+            if (pos >= 0) {
+                QString code1 = rxCode.cap(1);
+                QString code2 = rxCode.cap(2);
+                code = QString("%1.%2").arg(code1).arg(code2);
+            } else { continue; }
+            name = b.remove(rxName);
+            codeName.insert(code, name);
+        } else { continue; }
     }
     file.close();
+    isInitialed = true;
+    qDebug() << codeName.count();
 }

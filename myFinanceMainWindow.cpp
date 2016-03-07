@@ -6,9 +6,10 @@
 #include <QMessageBox>
 #include "myFinanceExchangeWindow.h"
 
-myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
+myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::myFinanceMainWindow)
+    ui(new Ui::myFinanceMainWindow),
+    stockCode(inStockCode)
 {
     assetModel = new myAssetModel(this);
     ui->setupUi(this);
@@ -30,7 +31,7 @@ void myFinanceMainWindow::on_exchange_clicked()
         QMessageBox::information(NULL, "提示", "rootNode NULL");
         return;
     }
-    myFinanceExchangeWindow exWin(assetModel->getRootNode(), this);
+    myFinanceExchangeWindow exWin(stockCode, assetModel->getRootNode(), this);
     if(exWin.exec() == QDialog::Accepted) {
         //QMessageBox::information(NULL, "提示", "OK");
         assetModel->doExchange(exWin.getExchangeData());
@@ -49,6 +50,6 @@ void myFinanceMainWindow::on_new_account_clicked()
 void myFinanceMainWindow::on_reflash_clicked()
 {
     assetModel->doReflash();
-    stockCode.getStockCode();
+    stockCode->getStockCode();
     ui->treeView->expandAll();
 }

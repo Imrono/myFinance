@@ -17,7 +17,7 @@ class myFinanceMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit myFinanceMainWindow(QWidget *parent = 0);
+    explicit myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *parent = 0);
     ~myFinanceMainWindow();
 
 private slots:
@@ -30,7 +30,7 @@ private:
     Ui::myFinanceMainWindow *ui;
     myAssetModel *assetModel;
 
-    myStockCodeName stockCode;
+    myStockCodeName *stockCode;
 };
 
 #endif // MYFINANCEMAINWINDOW_H

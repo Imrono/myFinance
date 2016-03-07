@@ -1,12 +1,15 @@
 #include "myFinanceExchangeWindow.h"
 #include "ui_myFinanceExchangeWindow.h"
 
+#include <QtCore/QMap>
+
 #include <QMessageBox>
 #include <QtDebug>
 
-myFinanceExchangeWindow::myFinanceExchangeWindow(myAssetNode* rootNode, QWidget *parent) :
+myFinanceExchangeWindow::myFinanceExchangeWindow(myStockCodeName *inStockCode, myAssetNode* rootNode, QWidget *parent) :
     QDialog(parent), grpBuySell(nullptr),
-    ui(new Ui::myFinanceExchangeWindow)
+    ui(new Ui::myFinanceExchangeWindow),
+    stockCode(inStockCode)
 {
     ui->setupUi(this);
 
@@ -200,4 +203,19 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
 {
     data.code = str;
     updateMarketInfo();
+}
+
+void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
+{
+    int count = stockCode->codeName.count();
+    qDebug() << count;
+    if (stockCode->getIsInitialed()) {
+        if (stockCode->codeName.contains(data.code)) {
+            QMap<QString, QString>::const_iterator ii = stockCode->codeName.find(data.code);
+            if (ii != stockCode->codeName.end() && ii.key() == data.code) {
+                data.name = ii.value();
+                ui->nameLineEdit->setText(data.name);
+            }
+        }
+    }
 }

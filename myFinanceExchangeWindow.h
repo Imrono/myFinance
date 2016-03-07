@@ -7,6 +7,7 @@
 
 #include "myDatabaseDatatype.h"
 #include "myAssetNode.h"
+#include "myStockCodeName.h"
 
 namespace Ui {
 class myFinanceExchangeWindow;
@@ -17,7 +18,7 @@ class myFinanceExchangeWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit myFinanceExchangeWindow(myAssetNode* rootNode, QWidget *parent = 0);
+    explicit myFinanceExchangeWindow(myStockCodeName *inStockCode, myAssetNode* rootNode, QWidget *parent = 0);
     ~myFinanceExchangeWindow();
 
     exchangeData &getExchangeData() { return data;}
@@ -47,6 +48,8 @@ private slots:
 
     void on_codeLineEdit_textChanged(const QString &str);
 
+    void on_codeLineEdit_editingFinished();
+
 private:
     Ui::myFinanceExchangeWindow *ui;
     QButtonGroup *grpBuySell;
@@ -55,6 +58,8 @@ private:
     double buySellFlag;
     int dataSource;
 	int lastRadioBuySell;
+
+    myStockCodeName *stockCode;
 
     void initial(myAssetNode* rootNode);
     void updateBuySell();
