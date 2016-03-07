@@ -208,7 +208,7 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
 void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
 {
     int count = stockCode->codeName.count();
-    qDebug() << count;
+    qDebug() << "codeEdit" << count;
     if (stockCode->getIsInitialed()) {
         if (stockCode->codeName.contains(data.code)) {
             QMap<QString, QString>::const_iterator ii = stockCode->codeName.find(data.code);
@@ -216,6 +216,36 @@ void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
                 data.name = ii.value();
                 ui->nameLineEdit->setText(data.name);
             }
+        }
+    }
+}
+
+void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
+{
+    QString str = ui->nameLineEdit->text();
+    int count = stockCode->codeName.count();
+    qDebug() << "nameEdit" << count;
+
+    QMap<QString,QString>::iterator it = stockCode->codeName.begin();
+    for (; it != stockCode->codeName.end(); ++it) {
+        if (it.value() == str) {
+            data.code = it.key();
+            QRegExp rx("([a-zA-Z]*)[.][0-9]*");
+            int pos = data.code.indexOf(rx);
+            if (pos >= 0) {
+                QString a = rx.cap(1);
+                if (a == "sh") {
+                    ui->radioSH->setChecked(true);
+                } else if (a == "sz") {
+                    ui->radioSZ->setChecked(true);
+                } else {
+                    ui->radioOther->setChecked(true);
+                }
+            }
+
+            ui->codeLineEdit->setText(data.code);
+            qDebug() << data.code << it.value();
+            break;
         }
     }
 }

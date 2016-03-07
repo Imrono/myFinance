@@ -1,17 +1,22 @@
 #include "myStockCodeName.h"
 #include <QtCore/QFile>
 #include <QtCore/QByteArray>
+#include <QtCore/QFileInfo>
 
 #include <QRegExp>
 
 #include <QtDebug>
 myStockCodeName::myStockCodeName()
     : manager(nullptr), ntRequest(QUrl("")),
-      isInitialed(false)
+      isInitialed(false), CodeDataFile("stockCodeData.txt")
 {
     manager = new QNetworkAccessManager();
     connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
+
+    if (QFileInfo::exists(CodeDataFile)) {
+        analyzeStockCode(CodeDataFile);
+    }
 }
 
 myStockCodeName::~myStockCodeName() {
@@ -25,7 +30,7 @@ void myStockCodeName::replyFinished(QNetworkReply* data) {
     case E_RequestTpye::REQUEST_CODE: {
         QByteArray codeDataArray = data->readAll();
         QString codeData = QString::fromLocal8Bit(codeDataArray);
-        QFile file("stockCodeData.txt");
+        QFile file(CodeDataFile);
         if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {
             qDebug() << "无法创建文件";
             return;
@@ -34,7 +39,7 @@ void myStockCodeName::replyFinished(QNetworkReply* data) {
         toFile << codeData;
         toFile.flush();
         file.close();
-        analyzeStockCode("stockCodeData.txt");
+        analyzeStockCode(CodeDataFile);
         qDebug() << requestType << "finish";
         break;
         }

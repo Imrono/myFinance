@@ -30,6 +30,7 @@ private:
     };
     E_RequestTpye requestType;
     bool isInitialed;
+    QString CodeDataFile;
 
     void analyzeStockCode(QString fileName);
 

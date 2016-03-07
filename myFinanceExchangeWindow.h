@@ -50,6 +50,8 @@ private slots:
 
     void on_codeLineEdit_editingFinished();
 
+    void on_nameLineEdit_editingFinished();
+
 private:
     Ui::myFinanceExchangeWindow *ui;
     QButtonGroup *grpBuySell;
