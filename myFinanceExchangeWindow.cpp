@@ -189,6 +189,7 @@ void myFinanceExchangeWindow::updateMarketInfo() {
         market = "sz.";
         break;
     case OTHER:
+        market = "";
         break;
     default:
         break;
@@ -209,11 +210,16 @@ void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
 {
     int count = stockCode->codeName.count();
     qDebug() << "codeEdit" << count;
-    if (stockCode->getIsInitialed()) {
-        if (stockCode->codeName.contains(data.code)) {
-            QMap<QString, QString>::const_iterator ii = stockCode->codeName.find(data.code);
-            if (ii != stockCode->codeName.end() && ii.key() == data.code) {
-                data.name = ii.value();
+    if (OTHER != grpMarket->checkedId()) {
+        if (stockCode->getIsInitialed()) {
+            if (stockCode->codeName.contains(data.code)) {
+                QMap<QString, QString>::const_iterator ii = stockCode->codeName.find(data.code);
+                if (ii != stockCode->codeName.end() && ii.key() == data.code) {
+                    data.name = ii.value();
+                    ui->nameLineEdit->setText(data.name);
+                }
+            } else {
+                data.name = "";
                 ui->nameLineEdit->setText(data.name);
             }
         }
@@ -241,11 +247,15 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
                 } else {
                     ui->radioOther->setChecked(true);
                 }
+                updateMarketInfo();
             }
 
             ui->codeLineEdit->setText(data.code);
             qDebug() << data.code << it.value();
-            break;
+            return;
         }
     }
+
+    ui->radioOther->setChecked(true);
+    updateMarketInfo();
 }
