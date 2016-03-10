@@ -4,6 +4,7 @@
 #include <QtSql/QSqlError>
 #include <QtDebug>
 #include <QtGui/QIcon>
+#include <QFont>
 
 myAssetModel::myAssetModel(QObject *parent)
     : QAbstractItemModel(parent), rootNode(nullptr)
@@ -13,6 +14,8 @@ myAssetModel::myAssetModel(QObject *parent)
     rootNode = new myAssetNode(myAssetNode::nodeRoot, "RootNode");
     if (!rootNode->initial())
         qDebug() << "ERROR @ initial rootNode";
+
+    connect(&stockPrice, SIGNAL(updatePriceFinish()), this, SLOT(updatePriceFinish()));
 
     qDebugNodeData();
 }
@@ -24,6 +27,9 @@ myAssetModel::~myAssetModel()
     delete rootNode;
 }
 
+void myAssetModel::updatePriceFinish() {
+    doReflash();
+}
 
 QModelIndex myAssetModel::index(int row, int column, const QModelIndex &parent) const {
     if (!rootNode || row < 0 || column < 0)
@@ -61,7 +67,11 @@ int myAssetModel::rowCount(const QModelIndex &parent) const {
 
 int myAssetModel::columnCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
-    return 2;
+    if (!stockPrice.isInit()) {
+        return 2;
+    }  else {
+        return 3;
+    }
 }
 
 QVariant myAssetModel::data(const QModelIndex &index, int role) const {
@@ -76,7 +86,13 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                 return QVariant();
             case myAssetNode::nodeAccount: {
                 myAssetAccount account = node->nodeData.value<myAssetAccount>();
-                return QString("%1 %2").arg(account.code).arg(account.name);
+                QString code;
+                if (account.name.contains(QString::fromLocal8Bit("银行"))) {
+                    code = "**** **** " + account.code.right(4);
+                } else {
+                    code = account.code;
+                }
+                return QString("%1 %2").arg(code).arg(account.name);
             }
             case myAssetNode::nodeHolds: {
                 myAssetHold holds = node->nodeData.value<myAssetHold>();
@@ -98,6 +114,34 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             default:
                 return QString("Unknown");
             }
+        } else if (index.column() == 2) {
+            switch (node->type) {
+            case myAssetNode::nodeRoot:
+                return QVariant();
+            case myAssetNode::nodeAccount:
+                return QVariant();
+            case myAssetNode::nodeHolds: {
+                myAssetHold holds = node->nodeData.value<myAssetHold>();
+                if (!stockPrice.isInit() || holds.assetCode == "cash") {
+                    return QVariant();
+                } else {
+                    const QMap<QString, sinaRealTimeData> *priceMap = stockPrice.getStockPriceRt();
+                    QMap<QString, sinaRealTimeData>::const_iterator it = priceMap->find(holds.assetCode);
+                    float currentPrice = 0.0f;
+                    while (it != priceMap->end() && it.key() == holds.assetCode) {
+                        currentPrice = it.value().price;
+                        if (currentPrice < 0.0001f) {
+                            currentPrice = it.value().lastClose;
+                        }
+                        ++it;
+                    }
+                    float totalValue = static_cast<float>(holds.amount) * currentPrice;
+                    return QString("%1/%2").arg(currentPrice).arg(totalValue);
+                }
+            }
+            default:
+                return QString("Unknown");
+            }
         }
     } else if (Qt::DecorationRole == role) {
         myAssetNode *node = nodeFromIndex(index);
@@ -109,6 +153,10 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                 return QIcon(QString(".//resource//icon//%1").arg(node->nodeData.value<myAssetAccount>().logo));
             }
         }
+    } else if (Qt::FontRole == role) {
+        if (index.column() == 2) {
+            return QFont(QString(), -1, QFont::Bold);
+        }
     } else {
         return QVariant();
     }
@@ -118,9 +166,11 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
 QVariant myAssetModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         if (section == 0) {
-            return tr("Node");
+            return QString::fromLocal8Bit("资产名称");
         } else if (section == 1) {
-            return tr("Value");
+            return QString::fromLocal8Bit("持有数量");
+        } else if (section == 2) {
+            return QString::fromLocal8Bit("当前价格");
         }
     }
     return QVariant();
@@ -147,13 +197,25 @@ void myAssetModel::doExchange(exchangeData data) {
 
     qDebugNodeData();
 }
-void myAssetModel::doReflash() {
+void myAssetModel::doReflashAssetData() {
     beginResetModel();
     bool ans = rootNode->callback();
     Q_UNUSED(ans);
     ans = rootNode->initial();
     Q_UNUSED(ans);
     endResetModel();
+}
+void myAssetModel::doUpdatePrice() {
+    beginResetModel();
+    QStringList list = stockPrice.getStockCodeList(rootNode);
+    Q_UNUSED(list);
+    stockPrice.getStockPrice();
+    endResetModel();
+}
+void myAssetModel::doReflash() {
+    beginResetModel();
+    endResetModel();
+    emit reflashed();
 }
 
 void myAssetModel::qDebugNodeData()

@@ -21,6 +21,8 @@ struct myAssetAccount {
 //    };
     QString type;
     QString logo;
+
+    float value;
 };
 
 struct myAssetHold {
@@ -35,6 +37,9 @@ struct myAssetHold {
 //        stock   = 2
 //    };
     QString type;
+
+    float currentPrice;
+    float value;
 };
 
 Q_DECLARE_METATYPE(myAssetAccount)

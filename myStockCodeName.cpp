@@ -49,9 +49,14 @@ void myStockCodeName::replyFinished(QNetworkReply* data) {
 }
 
 void myStockCodeName::getStockCode() {
-    ntRequest.setUrl(QUrl("http://quote.eastmoney.com/stocklist.html"));
-    requestType = E_RequestTpye::REQUEST_CODE;
-    manager->get(ntRequest);
+    QFileInfo info(CodeDataFile);
+    QDateTime time = QDateTime::currentDateTime();
+    QDateTime fileCreateTime = info.lastModified();
+    if (time.date().toJulianDay() - fileCreateTime.date().toJulianDay() >= 1) {
+        ntRequest.setUrl(QUrl("http://quote.eastmoney.com/stocklist.html"));
+        requestType = E_RequestTpye::REQUEST_CODE;
+        manager->get(ntRequest);
+    }
 }
 
 void myStockCodeName::getStockAbbreviation() {

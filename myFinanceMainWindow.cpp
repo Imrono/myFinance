@@ -15,7 +15,20 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
     ui->setupUi(this);
 
     ui->treeView->setModel(assetModel);
-    ui->treeView->header()->resizeSections(QHeaderView::ResizeToContents);
+    //ui->treeView->header()->resizeSections(QHeaderView::ResizeToContents);
+    ui->treeView->header()->resizeSections(QHeaderView::Fixed);
+    ui->treeView->header()->resizeSection(0, 170);
+    ui->treeView->header()->resizeSection(1, 100);
+    ui->treeView->expandAll();
+
+    connect(assetModel, SIGNAL(reflashed()), this, SLOT(assetModelReflashed()));
+}
+
+void myFinanceMainWindow::assetModelReflashed() {
+    //ui->treeView->header()->resizeSections(QHeaderView::Fixed);
+    ui->treeView->header()->resizeSection(0, 170);
+    ui->treeView->header()->resizeSection(1, 100);
+    //ui->treeView->header()->resizeSection(2, 200);
     ui->treeView->expandAll();
 }
 
@@ -49,7 +62,13 @@ void myFinanceMainWindow::on_new_account_clicked()
 
 void myFinanceMainWindow::on_reflash_clicked()
 {
-    assetModel->doReflash();
+    assetModel->doReflashAssetData();
     stockCode->getStockCode();
+    ui->treeView->expandAll();
+}
+
+void myFinanceMainWindow::on_updatePrice_clicked()
+{
+    assetModel->doUpdatePrice();
     ui->treeView->expandAll();
 }

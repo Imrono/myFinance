@@ -5,6 +5,7 @@
 #include <QAbstractItemModel>
 
 #include "myAssetNode.h"
+#include "myStockPrice.h"
 #include "myDatabaseDatatype.h"
 
 //#include "myFinanceMainWindow.h"
@@ -12,6 +13,7 @@
 
 class myAssetModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     myAssetModel(QObject *parent);
     ~myAssetModel();
@@ -27,15 +29,25 @@ public:
                         int role) const;
 
     void doExchange(exchangeData data);
+    void doReflashAssetData();
+    void doUpdatePrice();
     void doReflash();
+
     myAssetNode *getRootNode() { return rootNode;}
+
+signals:
+    void reflashed();
 
 private:
     myAssetNode *nodeFromIndex(const QModelIndex &index) const;
     myAssetNode *rootNode;
 
+    myStockPrice stockPrice;
    // myFinanceMainWindow *pWin;
     void qDebugNodeData();
+
+private slots:
+    void updatePriceFinish();
 };
 
 #endif // MYASSETMODEL_H

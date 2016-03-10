@@ -26,11 +26,16 @@ private slots:
 
     void on_reflash_clicked();
 
+    void on_updatePrice_clicked();
+
 private:
     Ui::myFinanceMainWindow *ui;
     myAssetModel *assetModel;
 
     myStockCodeName *stockCode;
+
+private slots:
+    void assetModelReflashed();
 };
 
 #endif // MYFINANCEMAINWINDOW_H
