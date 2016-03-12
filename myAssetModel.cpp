@@ -215,7 +215,7 @@ void myAssetModel::doUpdatePrice() {
 void myAssetModel::doReflash() {
     beginResetModel();
     endResetModel();
-    emit reflashed();
+    emit priceDataReflashed();
 }
 
 void myAssetModel::qDebugNodeData()

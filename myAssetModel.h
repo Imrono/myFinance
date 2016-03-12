@@ -36,7 +36,7 @@ public:
     myAssetNode *getRootNode() { return rootNode;}
 
 signals:
-    void reflashed();
+    void priceDataReflashed();
 
 private:
     myAssetNode *nodeFromIndex(const QModelIndex &index) const;

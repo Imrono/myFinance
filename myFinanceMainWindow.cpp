@@ -3,6 +3,7 @@
 
 #include "myDatabaseDatatype.h"
 
+#include <QDebug>
 #include <QMessageBox>
 #include "myFinanceExchangeWindow.h"
 
@@ -21,15 +22,16 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
     ui->treeView->header()->resizeSection(1, 100);
     ui->treeView->expandAll();
 
-    connect(assetModel, SIGNAL(reflashed()), this, SLOT(assetModelReflashed()));
+    connect(assetModel, SIGNAL(priceDataReflashed()), this, SLOT(priceDataReflashed()));
 }
 
-void myFinanceMainWindow::assetModelReflashed() {
-    //ui->treeView->header()->resizeSections(QHeaderView::Fixed);
+void myFinanceMainWindow::priceDataReflashed() {
     ui->treeView->header()->resizeSection(0, 170);
     ui->treeView->header()->resizeSection(1, 100);
-    //ui->treeView->header()->resizeSection(2, 200);
+
     ui->treeView->expandAll();
+    ui->dateTimePrice->setDateTime(QDateTime::currentDateTime());
+    qDebug() << "价格更新 finished";
 }
 
 myFinanceMainWindow::~myFinanceMainWindow()
@@ -40,16 +42,17 @@ myFinanceMainWindow::~myFinanceMainWindow()
 
 void myFinanceMainWindow::on_exchange_clicked()
 {
+    qDebug() << "资产变化 clicked";
     if (!assetModel->getRootNode()) {
-        QMessageBox::information(NULL, "提示", "rootNode NULL");
+        QMessageBox::information(NULL, "提示", "rootNode is invalid");
         return;
     }
     myFinanceExchangeWindow exWin(stockCode, assetModel->getRootNode(), this);
     if(exWin.exec() == QDialog::Accepted) {
-        //QMessageBox::information(NULL, "提示", "OK");
         assetModel->doExchange(exWin.getExchangeData());
+        qDebug() << "资产变化 Accepted assetModel->doExchange finished";
     } else {
-        QMessageBox::information(NULL, "提示", "Cancel");
+        qDebug() << "资产变化 Canceled";
     }
 
     ui->treeView->expandAll();
@@ -57,18 +60,22 @@ void myFinanceMainWindow::on_exchange_clicked()
 
 void myFinanceMainWindow::on_new_account_clicked()
 {
-    QMessageBox::information(this,"提示","这是一个消息框 new_account");
+    qDebug() << "新建帐户 clicked";
 }
 
 void myFinanceMainWindow::on_reflash_clicked()
 {
+    qDebug() << "刷新 clicked";
     assetModel->doReflashAssetData();
     stockCode->getStockCode();
     ui->treeView->expandAll();
+    qDebug() << "刷新 clicked finished";
 }
 
 void myFinanceMainWindow::on_updatePrice_clicked()
 {
+    qDebug() << "更新价格 clicked";
     assetModel->doUpdatePrice();
     ui->treeView->expandAll();
+    qDebug() << "更新价格 clicked assetModel->doUpdatePrice requested";
 }

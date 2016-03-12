@@ -3,7 +3,6 @@
 
 #include <QtCore/QMap>
 
-#include <QMessageBox>
 #include <QtDebug>
 
 myFinanceExchangeWindow::myFinanceExchangeWindow(myStockCodeName *inStockCode, myAssetNode* rootNode, QWidget *parent) :
@@ -81,21 +80,10 @@ void myFinanceExchangeWindow::initial(myAssetNode* rootNode) {
 
 void myFinanceExchangeWindow::on_buttonBox_accepted()
 {
-    //QMessageBox::information(this,"提示","这是一个消息框 new_account");
+    qDebug() << "资产变化 accepted";
     data.time     = ui->timeDateTimeEdit->dateTime();
     data.type     = ui->typeLineEdit->text();
     updataData();
-
-    /// test
-    qDebug() << data.time;
-    qDebug() << data.type;
-    qDebug() << data.account1;
-    qDebug() << data.money;
-    qDebug() << data.account2;
-    qDebug() << data.code;
-    qDebug() << data.name;
-    qDebug() << data.amount;
-    qDebug() << data.price;
 }
 
 void myFinanceExchangeWindow::on_amountSpinBox_valueChanged(int value)
@@ -108,12 +96,15 @@ void myFinanceExchangeWindow::on_priceSpinBox_valueChanged(double value) {
     updateBuySell();
 }
 void myFinanceExchangeWindow::on_radioBuy_clicked() {
+    qDebug() << "radioBuy clicked";
     updateBuySell();
 }
 void myFinanceExchangeWindow::on_radioSell_clicked() {
+    qDebug() << "radioSell clicked";
     updateBuySell();
 }
 void myFinanceExchangeWindow::on_exchangeFeeSpinBox_valueChanged(double value) {
+    qDebug() << "exchangeFeeSpinBox valueChanged";
     data.fee = value;
     updateBuySell();
 }
@@ -126,6 +117,10 @@ void myFinanceExchangeWindow::updateBuySell() {
     data.money = -(float)data.amount * data.price - data.fee;
 
     ui->moneySpinBox->setValue(data.money);
+
+    qDebug() << "data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
+             << "data.amount " << data.amount << ","
+             << "data.money "  << data.money  << ",";
 }
 
 
@@ -165,17 +160,30 @@ void myFinanceExchangeWindow::updataData() {
         data.amount   = 1;
         data.fee      = 0.0f;
     } else {}
+
+    qDebug() << "data.time "     << data.time << ","
+             << "data.type "     << data.type << ","
+             << "data.account1 " << data.account1 << ","
+             << "data.money "    << data.money;
+    qDebug() << "data.account2 " << data.account2 << ","
+             << "data.code "     << data.code << ","
+             << "data.name "     << data.name << ","
+             << "data.amount "   << data.amount << ","
+             << "data.price "    << data.price;
 }
 
 void myFinanceExchangeWindow::on_radioSH_clicked() {
+    qDebug() << "radioSH clicked";
     updateMarketInfo();
 }
 
 void myFinanceExchangeWindow::on_radioSZ_clicked() {
+    qDebug() << "radioSZ clicked";
     updateMarketInfo();
 }
 
 void myFinanceExchangeWindow::on_radioOther_clicked() {
+    qDebug() << "radioOther clicked";
     updateMarketInfo();
 }
 
@@ -198,6 +206,11 @@ void myFinanceExchangeWindow::updateMarketInfo() {
     data.code.remove(0, pointIndex+1);
     data.code.insert(0, market);
     ui->codeLineEdit->setText(data.code);
+    qDebug() << "updateMarketInfo()" << ","
+             << "data.code"  << data.code << ","
+             << "radioSH"    << (int)(grpMarket->checkedId() == SH) << ","
+             << "radioSZ"    << (int)(grpMarket->checkedId() == SZ) << ","
+             << "radioOther" << (int)(grpMarket->checkedId() == OTHER);
 }
 
 void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
@@ -209,7 +222,7 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
 void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
 {
     int count = stockCode->codeName.count();
-    qDebug() << "codeEdit" << count;
+    qDebug() << "代号EditLine" << ui->codeLineEdit->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
             if (stockCode->codeName.contains(data.code)) {
@@ -230,7 +243,7 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
 {
     QString str = ui->nameLineEdit->text();
     int count = stockCode->codeName.count();
-    qDebug() << "nameEdit" << count;
+    qDebug() << "名称EditLine" << str << "(" << count << ")";
 
     QMap<QString,QString>::iterator it = stockCode->codeName.begin();
     for (; it != stockCode->codeName.end(); ++it) {

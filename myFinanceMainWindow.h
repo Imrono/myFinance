@@ -35,7 +35,7 @@ private:
     myStockCodeName *stockCode;
 
 private slots:
-    void assetModelReflashed();
+    void priceDataReflashed();
 };
 
 #endif // MYFINANCEMAINWINDOW_H
