@@ -19,7 +19,8 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
     //ui->treeView->header()->resizeSections(QHeaderView::ResizeToContents);
     ui->treeView->header()->resizeSections(QHeaderView::Fixed);
     ui->treeView->header()->resizeSection(0, 170);
-    ui->treeView->header()->resizeSection(1, 100);
+    ui->treeView->header()->resizeSection(1, 90);
+    ui->treeView->header()->resizeSection(2, 50);
     ui->treeView->expandAll();
 
     connect(assetModel, SIGNAL(priceDataReflashed()), this, SLOT(priceDataReflashed()));
@@ -27,7 +28,8 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
 
 void myFinanceMainWindow::priceDataReflashed() {
     ui->treeView->header()->resizeSection(0, 170);
-    ui->treeView->header()->resizeSection(1, 100);
+    ui->treeView->header()->resizeSection(1, 90);
+    ui->treeView->header()->resizeSection(2, 50);
 
     ui->treeView->expandAll();
     ui->dateTimePrice->setDateTime(QDateTime::currentDateTime());

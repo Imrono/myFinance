@@ -70,7 +70,7 @@ int myAssetModel::columnCount(const QModelIndex &parent) const {
     if (!stockPrice.isInit()) {
         return 2;
     }  else {
-        return 3;
+        return 4;
     }
 }
 
@@ -80,6 +80,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
         if (!node)
             return QVariant();
 
+        /// 第1列
         if (index.column() == 0) {
             switch (node->type) {
             case myAssetNode::nodeRoot:
@@ -101,6 +102,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             default:
                 return QString("Unknown");
             }
+        /// 第2列
         } else if (index.column() == 1) {
             switch (node->type) {
             case myAssetNode::nodeRoot:
@@ -109,39 +111,52 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                 return QVariant();
             case myAssetNode::nodeHolds: {
                 myAssetHold holds = node->nodeData.value<myAssetHold>();
-                return QString("%1@%2").arg(holds.amount).arg(holds.price);
-            }
-            default:
-                return QString("Unknown");
-            }
-        } else if (index.column() == 2) {
-            switch (node->type) {
-            case myAssetNode::nodeRoot:
-                return QVariant();
-            case myAssetNode::nodeAccount:
-                return QVariant();
-            case myAssetNode::nodeHolds: {
-                myAssetHold holds = node->nodeData.value<myAssetHold>();
-                if (!stockPrice.isInit() || holds.assetCode == "cash") {
-                    return QVariant();
+                if (holds.assetCode == "cash") {
+                    return QString("%1").arg(holds.price);
                 } else {
-                    const QMap<QString, sinaRealTimeData> *priceMap = stockPrice.getStockPriceRt();
-                    QMap<QString, sinaRealTimeData>::const_iterator it = priceMap->find(holds.assetCode);
-                    float currentPrice = 0.0f;
-                    while (it != priceMap->end() && it.key() == holds.assetCode) {
-                        currentPrice = it.value().price;
-                        if (currentPrice < 0.0001f) {
-                            currentPrice = it.value().lastClose;
-                        }
-                        ++it;
-                    }
-                    float totalValue = static_cast<float>(holds.amount) * currentPrice;
-                    return QString("%1/%2").arg(currentPrice).arg(totalValue);
+                    return QString("%1@%2").arg(holds.amount).arg(holds.price);
                 }
             }
             default:
                 return QString("Unknown");
             }
+        /// 第3列
+        } else if (index.column() == 2 && myAssetNode::nodeHolds == node->type && stockPrice.isInit()) {
+            myAssetHold holds = node->nodeData.value<myAssetHold>();
+            if (holds.assetCode == "cash") {
+                return QVariant();
+            } else {
+                return QString("%1").arg(currentPrice(stockPrice.getStockPriceRt(), holds.assetCode));
+            }
+        /// 第4列
+        } else if (index.column() == 3 && stockPrice.isInit()) {
+            if (myAssetNode::nodeHolds == node->type) {
+                myAssetHold holds = node->nodeData.value<myAssetHold>();
+                if (holds.assetCode == "cash") {
+                    return QString("%1").arg(holds.price);
+                } else {
+                    float price = currentPrice(stockPrice.getStockPriceRt(), holds.assetCode);
+                    float totalValue = static_cast<float>(holds.amount) * price;
+                    return QString("%1").arg(totalValue);
+                }
+            } else if (myAssetNode::nodeAccount == node->type) {
+                float totalValue = 0.0f;
+                for ( int i = 0; i != node->children.size(); ++i ) {
+                    myAssetHold holds = (node->children.at(i)->nodeData).value<myAssetHold>();
+                    if (holds.assetCode == "cash" ) {
+                        totalValue += holds.price;
+                    } else {
+                        float price = currentPrice(stockPrice.getStockPriceRt(), holds.assetCode);
+                        totalValue += static_cast<float>(holds.amount) * price;
+                    }
+                }
+                return QString("%1").arg(totalValue);
+            } else {
+                return QVariant();
+            }
+
+        } else {
+            return QVariant();
         }
     } else if (Qt::DecorationRole == role) {
         myAssetNode *node = nodeFromIndex(index);
@@ -154,8 +169,30 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             }
         }
     } else if (Qt::FontRole == role) {
-        if (index.column() == 2) {
+        if (index.column() == 2 || index.column() == 3) {
             return QFont(QString(), -1, QFont::Bold);
+        }
+    } else if (Qt::TextColorRole == role) {
+        myAssetNode *node = nodeFromIndex(index);
+        if (!node)
+            return QVariant();
+
+        if (index.column() == 3 && myAssetNode::nodeHolds == node->type && stockPrice.isInit()) {
+            myAssetHold holds = node->nodeData.value<myAssetHold>();
+            if (holds.assetCode == "cash") {
+                return QVariant();
+            } else {
+                float price = currentPrice(stockPrice.getStockPriceRt(), holds.assetCode);
+                if (price - holds.price > 0.0001f) {        //赚
+                    return QColor(Qt::red);
+                } else if (price - holds.price < 0.0001f) { //亏
+                    return QColor(Qt::green);
+                } else {
+                    return QColor(Qt::gray);
+                }
+            }
+        } else {
+            return QVariant();
         }
     } else {
         return QVariant();
@@ -170,7 +207,9 @@ QVariant myAssetModel::headerData(int section, Qt::Orientation orientation, int 
         } else if (section == 1) {
             return QString::fromLocal8Bit("持有数量");
         } else if (section == 2) {
-            return QString::fromLocal8Bit("当前价格");
+            return QString::fromLocal8Bit("现价");
+        } else if (section == 3) {
+            return QString::fromLocal8Bit("总值");
         }
     }
     return QVariant();
@@ -185,6 +224,20 @@ myAssetNode *myAssetModel::nodeFromIndex(const QModelIndex &index) const
     }
 }
 
+float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap, const QString assetCode) const {
+    QMap<QString, sinaRealTimeData>::const_iterator it = priceMap->find(assetCode);
+    float currentPrice = 0.0f;
+    while (it != priceMap->end() && it.key() == assetCode) {
+        currentPrice = it.value().price;
+        if (currentPrice < 0.0001f) {
+            currentPrice = it.value().lastClose;
+        }
+        ++it;
+    }
+    return currentPrice;
+}
+
+/////////////////////////////////////////////////////////////////////
 void myAssetModel::doExchange(exchangeData data) {
     //刷新rootNode
     beginResetModel();

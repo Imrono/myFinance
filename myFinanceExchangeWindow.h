@@ -52,6 +52,8 @@ private slots:
 
     void on_nameLineEdit_editingFinished();
 
+    void on_feeRateSpinBox_valueChanged(double feeRate);
+
 private:
     Ui::myFinanceExchangeWindow *ui;
     QButtonGroup *grpBuySell;
@@ -60,6 +62,7 @@ private:
     double buySellFlag;
     int dataSource;
 	int lastRadioBuySell;
+    double commisionRate;
 
     myStockCodeName *stockCode;
 
@@ -67,6 +70,7 @@ private:
     void updateBuySell();
     void updateMarketInfo();
     void updataData();
+    void updateExchangeFee();
 };
 
 #endif // MYFINANCEEXCHANGEWINDOW_H

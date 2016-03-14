@@ -238,18 +238,18 @@ bool myAssetNode::doExchange(exchangeData data) {
             query.next();
             int   amountOrigin = query.value(0).toInt();
             float priceOrigin  = query.value(1).toDouble();
-            float price  = 0.0f;
+            float avgCost  = 0.0f;
             int   amount = 0;
             if (data.code != "cash") {
                 amount = amountOrigin + data.amount;
-                price  = (data.price*data.amount+priceOrigin*amountOrigin)/amount;
+                avgCost  = (data.price*data.amount + priceOrigin*amountOrigin + data.fee)/amount;
             } else {
                 amount = 1;
-                price  = priceOrigin + data.price;
+                avgCost  = priceOrigin + data.price - data.fee;
             }
             if (amount != 0) {
                 execWord = QString::fromLocal8Bit("UPDATE 资产 SET 数量=%1, 单位成本=%2"
-                                                  " WHERE %3").arg(amount).arg(price).arg(filter);
+                                                  " WHERE %3").arg(amount).arg(avgCost).arg(filter);
             } else {
                 execWord = QString::fromLocal8Bit("delete from 资产"
                                                   " WHERE %1").arg(filter);

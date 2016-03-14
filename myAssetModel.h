@@ -44,6 +44,7 @@ private:
 
     myStockPrice stockPrice;
    // myFinanceMainWindow *pWin;
+    float currentPrice(const QMap<QString, sinaRealTimeData> *priceMap, const QString assetCode) const;
     void qDebugNodeData();
 
 private slots:

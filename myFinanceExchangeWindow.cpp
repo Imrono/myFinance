@@ -41,6 +41,8 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(myStockCodeName *inStockCode, m
     data.money  = 0.0f;
     data.price  = 0.0f;
     data.amount = 0;
+    commisionRate = 0.0f;
+    updateExchangeFee();
 }
 
 myFinanceExchangeWindow::~myFinanceExchangeWindow()
@@ -117,6 +119,8 @@ void myFinanceExchangeWindow::updateBuySell() {
     data.money = -(float)data.amount * data.price - data.fee;
 
     ui->moneySpinBox->setValue(data.money);
+
+    updateExchangeFee();
 
     qDebug() << "data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
              << "data.amount " << data.amount << ","
@@ -206,16 +210,34 @@ void myFinanceExchangeWindow::updateMarketInfo() {
     data.code.remove(0, pointIndex+1);
     data.code.insert(0, market);
     ui->codeLineEdit->setText(data.code);
+
+    updateExchangeFee();
+
     qDebug() << "updateMarketInfo()" << ","
              << "data.code"  << data.code << ","
-             << "radioSH"    << (int)(grpMarket->checkedId() == SH) << ","
-             << "radioSZ"    << (int)(grpMarket->checkedId() == SZ) << ","
-             << "radioOther" << (int)(grpMarket->checkedId() == OTHER);
+             << (grpMarket->checkedId() == SH ? "radioSH" :
+                 grpMarket->checkedId() == SZ ? "radioSZ" :
+                 grpMarket->checkedId() == OTHER ? "radioOther" : "radioUnknown");
 }
 
 void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
 {
     data.code = str;
+
+    // 上海，深圳通过股票代码自动判断
+    int pointIndex = data.code.indexOf(QString("."));
+    int len = data.code.size();
+    if (len - pointIndex > 2 &&
+        (grpMarket->checkedId() == SH ||
+         grpMarket->checkedId() == SZ)) {
+        QString subStr = data.code.mid(pointIndex+1, 2);
+        if (subStr == "30" || subStr == "00") {
+            ui->radioSZ->setChecked(true);
+        } else if (subStr == "60") {
+            ui->radioSH->setChecked(true);
+        } else {}
+    }
+
     updateMarketInfo();
 }
 
@@ -271,4 +293,33 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
 
     ui->radioOther->setChecked(true);
     updateMarketInfo();
+}
+
+void myFinanceExchangeWindow::on_feeRateSpinBox_valueChanged(double feeRate)
+{
+    qDebug() << "佣金" << feeRate;
+    commisionRate = feeRate * 0.001f;
+    updateExchangeFee();
+}
+void myFinanceExchangeWindow::updateExchangeFee() {
+    double fee = 0.0f;
+    double amount = qAbs(static_cast<double>(data.amount));
+    double fee1 = 0.0f; //佣金
+    fee1 = data.price * amount * commisionRate;
+    if (fee1 < 5.0f) {
+        fee1 = 5.0f;
+    } else {}
+
+    double fee2 = 0.0f; //过户费
+    if (SH == grpMarket->checkedId()) {
+        fee2 = data.price * amount * 0.02f*0.001f;  //0.02‰
+    } else {}
+
+    double fee3 = 0.0f; //印花税
+    if (SELL == grpBuySell->checkedId()) {
+        fee3 = data.price * amount * 0.001f;
+    } else {}
+
+    fee = fee1 + fee2 + fee3;
+    ui->exchangeFeeSpinBox->setValue(fee);
 }
