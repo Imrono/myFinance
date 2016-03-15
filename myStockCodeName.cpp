@@ -6,16 +6,37 @@
 #include <QRegExp>
 
 #include <QtDebug>
+
+codeDataProcessThread::codeDataProcessThread(myStockCodeName* parent) {
+    this->parent = parent;
+}
+codeDataProcessThread::~codeDataProcessThread() {
+
+}
+void codeDataProcessThread::run() {
+    parent->analyzeStockCode(parent->CodeDataFile);
+    emit processFinish();
+}
+
 myStockCodeName::myStockCodeName()
     : manager(nullptr), ntRequest(QUrl("")),
-      isInitialed(false), CodeDataFile("stockCodeData.txt")
+      isInitialed(false), CodeDataFile("stockCodeData.txt"),
+      thread(this), isDataReady(true)
 {
     manager = new QNetworkAccessManager();
     connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
+    connect(&thread, SIGNAL(processFinish()),
+            this, SLOT(threadProcessFinish()));
 
     if (QFileInfo::exists(CodeDataFile)) {
-        analyzeStockCode(CodeDataFile);
+        //analyzeStockCode(CodeDataFile);
+        if (isDataReady) {
+            isDataReady = false;
+            thread.start();
+        } else {
+            qDebug() << "doing Process";
+        }
     }
 }
 
@@ -39,7 +60,15 @@ void myStockCodeName::replyFinished(QNetworkReply* data) {
         toFile << codeData;
         toFile.flush();
         file.close();
-        analyzeStockCode(CodeDataFile);
+        // 读取数据
+        //analyzeStockCode(CodeDataFile);
+        if (isDataReady) {
+            isDataReady = false;
+            thread.start();
+        } else {
+            qDebug() << "doing Process";
+        }
+
         qDebug() << requestType << "finish";
         break;
         }
@@ -56,6 +85,8 @@ void myStockCodeName::getStockCode() {
         ntRequest.setUrl(QUrl("http://quote.eastmoney.com/stocklist.html"));
         requestType = E_RequestTpye::REQUEST_CODE;
         manager->get(ntRequest);
+    } else {
+        emit codeDataReady();
     }
 }
 
@@ -105,4 +136,9 @@ void myStockCodeName::analyzeStockCode(QString fileName) {
     file.close();
     isInitialed = true;
     qDebug() << codeName.count();
+}
+void myStockCodeName::threadProcessFinish() {
+    qDebug() << "threadProcessFinish";
+    isDataReady = true;
+    emit codeDataReady();
 }

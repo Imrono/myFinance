@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QtWidgets/QTreeView>
 #include <QWidget>
+#include <QLabel>
 #include "myAssetModel.h"
 
 #include "myStockCodeName.h"
@@ -33,9 +34,11 @@ private:
     myAssetModel *assetModel;
 
     myStockCodeName *stockCode;
+    QLabel statusLabel;
 
 private slots:
     void priceDataReflashed();
+    void codeDataReady();
 };
 
 #endif // MYFINANCEMAINWINDOW_H

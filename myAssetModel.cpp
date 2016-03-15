@@ -180,7 +180,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
         if (index.column() == 3 && myAssetNode::nodeHolds == node->type && stockPrice.isInit()) {
             myAssetHold holds = node->nodeData.value<myAssetHold>();
             if (holds.assetCode == "cash") {
-                return QVariant();
+                return QColor(Qt::gray);
             } else {
                 float price = currentPrice(stockPrice.getStockPriceRt(), holds.assetCode);
                 if (price - holds.price > 0.0001f) {        //赚

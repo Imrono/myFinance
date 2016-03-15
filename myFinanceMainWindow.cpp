@@ -9,7 +9,7 @@
 
 myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::myFinanceMainWindow),
+    ui(new Ui::myFinanceMainWindow), statusLabel(this),
     stockCode(inStockCode)
 {
     assetModel = new myAssetModel(this);
@@ -24,8 +24,23 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
     ui->treeView->expandAll();
 
     connect(assetModel, SIGNAL(priceDataReflashed()), this, SLOT(priceDataReflashed()));
+    connect(stockCode ,SIGNAL(codeDataReady()), this, SLOT(codeDataReady()));
+
+    if (!stockCode->getIsDataReady()) { //正在更新
+        ui->reflash->setEnabled(false);
+        statusLabel.setText("正在读取股票代码");
+        ui->statusBar->addWidget(&statusLabel);
+    } else {
+        ui->reflash->setEnabled(true);
+        statusLabel.setText("ready");
+    }
 }
 
+myFinanceMainWindow::~myFinanceMainWindow()
+{
+    delete ui;
+    delete assetModel;
+}
 void myFinanceMainWindow::priceDataReflashed() {
     ui->treeView->header()->resizeSection(0, 170);
     ui->treeView->header()->resizeSection(1, 90);
@@ -35,11 +50,11 @@ void myFinanceMainWindow::priceDataReflashed() {
     ui->dateTimePrice->setDateTime(QDateTime::currentDateTime());
     qDebug() << "价格更新 finished";
 }
-
-myFinanceMainWindow::~myFinanceMainWindow()
-{
-    delete ui;
-    delete assetModel;
+void myFinanceMainWindow::codeDataReady() {
+    if (stockCode->getIsDataReady()) {
+        ui->reflash->setEnabled(true);
+    }
+    statusLabel.setText("ready");
 }
 
 void myFinanceMainWindow::on_exchange_clicked()
@@ -67,6 +82,8 @@ void myFinanceMainWindow::on_new_account_clicked()
 
 void myFinanceMainWindow::on_reflash_clicked()
 {
+    statusLabel.setText("正在读取股票代码");
+    ui->reflash->setEnabled(false);
     qDebug() << "刷新 clicked";
     assetModel->doReflashAssetData();
     stockCode->getStockCode();
