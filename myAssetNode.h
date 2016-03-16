@@ -8,8 +8,6 @@
 
 #include "myDatabaseDatatype.h"
 
-//#define nullptr NULL
-
 struct myAssetAccount {
     QString code;
     QString name;
@@ -63,7 +61,7 @@ public:
 
     bool initial();
     bool callback();
-    static bool connectDB();
+
     bool doExchange(exchangeData data);
 
     nodeType type;
@@ -71,9 +69,6 @@ public:
     myAssetNode *parent;
 
     QList<myAssetNode *> children;
-
-private:
-    static QSqlDatabase db;
 };
 
 #endif // MYASSETNODE_H

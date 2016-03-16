@@ -2,13 +2,14 @@
 #include "ui_myFinanceExchangeWindow.h"
 
 #include <QtCore/QMap>
+#include "myFinanceMainWindow.h"
 
 #include <QtDebug>
 
-myFinanceExchangeWindow::myFinanceExchangeWindow(myStockCodeName *inStockCode, myAssetNode* rootNode, QWidget *parent) :
+myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     QDialog(parent), grpBuySell(nullptr),
     ui(new Ui::myFinanceExchangeWindow),
-    stockCode(inStockCode)
+    stockCode(static_cast<myFinanceMainWindow *>(parent)->getStockCode())
 {
     ui->setupUi(this);
 
@@ -36,7 +37,7 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(myStockCodeName *inStockCode, m
     updataData();
     updateBuySell();
 
-    initial(rootNode);
+    initial(static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode());
 
     data.money  = 0.0f;
     data.price  = 0.0f;

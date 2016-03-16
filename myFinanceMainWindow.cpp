@@ -13,6 +13,8 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
     stockCode(inStockCode)
 {
     assetModel = new myAssetModel(this);
+    exchangeModel = new myExchangeListModel();
+
     ui->setupUi(this);
 
     ui->treeView->setModel(assetModel);
@@ -22,6 +24,8 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
     ui->treeView->header()->resizeSection(1, 90);
     ui->treeView->header()->resizeSection(2, 50);
     ui->treeView->expandAll();
+
+    ui->listView->setModel(exchangeModel);
 
     connect(assetModel, SIGNAL(priceDataReflashed()), this, SLOT(priceDataReflashed()));
     connect(stockCode ,SIGNAL(codeDataReady()), this, SLOT(codeDataReady()));
@@ -40,6 +44,7 @@ myFinanceMainWindow::~myFinanceMainWindow()
 {
     delete ui;
     delete assetModel;
+    delete exchangeModel;
 }
 void myFinanceMainWindow::priceDataReflashed() {
     ui->treeView->header()->resizeSection(0, 170);
@@ -64,9 +69,10 @@ void myFinanceMainWindow::on_exchange_clicked()
         QMessageBox::information(NULL, "提示", "rootNode is invalid");
         return;
     }
-    myFinanceExchangeWindow exWin(stockCode, assetModel->getRootNode(), this);
+    myFinanceExchangeWindow exWin(this);
     if(exWin.exec() == QDialog::Accepted) {
         assetModel->doExchange(exWin.getExchangeData());
+        exchangeModel->doExchange(exWin.getExchangeData());
         qDebug() << "资产变化 Accepted assetModel->doExchange finished";
     } else {
         qDebug() << "资产变化 Canceled";
@@ -78,6 +84,7 @@ void myFinanceMainWindow::on_exchange_clicked()
 void myFinanceMainWindow::on_new_account_clicked()
 {
     qDebug() << "新建帐户 clicked";
+    exchangeModel->test();
 }
 
 void myFinanceMainWindow::on_reflash_clicked()

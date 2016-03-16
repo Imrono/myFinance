@@ -25,31 +25,23 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,1">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QTreeView" name="treeView">
-         <property name="indentation">
-          <number>30</number>
-         </property>
-         <property name="rootIsDecorated">
-          <bool>false</bool>
-         </property>
-         <property name="itemsExpandable">
-          <bool>true</bool>
-         </property>
-         <property name="expandsOnDoubleClick">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QTextEdit" name="contentShow">
-       <property name="readOnly">
+      <widget class="QTreeView" name="treeView">
+       <property name="indentation">
+        <number>30</number>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="itemsExpandable">
+        <bool>true</bool>
+       </property>
+       <property name="expandsOnDoubleClick">
         <bool>true</bool>
        </property>
       </widget>
+     </item>
+     <item>
+      <widget class="QListView" name="listView"/>
      </item>
     </layout>
    </widget>

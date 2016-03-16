@@ -3,14 +3,11 @@
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlDriver>
 #include <QtSql/QSqlError>
-#include <QtSql/QSqlTableModel>
 #include <QtSql/QSqlRecord>
-#include <QtSql/QSqlDatabase>
+#include "myFinanceDatabase.h"
 
 #include <QVariant>
 #include <QDebug>
-
-QSqlDatabase myAssetNode::db;
 
 myAssetNode::myAssetNode() {
 
@@ -32,10 +29,10 @@ myAssetNode::~myAssetNode() {
 }
 
 bool myAssetNode::initial() {
-    if (!myAssetNode::connectDB())
-        return nullptr;
-
-    //rootNode = new myAssetNode(myAssetNode::nodeRoot, "RootNode");
+    if (!myFinanceDatabase::isConnected) {
+        if (!myFinanceDatabase::connectDB())
+            return nullptr;
+    }
 
     if (!this) {
         return false;
@@ -49,7 +46,7 @@ bool myAssetNode::initial() {
     int numRows = 0;
     ///读“资产帐户”表
     if(query.exec(QString::fromLocal8Bit("select * from 资产帐户"))) {
-        if(db.driver()->hasFeature(QSqlDriver::QuerySize)){
+        if(myFinanceDatabase::db.driver()->hasFeature(QSqlDriver::QuerySize)){
             numRows = query.size(); // 如果支持结果影响的行数，那么直接记录下来
         } else {
             query.last(); //否则定位到结果最后，qt 文档说，这个方法非常慢
@@ -96,7 +93,7 @@ bool myAssetNode::initial() {
     numRows = 0;
     ///读“资产”表
     if(query.exec(QString::fromLocal8Bit("select * from 资产"))) {
-        if(db.driver()->hasFeature(QSqlDriver::QuerySize)){
+        if(myFinanceDatabase::db.driver()->hasFeature(QSqlDriver::QuerySize)){
             numRows = query.size(); // 如果支持结果影响的行数，那么直接记录下来
         } else {
             query.last(); //否则定位到结果最后，qt 文档说，这个方法非常慢
@@ -157,24 +154,6 @@ bool myAssetNode::callback() {
     return true;
 }
 
-bool myAssetNode::connectDB() {
-    if (db.isOpen()) {
-        db.close();
-    } else {
-        db = QSqlDatabase::addDatabase("QMYSQL");
-        db.setDatabaseName("myfinance");
-        db.setHostName("127.0.0.1");
-        db.setUserName("root");
-        db.setPassword("");
-    }
-
-    if (!db.open()) {
-        qDebug() << "Connect to MySql error: " << db.lastError().text();
-        return false;
-    } else {
-        return true;
-    }
-}
 
 void myAssetNode::addChild(myAssetNode *childNode) {
     this->children.append(childNode);

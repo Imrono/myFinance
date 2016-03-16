@@ -28,22 +28,26 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role) const;
 
-    void doExchange(exchangeData data);
+    void doExchange(const exchangeData data);
     void doReflashAssetData();
     void doUpdatePrice();
     void doReflash();
 
-    myAssetNode *getRootNode() { return rootNode;}
+    myAssetNode *getRootNode() { return &rootNode;}
 
 signals:
     void priceDataReflashed();
 
 private:
     myAssetNode *nodeFromIndex(const QModelIndex &index) const;
-    myAssetNode *rootNode;
 
+    ///
+    /// \brief rootNode:提供帐户与资产的关系
+    /// \brief stockPrice:提供股票的价格
+    ///
+    myAssetNode rootNode;
     myStockPrice stockPrice;
-   // myFinanceMainWindow *pWin;
+
     float currentPrice(const QMap<QString, sinaRealTimeData> *priceMap, const QString assetCode) const;
     void qDebugNodeData();
 

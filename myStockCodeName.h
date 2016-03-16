@@ -26,6 +26,11 @@ private:
     myStockCodeName* parent;
 };
 
+///
+/// \brief The myStockCodeName class
+/// 在myFinanceMainWindow中，用于更新ui的状态
+/// 在myFinanceExchangeWindow中，用于从code到name的推导
+///
 class myStockCodeName : public QObject
 {
     Q_OBJECT

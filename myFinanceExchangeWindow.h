@@ -18,10 +18,10 @@ class myFinanceExchangeWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit myFinanceExchangeWindow(myStockCodeName *inStockCode, myAssetNode* rootNode, QWidget *parent = 0);
+    explicit myFinanceExchangeWindow(QWidget *parent = 0);
     ~myFinanceExchangeWindow();
 
-    exchangeData &getExchangeData() { return data;}
+    exchangeData const &getExchangeData() { return data;}
 
 private slots:
     void on_buttonBox_accepted();
@@ -64,7 +64,7 @@ private:
 	int lastRadioBuySell;
     double commisionRate;
 
-    myStockCodeName *stockCode;
+    myStockCodeName *stockCode; //用于从code到name的推导
 
     void initial(myAssetNode* rootNode);
     void updateBuySell();

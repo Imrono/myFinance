@@ -6,6 +6,7 @@
 #include <QWidget>
 #include <QLabel>
 #include "myAssetModel.h"
+#include "myExchangeListModel.h"
 
 #include "myStockCodeName.h"
 
@@ -21,6 +22,13 @@ public:
     explicit myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *parent = 0);
     ~myFinanceMainWindow();
 
+    myAssetModel *getAssetModel() {
+        return assetModel;
+    }
+    myStockCodeName *getStockCode() {
+        return stockCode;
+    }
+
 private slots:
     void on_exchange_clicked();
     void on_new_account_clicked();
@@ -31,9 +39,14 @@ private slots:
 
 private:
     Ui::myFinanceMainWindow *ui;
+    ///
+    /// \brief assetModel --> treeView
+    /// \brief exchangeModel --> listView
+    ///
     myAssetModel *assetModel;
+    myExchangeListModel *exchangeModel;
 
-    myStockCodeName *stockCode;
+    myStockCodeName *stockCode; //用于更新ui状态
     QLabel statusLabel;
 
 private slots:

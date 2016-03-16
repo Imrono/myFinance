@@ -18,7 +18,9 @@ SOURCES += main.cpp\
     myAssetNode.cpp \
     myFinanceExchangeWindow.cpp \
     myStockCodeName.cpp \
-    myStockPrice.cpp
+    myStockPrice.cpp \
+    myExchangeListModel.cpp \
+    myFinanceDatabase.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \
@@ -26,7 +28,9 @@ HEADERS  += myFinanceMainWindow.h \
     myDatabaseDatatype.h \
     myFinanceExchangeWindow.h \
     myStockCodeName.h \
-    myStockPrice.h
+    myStockPrice.h \
+    myExchangeListModel.h \
+    myFinanceDatabase.h
 
 FORMS    += myFinanceMainWindow.ui \
     myFinanceExchangeWindow.ui
