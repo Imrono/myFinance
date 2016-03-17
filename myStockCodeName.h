@@ -9,6 +9,7 @@
 #include <QtCore/QMap>
 
 #include <QThread>
+#include <QMutex>
 class myStockCodeName;
 class codeDataProcessThread : public QThread {
     Q_OBJECT
@@ -24,6 +25,7 @@ protected:
 
 private:
     myStockCodeName* parent;
+    QMutex mutex;
 };
 
 ///

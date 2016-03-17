@@ -14,8 +14,10 @@ codeDataProcessThread::~codeDataProcessThread() {
 
 }
 void codeDataProcessThread::run() {
+    mutex.lock();
     parent->analyzeStockCode(parent->CodeDataFile);
     emit processFinish();
+    mutex.unlock();
 }
 
 myStockCodeName::myStockCodeName()

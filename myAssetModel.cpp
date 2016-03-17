@@ -234,17 +234,17 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
 }
 
 /////////////////////////////////////////////////////////////////////
-void myAssetModel::doExchange(const exchangeData data) {
+bool myAssetModel::doExchange(const exchangeData data) {
+    bool ans = true;
     //刷新rootNode
     beginResetModel();
-    rootNode.doExchange(data);
-    bool ans = rootNode.callback();
-    Q_UNUSED(ans);
-    ans = rootNode.initial();
-    Q_UNUSED(ans);
+    ans = ans && rootNode.doExchange(data);
+    ans = ans && rootNode.callback();
+    ans = ans && rootNode.initial();
     endResetModel();
 
     qDebugNodeData();
+    return ans;
 }
 void myAssetModel::doReflashAssetData() {
     beginResetModel();

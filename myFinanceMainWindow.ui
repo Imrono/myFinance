@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>778</width>
+    <width>873</width>
     <height>427</height>
    </rect>
   </property>
@@ -19,11 +19,14 @@
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>591</width>
+      <width>701</width>
       <height>341</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="10,7">
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QTreeView" name="treeView">
        <property name="indentation">
@@ -48,7 +51,7 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>630</x>
+      <x>730</x>
       <y>30</y>
       <width>128</width>
       <height>211</height>
@@ -140,7 +143,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>778</width>
+     <width>873</width>
      <height>23</height>
     </rect>
    </property>

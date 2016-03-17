@@ -170,16 +170,8 @@ myAssetNode *myAssetNode::getAccountNode(QString accountCode) {
 
 bool myAssetNode::doExchange(exchangeData data) {
     QSqlQuery query;
-    // 1 改变"资产变化"表
-//    if(query.exec(QString::fromLocal8Bit("INSERT 资产变化 SET 数量=%1 WHERE 代号='test8'").arg(data.amount))) {
-//        return true;
-//    } else {
-//        qDebug() << query.lastError().text();
-//        return false;
-//    }
-
-    // 2 改变"资产"表*2
-    // 2.1 MONEY CHANGE
+    // 改变"资产"表*2
+    // 1 MONEY CHANGE
     QString filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='cash'").arg(data.account1);
     QString execWord = QString::fromLocal8Bit("select 单位成本 from 资产"
                                               " WHERE %1").arg(filter);
@@ -206,7 +198,7 @@ bool myAssetNode::doExchange(exchangeData data) {
     }
     query.clear();
 
-    // 2.2 ASSET CHANGE
+    // 2 ASSET CHANGE
     filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'").arg(data.account2).arg(data.code);
     execWord = QString::fromLocal8Bit("select 数量, 单位成本 from 资产"
                                       " WHERE %1").arg(filter);

@@ -28,7 +28,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role) const;
 
-    void doExchange(const exchangeData data);
+    bool doExchange(const exchangeData data);
     void doReflashAssetData();
     void doUpdatePrice();
     void doReflash();

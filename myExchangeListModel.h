@@ -18,7 +18,8 @@ public:
         //endResetModel();
         setStringList(list);
     }
-    void doExchange(const exchangeData data);
+    bool doExchange(const exchangeData data);
+    bool initial();
 
 private:
     QStringList list;

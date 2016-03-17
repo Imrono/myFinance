@@ -16,19 +16,19 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     grpBuySell = new QButtonGroup(this);
     grpBuySell->addButton(ui->radioBuy);
     grpBuySell->addButton(ui->radioSell);
-    grpBuySell->setExclusive(true);         //è®¾ä¸ºäº’æ–¥
-    grpBuySell->setId(ui->radioBuy,  BUY);  //radioBuyçš„Idè®¾ä¸º0
-    grpBuySell->setId(ui->radioSell, SELL); //radioBuyçš„Idè®¾ä¸º1
+    grpBuySell->setExclusive(true);         //ÉèÎª»¥³â
+    grpBuySell->setId(ui->radioBuy,  BUY);  //radioBuyµÄIdÉèÎª0
+    grpBuySell->setId(ui->radioSell, SELL); //radioBuyµÄIdÉèÎª1
     ui->radioBuy->setChecked(true);
 
     grpMarket = new QButtonGroup(this);
     grpMarket->addButton(ui->radioSH);
     grpMarket->addButton(ui->radioSZ);
     grpMarket->addButton(ui->radioOther);
-    grpMarket->setExclusive(true);           //è®¾ä¸ºäº’æ–¥
-    grpMarket->setId(ui->radioSH, SH);       //radioBuyçš„Idè®¾ä¸º0
-    grpMarket->setId(ui->radioSZ, SZ);       //radioBuyçš„Idè®¾ä¸º1
-    grpMarket->setId(ui->radioOther, OTHER); //radioBuyçš„Idè®¾ä¸º2
+    grpMarket->setExclusive(true);           //ÉèÎª»¥³â
+    grpMarket->setId(ui->radioSH, SH);       //radioBuyµÄIdÉèÎª0
+    grpMarket->setId(ui->radioSZ, SZ);       //radioBuyµÄIdÉèÎª1
+    grpMarket->setId(ui->radioOther, OTHER); //radioBuyµÄIdÉèÎª2
     ui->radioSH->setChecked(true);
     updateMarketInfo();
 
@@ -57,14 +57,14 @@ myFinanceExchangeWindow::~myFinanceExchangeWindow()
 
 void myFinanceExchangeWindow::initial(myAssetNode* rootNode) {
     ui->moneyAccount->clear();
-    // äº¤æ˜“ï¼šèµ„äº§å˜åŒ–
+    // ½»Ò×£º×Ê²ú±ä»¯
     for (int i = 0; i < rootNode->children.count(); i++) {
         myAssetNode *accountNode = rootNode->children.at(i);
         QIcon   icon = QString("resource//icon//%1").arg(accountNode->nodeData.value<myAssetAccount>().logo);
         QString code = accountNode->nodeData.value<myAssetAccount>().code;
         ui->moneyAccount->addItem(icon, code);
     }
-    // è½¬å¸ï¼šèµ„é‡‘å˜åŒ–
+    // ×ªÕÊ£º×Ê½ğ±ä»¯
     for (int i = 0; i < rootNode->children.count(); i++) {
         myAssetNode *accountNode = rootNode->children.at(i);
         for (int j = 0; j < accountNode->children.count(); j++) {
@@ -83,7 +83,7 @@ void myFinanceExchangeWindow::initial(myAssetNode* rootNode) {
 
 void myFinanceExchangeWindow::on_buttonBox_accepted()
 {
-    qDebug() << "èµ„äº§å˜åŒ– accepted";
+    qDebug() << "×Ê²ú±ä»¯ accepted";
     data.time     = ui->timeDateTimeEdit->dateTime();
     data.type     = ui->typeLineEdit->text();
     updataData();
@@ -161,7 +161,7 @@ void myFinanceExchangeWindow::updataData() {
 
         data.account2 = ui->moneyAccountIn->itemText(ui->moneyAccountIn->currentIndex());
         data.code     = CASH;
-        data.name     = QString::fromLocal8Bit("ç°æœ‰èµ„é‡‘");
+        data.name     = QString::fromLocal8Bit("ÏÖÓĞ×Ê½ğ");
         data.amount   = 1;
         data.fee      = 0.0f;
     } else {}
@@ -225,7 +225,7 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
 {
     data.code = str;
 
-    // ä¸Šæµ·ï¼Œæ·±åœ³é€šè¿‡è‚¡ç¥¨ä»£ç è‡ªåŠ¨åˆ¤æ–­
+    // ÉÏº££¬ÉîÛÚÍ¨¹ı¹ÉÆ±´úÂë×Ô¶¯ÅĞ¶Ï
     int pointIndex = data.code.indexOf(QString("."));
     int len = data.code.size();
     if (len - pointIndex > 2 &&
@@ -245,7 +245,7 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
 void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
 {
     int count = stockCode->codeName.count();
-    qDebug() << "ä»£å·EditLine" << ui->codeLineEdit->text() << "(" << count << ")";
+    qDebug() << "´úºÅEditLine" << ui->codeLineEdit->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
             if (stockCode->codeName.contains(data.code)) {
@@ -266,7 +266,7 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
 {
     QString str = ui->nameLineEdit->text();
     int count = stockCode->codeName.count();
-    qDebug() << "åç§°EditLine" << str << "(" << count << ")";
+    qDebug() << "Ãû³ÆEditLine" << str << "(" << count << ")";
 
     QMap<QString,QString>::iterator it = stockCode->codeName.begin();
     for (; it != stockCode->codeName.end(); ++it) {
@@ -298,25 +298,25 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
 
 void myFinanceExchangeWindow::on_feeRateSpinBox_valueChanged(double feeRate)
 {
-    qDebug() << "ä½£é‡‘" << feeRate;
+    qDebug() << "Ó¶½ğ" << feeRate;
     commisionRate = feeRate * 0.001f;
     updateExchangeFee();
 }
 void myFinanceExchangeWindow::updateExchangeFee() {
     double fee = 0.0f;
     double amount = qAbs(static_cast<double>(data.amount));
-    double fee1 = 0.0f; //ä½£é‡‘
+    double fee1 = 0.0f; //Ó¶½ğ
     fee1 = data.price * amount * commisionRate;
     if (fee1 < 5.0f) {
         fee1 = 5.0f;
     } else {}
 
-    double fee2 = 0.0f; //è¿‡æˆ·è´¹
+    double fee2 = 0.0f; //¹ı»§·Ñ
     if (SH == grpMarket->checkedId()) {
-        fee2 = data.price * amount * 0.02f*0.001f;  //0.02â€°
+        fee2 = data.price * amount * 0.02f*0.001f;  //0.02¡ë
     } else {}
 
-    double fee3 = 0.0f; //å°èŠ±ç¨
+    double fee3 = 0.0f; //Ó¡»¨Ë°
     if (SELL == grpBuySell->checkedId()) {
         fee3 = data.price * amount * 0.001f;
     } else {}
