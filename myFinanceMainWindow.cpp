@@ -30,9 +30,9 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
     connect(assetModel, SIGNAL(priceDataReflashed()), this, SLOT(priceDataReflashed()));
     connect(stockCode ,SIGNAL(codeDataReady()), this, SLOT(codeDataReady()));
 
-    if (!stockCode->getIsDataReady()) { //姝ｅ湪鏇存柊
+    if (!stockCode->getIsDataReady()) { //正在更新
         ui->reflash->setEnabled(false);
-        statusLabel.setText("姝ｅ湪璇诲彇鑲＄エ浠ｇ爜");
+        statusLabel.setText("正在读取股票代码");
         ui->statusBar->addWidget(&statusLabel);
     } else {
         ui->reflash->setEnabled(true);
@@ -53,7 +53,7 @@ void myFinanceMainWindow::priceDataReflashed() {
 
     ui->treeView->expandAll();
     ui->dateTimePrice->setDateTime(QDateTime::currentDateTime());
-    qDebug() << "浠锋牸鏇存柊 finished";
+    qDebug() << "价格更新 finished";
 }
 void myFinanceMainWindow::codeDataReady() {
     if (stockCode->getIsDataReady()) {
@@ -64,18 +64,42 @@ void myFinanceMainWindow::codeDataReady() {
 
 void myFinanceMainWindow::on_exchange_clicked()
 {
-    qDebug() << "璧勪骇鍙樺寲 clicked";
+    qDebug() << "资产变化 clicked";
     if (!assetModel->getRootNode()) {
-        QMessageBox::information(NULL, "鎻愮ず", "rootNode is invalid");
+        QMessageBox::information(NULL, "提示", "rootNode is invalid");
         return;
     }
     myFinanceExchangeWindow exWin(this);
     if(exWin.exec() == QDialog::Accepted) {
-        assetModel->doExchange(exWin.getExchangeData());
-        exchangeModel->doExchange(exWin.getExchangeData());
-        qDebug() << "璧勪骇鍙樺寲 Accepted assetModel->doExchange finished";
+        exchangeData data = exWin.getExchangeData();
+        exchangeAbnomal abnormalCode = NORMAL;
+        if (assetModel->checkExchange(data, abnormalCode)) {
+            assetModel->doExchange(data);
+            exchangeModel->doExchange(data);
+            qDebug() << "资产变化 Accepted assetModel->doExchange finished";
+        } else {
+            QString info;
+            if (LACK_MONEY_1 == abnormalCode) {
+                info = data.account1 + QString::fromLocal8Bit(" Lack of Money 需要资金 ") + data.money + QString::fromLocal8Bit(" 但只存在");
+            } else if (LACK_MONEY_2 == abnormalCode) {
+                info = data.account2 + QString::fromLocal8Bit(" Lack of Money 需要资金 ") + data.price + QString::fromLocal8Bit(" 但只存在");
+            } else if (LACK_STOCK == abnormalCode) {
+                info = data.account2 + QString::fromLocal8Bit(" Lack of Stock 需要股票 ") + data.amount + QString::fromLocal8Bit(" 但只存在");
+            } else if (LACK_STOCK == abnormalCode) {
+                info = data.account1 + QString::fromLocal8Bit(" cash 返回不是一条结果");
+            } else if (UN_UNIQUE_2 == abnormalCode) {
+                info = data.account2 + " " + data.name + QString::fromLocal8Bit("返回不是一条结果");
+            } else if (SQL_ERROR == abnormalCode) {
+                info = QString::fromLocal8Bit("SQL错误");
+            } else {
+                info = QString::fromLocal8Bit("其它错误");
+            }
+
+            QMessageBox::information(NULL, QString::fromLocal8Bit("提示"), info);
+            qDebug() << QString::fromLocal8Bit("资产变化 Accepted assetModel->checkExchange failure");
+        }
     } else {
-        qDebug() << "璧勪骇鍙樺寲 Canceled";
+        qDebug() << QString::fromLocal8Bit("资产变化 Canceled");
     }
 
     ui->treeView->expandAll();
@@ -83,25 +107,25 @@ void myFinanceMainWindow::on_exchange_clicked()
 
 void myFinanceMainWindow::on_new_account_clicked()
 {
-    qDebug() << "鏂板缓甯愭埛 clicked";
+    qDebug() << "新建帐户 clicked";
     exchangeModel->test();
 }
 
 void myFinanceMainWindow::on_reflash_clicked()
 {
-    statusLabel.setText("姝ｅ湪璇诲彇鑲＄エ浠ｇ爜");
+    statusLabel.setText("正在读取股票代码");
     ui->reflash->setEnabled(false);
-    qDebug() << "鍒锋柊 clicked";
+    qDebug() << "刷新 clicked";
     assetModel->doReflashAssetData();
     stockCode->getStockCode();
     ui->treeView->expandAll();
-    qDebug() << "鍒锋柊 clicked finished";
+    qDebug() << "刷新 clicked finished";
 }
 
 void myFinanceMainWindow::on_updatePrice_clicked()
 {
-    qDebug() << "鏇存柊浠锋牸 clicked";
+    qDebug() << "更新价格 clicked";
     assetModel->doUpdatePrice();
     ui->treeView->expandAll();
-    qDebug() << "鏇存柊浠锋牸 clicked assetModel->doUpdatePrice requested";
+    qDebug() << "更新价格 clicked assetModel->doUpdatePrice requested";
 }

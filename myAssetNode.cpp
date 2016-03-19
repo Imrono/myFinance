@@ -251,3 +251,74 @@ bool myAssetNode::doExchange(exchangeData data) {
     query.clear();
     return true;
 }
+
+bool myAssetNode::checkExchange(const exchangeData &data, exchangeAbnomal &abnormalCode) {
+    QSqlQuery query;
+    // check "资产"表*2
+    // 1 MONEY CHECK
+    QString filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='cash'").arg(data.account1);
+    QString execWord = QString::fromLocal8Bit("select 单位成本 from 资产"
+                                              " WHERE %1").arg(filter);
+    if(query.exec(execWord)) {
+        if (1 == query.size()) {
+            query.next();
+            float moneyOrigin = query.value(0).toDouble();
+            float money = moneyOrigin + data.money;
+            qDebug() << moneyOrigin << "  " << data.money << "  " << money;
+            if (money < 0.0f) {
+                abnormalCode = LACK_MONEY_1;
+                return false;
+            }
+        } else {
+            qDebug() << "select money error:" << execWord;
+            abnormalCode = UN_UNIQUE_1;
+            return false;
+        }
+    } else {
+        qDebug() << query.lastError().text();
+        abnormalCode = SQL_ERROR;
+        return false;
+    }
+    query.clear();
+
+    // 2 ASSET CHECK
+    filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'").arg(data.account2).arg(data.code);
+    execWord = QString::fromLocal8Bit("select 数量, 单位成本 from 资产"
+                                      " WHERE %1").arg(filter);
+    qDebug() << execWord;
+    if(query.exec(execWord)) {
+        if (1 == query.size()) {
+            query.next();
+            int   amountOrigin = query.value(0).toInt();
+            float priceOrigin  = query.value(1).toDouble();
+            if (data.code == "cash") {
+                float price = priceOrigin + data.price;
+                if (price < 0.0f) {
+                    abnormalCode = LACK_MONEY_2;
+                    return false;
+                }
+            } else {
+                int amount = amountOrigin + data.amount;
+                if (amount < 0) {
+                    abnormalCode = LACK_STOCK;
+                    return false;
+                }
+            }
+        } else if (0 == query.size()) {
+            if (data.amount < 0) {
+                abnormalCode = LACK_STOCK;
+                return false;
+            } else {}
+        } else {
+            abnormalCode = UN_UNIQUE_2;
+            return false;
+        }
+    } else {
+        qDebug() << query.lastError().text();
+        abnormalCode = SQL_ERROR;
+        return false;
+    }
+    query.clear();
+    abnormalCode = NORMAL;
+    return true;
+}

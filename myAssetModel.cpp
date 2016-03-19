@@ -246,6 +246,10 @@ bool myAssetModel::doExchange(const exchangeData data) {
     qDebugNodeData();
     return ans;
 }
+bool myAssetModel::checkExchange(const exchangeData &data, exchangeAbnomal &abnormalCode) {
+    return rootNode.checkExchange(data, abnormalCode);
+}
+
 void myAssetModel::doReflashAssetData() {
     beginResetModel();
     bool ans = rootNode.callback();

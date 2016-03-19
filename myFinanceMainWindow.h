@@ -49,6 +49,8 @@ private:
     myStockCodeName *stockCode; //用于更新ui状态
     QLabel statusLabel;
 
+    bool doExchange();
+
 private slots:
     void priceDataReflashed();
     void codeDataReady();

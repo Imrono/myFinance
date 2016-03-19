@@ -43,6 +43,17 @@ struct myAssetHold {
 Q_DECLARE_METATYPE(myAssetAccount)
 Q_DECLARE_METATYPE(myAssetHold)
 
+enum exchangeAbnomal {
+    NORMAL = 0,
+    LACK_MONEY_1 = 1,
+    LACK_MONEY_2 = 2,
+    LACK_STOCK   = 3,
+    UN_UNIQUE_1  = 4,
+    UN_UNIQUE_2  = 5,
+
+    SQL_ERROR    =100
+};
+
 class myAssetNode
 {
 public:
@@ -62,7 +73,8 @@ public:
     bool initial();
     bool callback();
 
-    bool doExchange(exchangeData data);
+    bool doExchange(const exchangeData data);
+    bool checkExchange(const exchangeData &data, exchangeAbnomal &abnormalCode);
 
     nodeType type;
     QVariant nodeData;
