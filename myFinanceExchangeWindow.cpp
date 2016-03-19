@@ -122,6 +122,7 @@ void myFinanceExchangeWindow::updateBuySell() {
     ui->moneySpinBox->setValue(data.money);
 
     updateExchangeFee();
+    updateExchangeType();
 
     qDebug() << "data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
              << "data.amount " << data.amount << ","
@@ -144,6 +145,12 @@ void myFinanceExchangeWindow::on_moneyTransferSpinBox_valueChanged(double value)
 
 void myFinanceExchangeWindow::updataData() {
     if (0 == dataSource) {
+        if (grpBuySell->checkedId() == BUY) {
+            data.type = QString::fromLocal8Bit("证券买入");
+        } else {
+            data.type = QString::fromLocal8Bit("证券卖出");
+        }
+
         data.account1 = ui->moneyAccount->itemText(ui->moneyAccount->currentIndex());
         data.account2 = data.account1;
         data.amount = ui->amountSpinBox->text().toInt() * -buySellFlag;
@@ -154,17 +161,19 @@ void myFinanceExchangeWindow::updataData() {
         data.fee    = ui->exchangeFeeSpinBox->text().toDouble();
 
     } else if (1 == dataSource) {
-        data.price    = ui->moneyTransferSpinBox->text().toDouble();
+        data.type = QString::fromLocal8Bit("转帐");
 
         data.account1 = ui->moneyAccountOut->itemText(ui->moneyAccountOut->currentIndex());
-        data.money    = -data.price;
+        data.money    = -ui->moneyTransferSpinBox->text().toDouble();
 
         data.account2 = ui->moneyAccountIn->itemText(ui->moneyAccountIn->currentIndex());
         data.code     = CASH;
         data.name     = QString::fromLocal8Bit("现有资金");
         data.amount   = 1;
+        data.price    = ui->moneyTransferSpinBox->text().toDouble();
         data.fee      = 0.0f;
     } else {}
+    updateExchangeType();
 
     qDebug() << "data.time "     << data.time << ","
              << "data.type "     << data.type << ","
@@ -323,4 +332,17 @@ void myFinanceExchangeWindow::updateExchangeFee() {
 
     fee = fee1 + fee2 + fee3;
     ui->exchangeFeeSpinBox->setValue(fee);
+}
+
+void myFinanceExchangeWindow::updateExchangeType() {
+    if (0 == dataSource) {
+        if (grpBuySell->checkedId() == BUY) {
+            data.type = QString::fromLocal8Bit("证券买入");
+        } else {
+            data.type = QString::fromLocal8Bit("证券卖出");
+        }
+    } else if (1 == dataSource) {
+        data.type = QString::fromLocal8Bit("转帐");
+    } else {}
+    ui->typeLineEdit->setText(data.type);
 }

@@ -19,7 +19,7 @@ myExchangeListModel::~myExchangeListModel() {
 
 bool myExchangeListModel::doExchange(const exchangeData data) {
     QString exchangeTime = data.time.toString(("yyyy-mm-dd hh:mm:ss"));
-    QString exchangeType;
+    QString exchangeType = data.type;
     QSqlQuery query;
     // 1 update database
     // "资产变化"表 CHANGE
@@ -66,11 +66,15 @@ bool myExchangeListModel::initial() {
             i ++;
             QString exchangeStr;
             if (CASH == tmpExchange.code && 1 == tmpExchange.amount) {
-                exchangeStr = QString::fromLocal8Bit("[转帐]%1(%2) -> %3(%4)")
-                        .arg(tmpExchange.account1).arg(-tmpExchange.money)
-                        .arg(tmpExchange.account2).arg(tmpExchange.price);
+                if (tmpExchange.price + tmpExchange.money > 0.0001f)
+                    qDebug() << "[转帐]" << tmpExchange.account1 << " " << tmpExchange.money
+                             << "!="    << tmpExchange.account2 << " " << tmpExchange.price;
+                exchangeStr = QString::fromLocal8Bit("[%1]%2->%3(￥%4)")
+                        .arg(tmpExchange.type)
+                        .arg(tmpExchange.account1).arg(tmpExchange.account2).arg(tmpExchange.price);
             } else {
-                exchangeStr = QString("%1(%2) -> %3@%4(%5*%6)")
+                exchangeStr = QString::fromLocal8Bit("[%1]%2(￥%3) - %4@%5(%6*%7)")
+                        .arg(tmpExchange.type)
                         .arg(tmpExchange.account1).arg(tmpExchange.money)
                         .arg(tmpExchange.name).arg(tmpExchange.account2)
                         .arg(tmpExchange.amount).arg(tmpExchange.price);

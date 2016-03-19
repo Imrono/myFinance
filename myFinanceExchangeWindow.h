@@ -71,6 +71,7 @@ private:
     void updateMarketInfo();
     void updataData();
     void updateExchangeFee();
+    void updateExchangeType();
 };
 
 #endif // MYFINANCEEXCHANGEWINDOW_H
