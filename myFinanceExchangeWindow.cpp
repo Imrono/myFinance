@@ -275,7 +275,7 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
 {
     QString str = ui->nameLineEdit->text();
     int count = stockCode->codeName.count();
-    qDebug() << "名称EditLine" << str << "(" << count << ")";
+    qDebug() << QString::fromLocal8Bit("名称EditLine") << str << "(" << count << ")";
 
     QMap<QString,QString>::iterator it = stockCode->codeName.begin();
     for (; it != stockCode->codeName.end(); ++it) {
@@ -307,7 +307,7 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
 
 void myFinanceExchangeWindow::on_feeRateSpinBox_valueChanged(double feeRate)
 {
-    qDebug() << "佣金" << feeRate;
+    qDebug() << QString::fromLocal8Bit("佣金") << feeRate;
     commisionRate = feeRate * 0.001f;
     updateExchangeFee();
 }

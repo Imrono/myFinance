@@ -50,6 +50,9 @@ enum exchangeAbnomal {
     LACK_STOCK   = 3,
     UN_UNIQUE_1  = 4,
     UN_UNIQUE_2  = 5,
+    MONEY_ZERO   = 6,
+    PRICE_ZERO   = 7,
+    NO_MONEY_ATTRIBUTE = 8,
 
     SQL_ERROR    =100
 };
@@ -74,7 +77,7 @@ public:
     bool callback();
 
     bool doExchange(const exchangeData data);
-    bool checkExchange(const exchangeData &data, exchangeAbnomal &abnormalCode);
+    bool checkExchange(const exchangeData &data, QString &abnormalInfo);
 
     nodeType type;
     QVariant nodeData;

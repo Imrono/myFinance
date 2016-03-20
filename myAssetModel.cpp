@@ -246,8 +246,8 @@ bool myAssetModel::doExchange(const exchangeData data) {
     qDebugNodeData();
     return ans;
 }
-bool myAssetModel::checkExchange(const exchangeData &data, exchangeAbnomal &abnormalCode) {
-    return rootNode.checkExchange(data, abnormalCode);
+bool myAssetModel::checkExchange(const exchangeData &data, QString &abnormalInfo) {
+    return rootNode.checkExchange(data, abnormalInfo);
 }
 
 void myAssetModel::doReflashAssetData() {

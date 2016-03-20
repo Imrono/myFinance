@@ -106,7 +106,7 @@ void myStockCodeName::analyzeStockCode(QString fileName) {
 
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "无法创建文件";
+        qDebug() << QString::fromLocal8Bit("无法创建文件");
         return;
     }
     QTextStream stream(&file);
@@ -124,7 +124,7 @@ void myStockCodeName::analyzeStockCode(QString fileName) {
             QString name;
             QString a = rx.cap(1);
             QString b = rx.cap(2);
-            qDebug() << a << b;
+            //qDebug() << a << b;
             pos = a.indexOf(rxCode);
             if (pos >= 0) {
                 QString code1 = rxCode.cap(1);

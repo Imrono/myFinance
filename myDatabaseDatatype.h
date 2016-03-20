@@ -5,7 +5,7 @@
 #include <QString>
 
 #define CASH "cash"
-
+#define MONEY_EPS  0.0001f
 enum BuyAndSell {
     BUY  = 0,
     SELL = 1

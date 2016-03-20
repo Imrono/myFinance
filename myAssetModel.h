@@ -29,7 +29,7 @@ public:
                         int role) const;
 
     bool doExchange(const exchangeData data);
-    bool checkExchange(const exchangeData &data, exchangeAbnomal &abnormalCode);
+    bool checkExchange(const exchangeData &data, QString &abnormalInfo);
     void doReflashAssetData();
     void doUpdatePrice();
     void doReflash();

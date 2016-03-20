@@ -252,7 +252,19 @@ bool myAssetNode::doExchange(exchangeData data) {
     return true;
 }
 
-bool myAssetNode::checkExchange(const exchangeData &data, exchangeAbnomal &abnormalCode) {
+bool myAssetNode::checkExchange(const exchangeData &data, QString &abnormalInfo) {
+    exchangeAbnomal abnormalCode = NORMAL;
+
+    if (qAbs(data.money + data.fee) < MONEY_EPS) {
+        abnormalCode = MONEY_ZERO;
+        abnormalInfo = QString::fromLocal8Bit("%1's No money exchange").arg(data.account1);
+        return false;
+    } else if (data.price < MONEY_EPS) {
+        abnormalCode = PRICE_ZERO;
+        abnormalInfo = QString::fromLocal8Bit("%1's exchange price 0.0").arg(data.account2);
+        return false;
+    } else {}
+
     QSqlQuery query;
     // check "资产"表*2
     // 1 MONEY CHECK
@@ -267,11 +279,18 @@ bool myAssetNode::checkExchange(const exchangeData &data, exchangeAbnomal &abnor
             qDebug() << moneyOrigin << "  " << data.money << "  " << money;
             if (money < 0.0f) {
                 abnormalCode = LACK_MONEY_1;
+                abnormalInfo = QString::fromLocal8Bit("%1's 现在资金 %2 需要资金 %3")
+                        .arg(data.account1).arg(moneyOrigin).arg(data.money);
                 return false;
             }
+        } else if (0 == query.size()) {
+            abnormalCode = NO_MONEY_ATTRIBUTE;
+            abnormalInfo = QString::fromLocal8Bit("数据库中 %1 没有cash属性").arg(data.account1);
+            return false;
         } else {
             qDebug() << "select money error:" << execWord;
             abnormalCode = UN_UNIQUE_1;
+            abnormalInfo = QString::fromLocal8Bit("数据库中 %1's cash 查找结果不唯一").arg(data.account1);
             return false;
         }
     } else {
@@ -295,30 +314,40 @@ bool myAssetNode::checkExchange(const exchangeData &data, exchangeAbnomal &abnor
                 float price = priceOrigin + data.price;
                 if (price < 0.0f) {
                     abnormalCode = LACK_MONEY_2;
+                    abnormalInfo = QString::fromLocal8Bit("%1's 现在资金 %2 需要资金 %3")
+                            .arg(data.account2).arg(priceOrigin).arg(data.price);
                     return false;
                 }
             } else {
                 int amount = amountOrigin + data.amount;
                 if (amount < 0) {
                     abnormalCode = LACK_STOCK;
+                    abnormalInfo = QString::fromLocal8Bit("%1's 现在股票(%2) %3 需要股票 %4")
+                            .arg(data.account2).arg(data.name).arg(amountOrigin).arg(data.amount);
                     return false;
                 }
             }
         } else if (0 == query.size()) {
             if (data.amount < 0) {
                 abnormalCode = LACK_STOCK;
+                abnormalInfo = QString::fromLocal8Bit("%1's 现在股票(%2) 0 需要股票 %3")
+                        .arg(data.account2).arg(data.name).arg(data.amount);
                 return false;
             } else {}
         } else {
             abnormalCode = UN_UNIQUE_2;
+            abnormalInfo = QString::fromLocal8Bit("数据库中 %1's %2 查找结果不唯一")
+                    .arg(data.account2).arg(data.name);
             return false;
         }
     } else {
         qDebug() << query.lastError().text();
         abnormalCode = SQL_ERROR;
+        abnormalInfo = QString::fromLocal8Bit("SQL ERROR");
         return false;
     }
     query.clear();
     abnormalCode = NORMAL;
+    abnormalInfo = QString::fromLocal8Bit("EXCHANGE CHECK OK");
     return true;
 }
