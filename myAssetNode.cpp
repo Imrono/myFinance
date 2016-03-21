@@ -351,3 +351,64 @@ bool myAssetNode::checkExchange(const exchangeData &data, QString &abnormalInfo)
     abnormalInfo = QString::fromLocal8Bit("EXCHANGE CHECK OK");
     return true;
 }
+
+bool myAssetNode::doChangeAssetDirectly(const myAssetNode *node, changeType type) {
+    if (myAssetNode::nodeRoot != this->type) {
+        return false;
+    }
+    QSqlQuery query;
+    QString execWord, filter;
+
+    if (myAssetNode::nodeAccount == node->type) {
+        if (POP_INSERT == type) {
+
+        } else if (POP_MODIFY == type) {
+        } else if (POP_DELETE == type) {
+            QString accountCode = node->nodeData.value<myAssetAccount>().code;
+            // delete holds
+            for ( int i = 0; i != node->children.size(); ++i ) {
+                QString assetCode = node->children.at(i)->nodeData.value<myAssetHold>().assetCode;
+                if (!deleteOneAsset(accountCode, assetCode)) {
+                    return false;
+                }
+            }
+            // delete account
+            filter   = QString::fromLocal8Bit("代号='%1'").arg(accountCode);
+            execWord = QString::fromLocal8Bit("select * from 资产帐户 WHERE %1").arg(filter);
+            qDebug() << execWord;
+            if(query.exec(execWord)) {
+                if (1 == query.size()) {
+                    execWord = QString::fromLocal8Bit("delete from 资产帐户 WHERE %1").arg(filter);
+                    qDebug() << execWord;
+                    if(query.exec(execWord)) {
+                        return true;
+                    } else { return false;}
+                } else { return false;}
+            } else { return false;}
+        } else { return false;}
+    } else if (myAssetNode::nodeHolds == node->type) {
+        if (POP_MODIFY == type) {
+        } else if (POP_DELETE == type) {
+            // delete holds
+            QString accountCode = node->nodeData.value<myAssetHold>().accountCode;
+            QString assetCode = node->nodeData.value<myAssetHold>().assetCode;
+            return deleteOneAsset(accountCode, assetCode);
+        }
+    } else { return false;}
+    return false;
+}
+bool myAssetNode::deleteOneAsset(const QString &accountCode, const QString &assetCode) {
+    QSqlQuery query;
+    QString filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'").arg(accountCode).arg(assetCode);
+    QString execWord = QString::fromLocal8Bit("select * from 资产 WHERE %1").arg(filter);
+    qDebug() << execWord;
+    if(query.exec(execWord)) {
+        if (1 == query.size()) {
+            execWord = QString::fromLocal8Bit("delete from 资产 WHERE %1").arg(filter);
+            qDebug() << execWord;
+            if(query.exec(execWord)) {
+                return true;
+            } else { return false;}
+        } else { return false;}
+    } else { return false;}
+}

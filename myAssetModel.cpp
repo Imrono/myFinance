@@ -295,3 +295,10 @@ void myAssetModel::qDebugNodeData()
         }
     }
 }
+
+bool myAssetModel::doChangeAssetDirectly(const myAssetNode *node, changeType type) {
+    qDebug() << "myAssetModel";
+    rootNode.doChangeAssetDirectly(node, type);
+    doReflashAssetData();
+    return true;
+}

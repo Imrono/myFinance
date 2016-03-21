@@ -5,6 +5,9 @@
 #include <QtWidgets/QTreeView>
 #include <QWidget>
 #include <QLabel>
+#include <QAction>
+#include <QMenu>
+#include <QContextMenuEvent>
 #include "myAssetModel.h"
 #include "myExchangeListModel.h"
 
@@ -51,9 +54,22 @@ private:
 
     bool doExchange();
 
+    QMenu *changeAsset;
+    QAction *deleteAsset;
+    QAction *insertAsset;
+    QAction *modifyAsset;
+
+    void contextMenuEvent(QContextMenuEvent *event);
+    void doChangeAssetDirectly(changeType type);
+
 private slots:
     void priceDataReflashed();
     void codeDataReady();
+    void deleteAsset_clicked();
+    void insertAsset_clicked();
+    void modifyAsset_clicked();
+
+    void treeViewContextMenu(const QPoint& pt);
 };
 
 #endif // MYFINANCEMAINWINDOW_H

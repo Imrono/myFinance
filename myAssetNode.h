@@ -57,6 +57,12 @@ enum exchangeAbnomal {
     SQL_ERROR    =100
 };
 
+enum changeType {
+    POP_INSERT = 0,
+    POP_MODIFY = 1,
+    POP_DELETE = 2
+};
+
 class myAssetNode
 {
 public:
@@ -78,12 +84,16 @@ public:
 
     bool doExchange(const exchangeData data);
     bool checkExchange(const exchangeData &data, QString &abnormalInfo);
+    bool doChangeAssetDirectly(const myAssetNode *node, changeType type);
 
     nodeType type;
     QVariant nodeData;
     myAssetNode *parent;
 
     QList<myAssetNode *> children;
+
+private:
+    bool deleteOneAsset(const QString &accountCode, const QString &assetCode);
 };
 
 #endif // MYASSETNODE_H

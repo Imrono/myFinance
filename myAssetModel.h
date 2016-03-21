@@ -33,15 +33,15 @@ public:
     void doReflashAssetData();
     void doUpdatePrice();
     void doReflash();
+    bool doChangeAssetDirectly(const myAssetNode *node, changeType type);
 
     myAssetNode *getRootNode() { return &rootNode;}
+    myAssetNode *nodeFromIndex(const QModelIndex &index) const;
 
 signals:
     void priceDataReflashed();
 
 private:
-    myAssetNode *nodeFromIndex(const QModelIndex &index) const;
-
     ///
     /// \brief rootNode:提供帐户与资产的关系
     /// \brief stockPrice:提供股票的价格
