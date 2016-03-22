@@ -352,7 +352,7 @@ bool myAssetNode::checkExchange(const exchangeData &data, QString &abnormalInfo)
     return true;
 }
 
-bool myAssetNode::doChangeAssetDirectly(const myAssetNode *node, changeType type) {
+bool myAssetNode::doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data) {
     if (myAssetNode::nodeRoot != this->type) {
         return false;
     }
@@ -361,7 +361,25 @@ bool myAssetNode::doChangeAssetDirectly(const myAssetNode *node, changeType type
 
     if (myAssetNode::nodeAccount == node->type) {
         if (POP_INSERT == type) {
+            insertAssetData assetData = data.value<insertAssetData>();
 
+            filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'")
+                            .arg(assetData.accountCode).arg(assetData.assetCode);
+            execWord = QString::fromLocal8Bit("select * from 资产 WHERE %1").arg(filter);
+            qDebug() << execWord;
+            if(query.exec(execWord)) {
+                if (0 == query.size()) {
+                    execWord = QString::fromLocal8Bit("INSERT INTO 资产 "
+                                                      "VALUES ('%1', '%2', '%3', %4, %5, '%6')")
+                            .arg(assetData.assetCode).arg(assetData.assetName).arg(assetData.accountCode)
+                            .arg(assetData.amount).arg(assetData.price).arg(assetData.type);
+                    qDebug() << execWord;
+                    if(!query.exec(execWord)) {
+                        qDebug() << query.lastError().text();
+                        return false;
+                    } else { return true;}
+                } else { return false;}
+            } else { return false;}
         } else if (POP_MODIFY == type) {
         } else if (POP_DELETE == type) {
             QString accountCode = node->nodeData.value<myAssetAccount>().code;
@@ -411,4 +429,28 @@ bool myAssetNode::deleteOneAsset(const QString &accountCode, const QString &asse
             } else { return false;}
         } else { return false;}
     } else { return false;}
+}
+
+bool myAssetNode::doInsertAccount(insertAccountData data) {
+    if (myAssetNode::nodeRoot != this->type) {
+        return false;
+    }
+    QSqlQuery query;
+    QString execWord, filter;
+    filter   = QString::fromLocal8Bit("代号='%1'").arg(data.Code);
+    execWord = QString::fromLocal8Bit("select * from 资产帐户 WHERE %1").arg(filter);
+    qDebug() << execWord;
+    if(query.exec(execWord)) {
+        if (0 == query.size()) {
+            execWord = QString::fromLocal8Bit("INSERT INTO 资产帐户 "
+                                              "VALUES ('%1', '%2', '%3', '%4')")
+                    .arg(data.Code).arg(data.Name).arg(data.Type).arg(data.Note);
+            qDebug() << execWord;
+            if(!query.exec(execWord)) {
+                qDebug() << query.lastError().text();
+                return false;
+            } else { return true;}
+        } else { return false;}
+    } else { return false;}
+    return false;
 }

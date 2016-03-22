@@ -12,6 +12,7 @@
 #include "myExchangeListModel.h"
 
 #include "myStockCodeName.h"
+#include "assetChangeDelegate.h"
 
 namespace Ui {
 class myFinanceMainWindow;
@@ -47,6 +48,7 @@ private:
     /// \brief exchangeModel --> listView
     ///
     myAssetModel *assetModel;
+    //assetChangeDelegate *delegate;
     myExchangeListModel *exchangeModel;
 
     myStockCodeName *stockCode; //用于更新ui状态

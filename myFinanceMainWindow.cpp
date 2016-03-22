@@ -6,6 +6,8 @@
 #include <QDebug>
 #include <QMessageBox>
 #include "myFinanceExchangeWindow.h"
+#include "myInsertAccount.h"
+#include "myInsertAsset.h"
 
 myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *parent) :
     QMainWindow(parent),
@@ -15,11 +17,13 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
     deleteAsset(nullptr), insertAsset(nullptr), modifyAsset(nullptr)
 {
     assetModel = new myAssetModel(this);
+    //delegate = new assetChangeDelegate(this);
     exchangeModel = new myExchangeListModel();
 
     ui->setupUi(this);
 
     ui->treeView->setModel(assetModel);
+    //ui->treeView->setItemDelegate(delegate);
     //ui->treeView->header()->resizeSections(QHeaderView::ResizeToContents);
     ui->treeView->header()->resizeSections(QHeaderView::Fixed);
     ui->treeView->header()->resizeSection(0, 170);
@@ -32,10 +36,10 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
     connect(assetModel, SIGNAL(priceDataReflashed()), this, SLOT(priceDataReflashed()));
     connect(stockCode ,SIGNAL(codeDataReady()), this, SLOT(codeDataReady()));
 
+    ui->statusBar->addWidget(&statusLabel);
     if (!stockCode->getIsDataReady()) { //正在更新
         ui->reflash->setEnabled(false);
         statusLabel.setText(QString::fromLocal8Bit("正在读取股票代码"));
-        ui->statusBar->addWidget(&statusLabel);
     } else {
         ui->reflash->setEnabled(true);
         statusLabel.setText("ready");
@@ -61,6 +65,10 @@ myFinanceMainWindow::~myFinanceMainWindow()
         delete assetModel;
         assetModel = nullptr;
     }
+//    if (nullptr != delegate) {
+//        delete delegate;
+//        delegate = nullptr;
+//    }
     if (nullptr != exchangeModel) {
         delete exchangeModel;
         exchangeModel = nullptr;
@@ -128,7 +136,18 @@ void myFinanceMainWindow::on_exchange_clicked()
 void myFinanceMainWindow::on_new_account_clicked()
 {
     qDebug() << QString::fromLocal8Bit("新建帐户 clicked");
-    exchangeModel->test();
+    myInsertAccount dial(this);
+    if(dial.exec() == QDialog::Accepted) {
+        if(!assetModel->doInsertAccount(dial.getData())) {
+            ui->treeView->expandAll();
+            QMessageBox::warning(this, QString::fromLocal8Bit("新建帐户错误"),
+                                 QString::fromLocal8Bit("新建帐户错误") +
+                                 QMessageBox::Ok, QMessageBox::Ok);
+        }
+    } else {
+        qDebug() << QString::fromLocal8Bit("添加帐户 Canceled");
+    }
+    ui->treeView->expandAll();
 }
 
 void myFinanceMainWindow::on_reflash_clicked()
@@ -185,13 +204,16 @@ void myFinanceMainWindow::modifyAsset_clicked() {
 }
 void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
     myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
+    QVariant data;
 
     if (myAssetNode::nodeAccount == node->type) {
         if (POP_INSERT == type) {
-            QDialog dial;
+            myAssetAccount nodeData = node->nodeData.value<myAssetAccount>();
+            myInsertAsset dial(nodeData.code, nodeData.name, this);
             if(dial.exec() == QDialog::Accepted) {
-
-            } else { return; }
+                data.setValue(dial.getData());
+                qDebug() << QString::fromLocal8Bit("添加资产 Canceled");
+            }
         } else if (POP_MODIFY == type) {
 
         } else if (POP_DELETE == type) {
@@ -218,7 +240,13 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
         } else {}
     } else if (myAssetNode::nodeRoot == node->type) {
     } else {}
+
     qDebug() << "view" << (int)type;
-    assetModel->doChangeAssetDirectly(node, type);
+    if (!assetModel->doChangeAssetDirectly(node, type, data)) {
+        ui->treeView->expandAll();
+        QMessageBox::warning(this, QString::fromLocal8Bit("失败"),
+                             QString::fromLocal8Bit("失败"),
+                             QMessageBox::Ok, QMessageBox::Ok);
+    }
     ui->treeView->expandAll();
 }

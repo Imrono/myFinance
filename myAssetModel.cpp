@@ -296,9 +296,15 @@ void myAssetModel::qDebugNodeData()
     }
 }
 
-bool myAssetModel::doChangeAssetDirectly(const myAssetNode *node, changeType type) {
+bool myAssetModel::doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data) {
     qDebug() << "myAssetModel";
-    rootNode.doChangeAssetDirectly(node, type);
+    bool ans = rootNode.doChangeAssetDirectly(node, type, data);
     doReflashAssetData();
-    return true;
+    return ans;
+}
+
+bool myAssetModel::doInsertAccount(insertAccountData data) {
+    bool ans = rootNode.doInsertAccount(data);
+    doReflashAssetData();
+    return ans;
 }

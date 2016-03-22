@@ -60,7 +60,8 @@ enum exchangeAbnomal {
 enum changeType {
     POP_INSERT = 0,
     POP_MODIFY = 1,
-    POP_DELETE = 2
+    POP_DELETE = 2,
+    BTN_INSERT = 3
 };
 
 class myAssetNode
@@ -84,7 +85,8 @@ public:
 
     bool doExchange(const exchangeData data);
     bool checkExchange(const exchangeData &data, QString &abnormalInfo);
-    bool doChangeAssetDirectly(const myAssetNode *node, changeType type);
+    bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
+    bool doInsertAccount(insertAccountData data);
 
     nodeType type;
     QVariant nodeData;

@@ -20,6 +20,7 @@ void codeDataProcessThread::run() {
     mutex.unlock();
 }
 
+myStockCodeName *myStockCodeName::instance = nullptr;
 myStockCodeName::myStockCodeName()
     : manager(nullptr), ntRequest(QUrl("")),
       isInitialed(false), CodeDataFile("stockCodeData.txt"),

@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <QString>
+#include <QVariant>
 
 #define CASH "cash"
 #define MONEY_EPS  0.0001f
@@ -38,6 +39,23 @@ struct exchangeData {
     bool      buySell;
     float     fee;
 };
+
+struct insertAccountData {
+    QString Code;
+    QString Name;
+    QString Type;
+    QString Note;
+};
+struct insertAssetData {
+    QString accountCode;
+    QString assetCode;
+    QString assetName;
+    int     amount;
+    float   price;
+    QString type;
+};
+
+Q_DECLARE_METATYPE(insertAssetData)
 
 #endif // MYDATABASEDATATYPE
 

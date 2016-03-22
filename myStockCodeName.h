@@ -70,6 +70,31 @@ private slots:
     void threadProcessFinish();
 signals:
     void codeDataReady();
+
+private:
+    static myStockCodeName *instance;
+public:
+    static myStockCodeName *getInstance() {
+        if (!instance)
+            return instance;
+        else
+            return initial();
+    }
+    static myStockCodeName *initial() {
+        if (!instance)
+            return instance;
+        else {
+            instance = new myStockCodeName();
+            return instance;
+        }
+    }
+    static void callback() {
+        if (!instance) {
+            delete instance;
+            instance = nullptr;
+        }
+    }
+
 };
 
 #endif // MYSTOCKCODENAME_H
