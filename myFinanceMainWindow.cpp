@@ -1,13 +1,11 @@
 #include "myFinanceMainWindow.h"
 #include "ui_myFinanceMainWindow.h"
 
-#include "myDatabaseDatatype.h"
-
 #include <QDebug>
 #include <QMessageBox>
 #include "myFinanceExchangeWindow.h"
-#include "myInsertAccount.h"
-#include "myInsertAsset.h"
+#include "myInsertModifyAccount.h"
+#include "myInsertModifyAsset.h"
 
 myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *parent) :
     QMainWindow(parent),
@@ -136,7 +134,7 @@ void myFinanceMainWindow::on_exchange_clicked()
 void myFinanceMainWindow::on_new_account_clicked()
 {
     qDebug() << QString::fromLocal8Bit("新建帐户 clicked");
-    myInsertAccount dial(this);
+    myInsertModifyAccount dial(this);
     if(dial.exec() == QDialog::Accepted) {
         if(!assetModel->doInsertAccount(dial.getData())) {
             ui->treeView->expandAll();
@@ -205,36 +203,81 @@ void myFinanceMainWindow::modifyAsset_clicked() {
 void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
     myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
     QVariant data;
+    QString info;
 
     if (myAssetNode::nodeAccount == node->type) {
+        /// INSERT ASSET
         if (POP_INSERT == type) {
+            info = QString::fromLocal8Bit("添加资产");
             myAssetAccount nodeData = node->nodeData.value<myAssetAccount>();
-            myInsertAsset dial(nodeData.code, nodeData.name, this);
+            myInsertModifyAsset dial(nodeData.code, nodeData.name, this);
+            dial.setWindowTitle(info);
             if(dial.exec() == QDialog::Accepted) {
                 data.setValue(dial.getData());
-                qDebug() << QString::fromLocal8Bit("添加资产 Canceled");
+                qDebug() << info + "Accepted";
+            } else {
+                return;
             }
+        /// MODIFY ACCOUNT
         } else if (POP_MODIFY == type) {
-
+            info = QString::fromLocal8Bit("更新帐户");
+            myAssetAccount nodeData = node->nodeData.value<myAssetAccount>();
+            myInsertModifyAccount dial(this);
+            dial.setWindowTitle(info);
+            dial.setUI(myAccountData(nodeData));
+            if(dial.exec() == QDialog::Accepted) {
+                qDebug() << info + "Accepted";
+                myAccountData originAccountData(nodeData);
+                if (myAccountData::isSameAccountData(dial.getData(), originAccountData)) {
+                    qDebug() << info + "Nothing Changed";
+                    return;
+                } else {
+                    data.setValue(dial.getData());
+                }
+            } else {
+                return;
+            }
+        /// DELETE ACCOUNT
         } else if (POP_DELETE == type) {
-            if(QMessageBox::Ok != QMessageBox::warning(this, QString::fromLocal8Bit("删除帐户"),
-                                  QString::fromLocal8Bit("删除帐户：\n") +
+            info = QString::fromLocal8Bit("删除帐户");
+            if(QMessageBox::Ok == QMessageBox::warning(this, info, info + "->\n" +
                                   node->nodeData.value<myAssetAccount>().code + "\n" + node->nodeData.value<myAssetAccount>().name,
                                   QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok)) {
+                qDebug() << info + "Accepted";
+            } else {
                 return;
             }
         } else {}
     } else if (myAssetNode::nodeHolds == node->type) {
+        /// MODIFY ASSET
         if (POP_MODIFY == type) {
-            QDialog dial;
+            info = QString::fromLocal8Bit("更新资产");
+            myAssetHold nodeData = node->nodeData.value<myAssetHold>();
+            myAssetNode *accountNode = assetModel->getRootNode()->getAccountNode(nodeData.accountCode);
+            myAssetAccount accountNodeData = accountNode->nodeData.value<myAssetAccount>();
+            myInsertModifyAsset dial(accountNodeData.code, accountNodeData.name, this);
+            dial.setUI(myAssetData(nodeData));
+            dial.setWindowTitle(info);
             if(dial.exec() == QDialog::Accepted) {
-
-            } else { return; }
+                qDebug() << info + "Accepted";
+                myAssetData originAssetData(nodeData);
+                if (myAssetData::isSameAssetData(dial.getData(), originAssetData)) {
+                    qDebug() << info + "Nothing Changed";
+                    return;
+                } else {
+                    data.setValue(dial.getData());
+                }
+            } else {
+                return;
+            }
+        /// DELETE ASSET
         } else if (POP_DELETE == type) {
-            if(QMessageBox::Ok != QMessageBox::warning(this, QString::fromLocal8Bit("删除资产"),
-                                  QString::fromLocal8Bit("删除资产：\n") +
+            info = QString::fromLocal8Bit("删除资产");
+            if(QMessageBox::Ok == QMessageBox::warning(this, info, info + "->\n" +
                                   node->nodeData.value<myAssetHold>().assetCode + "\n" + node->nodeData.value<myAssetHold>().name,
                                   QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok)) {
+                qDebug() << info + "Accepted";
+            } else {
                 return;
             }
         } else {}
@@ -244,9 +287,7 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
     qDebug() << "view" << (int)type;
     if (!assetModel->doChangeAssetDirectly(node, type, data)) {
         ui->treeView->expandAll();
-        QMessageBox::warning(this, QString::fromLocal8Bit("失败"),
-                             QString::fromLocal8Bit("失败"),
-                             QMessageBox::Ok, QMessageBox::Ok);
+        QMessageBox::warning(this, info+"failed", info+"failed", QMessageBox::Ok, QMessageBox::Ok);
     }
     ui->treeView->expandAll();
 }

@@ -1,16 +1,17 @@
-#include "myInsertAsset.h"
-#include "ui_myInsertAsset.h"
+#include "myInsertModifyAsset.h"
+#include "ui_myInsertModifyAsset.h"
 
 #include "myFinanceMainWindow.h"
 
 #include <QDebug>
 
-myInsertAsset::myInsertAsset(QString accountCode, QString accountName, QWidget *parent) :
+myInsertModifyAsset::myInsertModifyAsset(QString accountCode, QString accountName, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::myInsertAsset),
     stockCode(static_cast<myFinanceMainWindow *>(parent)->getStockCode())
 {
     data.accountCode = accountCode;
+    data.originAccountCode = accountCode;
 
     ui->setupUi(this);
     ui->labelAccount->setText(accountCode + " - " + accountName);
@@ -26,7 +27,7 @@ myInsertAsset::myInsertAsset(QString accountCode, QString accountName, QWidget *
     ui->radioSH->setChecked(true);
 }
 
-myInsertAsset::~myInsertAsset()
+myInsertModifyAsset::~myInsertModifyAsset()
 {
     if (!grpMarket)
         delete grpMarket;
@@ -34,16 +35,16 @@ myInsertAsset::~myInsertAsset()
     delete ui;
 }
 
-void myInsertAsset::on_buttonBox_accepted()
+void myInsertModifyAsset::on_buttonBox_accepted()
 {
     data.assetCode = ui->lineEditAssetCode->text();
     data.assetName = ui->lineEditAssetName->text();
-    data.amount = ui->lineEditAmount->text().toInt();
-    data.price  = ui->lineEditPrice->text().toDouble();
-    data.type   = ui->lineEditType->text();
+    data.amount    = ui->spinBoxAmount->value();
+    data.price     = ui->spinBoxPrice->value();
+    data.type      = ui->lineEditType->text();
 }
 
-void myInsertAsset::updateMarketInfo() {
+void myInsertModifyAsset::updateMarketInfo() {
     QString market;
     switch (grpMarket->checkedId()) {
     case SH:
@@ -61,6 +62,11 @@ void myInsertAsset::updateMarketInfo() {
     int pointIndex = data.assetCode.indexOf(QString("."));
     data.assetCode.remove(0, pointIndex+1);
     data.assetCode.insert(0, market);
+    if (data.assetCode == "sh.sh") {
+        data.assetCode = "sh.";
+    } else if (data.assetCode == "sz.sz") {
+        data.assetCode = "sz.";
+    } else {}
     ui->lineEditAssetCode->setText(data.assetCode);
 
 
@@ -72,22 +78,22 @@ void myInsertAsset::updateMarketInfo() {
 }
 
 
-void myInsertAsset::on_radioSH_clicked() {
+void myInsertModifyAsset::on_radioSH_clicked() {
     qDebug() << "radioSH clicked";
     updateMarketInfo();
 }
 
-void myInsertAsset::on_radioSZ_clicked() {
+void myInsertModifyAsset::on_radioSZ_clicked() {
     qDebug() << "radioSZ clicked";
     updateMarketInfo();
 }
 
-void myInsertAsset::on_radioOther_clicked() {
+void myInsertModifyAsset::on_radioOther_clicked() {
     qDebug() << "radioOther clicked";
     updateMarketInfo();
 }
 
-void myInsertAsset::on_lineEditAssetCode_textChanged(const QString &str)
+void myInsertModifyAsset::on_lineEditAssetCode_textChanged(const QString &str)
 {
     data.assetCode = str;
 
@@ -108,7 +114,7 @@ void myInsertAsset::on_lineEditAssetCode_textChanged(const QString &str)
     updateMarketInfo();
 }
 
-void myInsertAsset::on_lineEditAssetCode_editingFinished()
+void myInsertModifyAsset::on_lineEditAssetCode_editingFinished()
 {
     int count = stockCode->codeName.count();
     qDebug() << "代号EditLine" << ui->lineEditAssetCode->text() << "(" << count << ")";
@@ -128,7 +134,7 @@ void myInsertAsset::on_lineEditAssetCode_editingFinished()
     }
 }
 
-void myInsertAsset::on_lineEditAssetName_editingFinished()
+void myInsertModifyAsset::on_lineEditAssetName_editingFinished()
 {
     QString str = ui->lineEditAssetName->text();
     int count = stockCode->codeName.count();
@@ -160,4 +166,13 @@ void myInsertAsset::on_lineEditAssetName_editingFinished()
 
     ui->radioOther->setChecked(true);
     updateMarketInfo();
+}
+
+void myInsertModifyAsset::setUI(myAssetData assetData) {
+    ui->lineEditAssetCode->setText(assetData.assetCode);
+    ui->lineEditAssetName->setText(assetData.assetName);
+    ui->spinBoxAmount->setValue(assetData.amount);
+    ui->spinBoxPrice->setValue(assetData.price);
+    ui->lineEditType->setText(assetData.type);
+    data.originAssetCode = assetData.assetCode;
 }

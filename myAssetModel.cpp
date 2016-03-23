@@ -303,7 +303,7 @@ bool myAssetModel::doChangeAssetDirectly(const myAssetNode *node, changeType typ
     return ans;
 }
 
-bool myAssetModel::doInsertAccount(insertAccountData data) {
+bool myAssetModel::doInsertAccount(myAccountData data) {
     bool ans = rootNode.doInsertAccount(data);
     doReflashAssetData();
     return ans;

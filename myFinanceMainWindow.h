@@ -13,6 +13,7 @@
 
 #include "myStockCodeName.h"
 #include "assetChangeDelegate.h"
+#include "myDatabaseDatatype.h"
 
 namespace Ui {
 class myFinanceMainWindow;

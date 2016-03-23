@@ -34,7 +34,7 @@ public:
     void doUpdatePrice();
     void doReflash();
     bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
-    bool doInsertAccount(insertAccountData data);
+    bool doInsertAccount(myAccountData data);
 
 
     myAssetNode *getRootNode() { return &rootNode;}

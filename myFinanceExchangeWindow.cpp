@@ -219,6 +219,11 @@ void myFinanceExchangeWindow::updateMarketInfo() {
     int pointIndex = data.code.indexOf(QString("."));
     data.code.remove(0, pointIndex+1);
     data.code.insert(0, market);
+    if (data.code == "sh.sh") {
+        data.code = "sh.";
+    } else if (data.code == "sz.sz") {
+        data.code = "sz.";
+    } else {}
     ui->codeLineEdit->setText(data.code);
 
     updateExchangeFee();

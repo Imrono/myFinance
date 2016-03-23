@@ -59,6 +59,7 @@ bool myAssetNode::initial() {
             tmpAccount.code = query.value(0).toString();
             tmpAccount.name = query.value(1).toString();
             tmpAccount.type = query.value(2).toString();
+            tmpAccount.note = query.value(3).toString();
             if (tmpAccount.name == QString::fromLocal8Bit("中国工商银行")) {
                 tmpAccount.logo = "gsyh.png";
             } else if (tmpAccount.name == QString::fromLocal8Bit("中国招商银行")) {
@@ -360,8 +361,9 @@ bool myAssetNode::doChangeAssetDirectly(const myAssetNode *node, changeType type
     QString execWord, filter;
 
     if (myAssetNode::nodeAccount == node->type) {
+        /// INSERT ASSET
         if (POP_INSERT == type) {
-            insertAssetData assetData = data.value<insertAssetData>();
+            myAssetData assetData = data.value<myAssetData>();
 
             filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'")
                             .arg(assetData.accountCode).arg(assetData.assetCode);
@@ -380,7 +382,28 @@ bool myAssetNode::doChangeAssetDirectly(const myAssetNode *node, changeType type
                     } else { return true;}
                 } else { return false;}
             } else { return false;}
+        /// MODIFY ACCOUNT
         } else if (POP_MODIFY == type) {
+            myAccountData accountData = data.value<myAccountData>();
+
+            filter   = QString::fromLocal8Bit("代号='%1'").arg(accountData.originCode);
+            execWord = QString::fromLocal8Bit("select * from 资产帐户 WHERE %1").arg(filter);
+            qDebug() << execWord;
+            if(query.exec(execWord)) {
+                if (1 == query.size()) {
+                    execWord = QString::fromLocal8Bit("UPDATE 资产帐户 "
+                                                      "SET 代号='%1', 名称='%2', 类别='%3', 备注='%4' "
+                                                      "WHERE %5")
+                            .arg(accountData.Code).arg(accountData.Name).arg(accountData.Type).arg(accountData.Note)
+                            .arg(filter);
+                    qDebug() << execWord;
+                    if(!query.exec(execWord)) {
+                        qDebug() << query.lastError().text();
+                        return false;
+                    } else { return true;}
+                } else { return false;}
+            } else { return false;}
+        /// DELETE ACCOUNT
         } else if (POP_DELETE == type) {
             QString accountCode = node->nodeData.value<myAssetAccount>().code;
             // delete holds
@@ -405,7 +428,30 @@ bool myAssetNode::doChangeAssetDirectly(const myAssetNode *node, changeType type
             } else { return false;}
         } else { return false;}
     } else if (myAssetNode::nodeHolds == node->type) {
+        /// MODIFY ASSET
         if (POP_MODIFY == type) {
+            myAssetData assetData = data.value<myAssetData>();
+
+            filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'")
+                            .arg(assetData.originAccountCode).arg(assetData.originAssetCode);
+            execWord = QString::fromLocal8Bit("select * from 资产 WHERE %1").arg(filter);
+            qDebug() << execWord;
+            if(query.exec(execWord)) {
+                if (1 == query.size()) {
+                    execWord = QString::fromLocal8Bit("UPDATE 资产 "
+                                                      "SET 代号='%1', 名称='%2', 资产帐户代号='%3', 数量=%4, 单位成本=%5, 类别='%6' "
+                                                      "WHERE %7")
+                            .arg(assetData.assetCode).arg(assetData.assetName).arg(assetData.accountCode)
+                            .arg(assetData.amount).arg(assetData.price).arg(assetData.type)
+                            .arg(filter);
+                    qDebug() << execWord;
+                    if(!query.exec(execWord)) {
+                        qDebug() << query.lastError().text();
+                        return false;
+                    } else { return true;}
+                } else { return false;}
+            } else { return false;}
+        /// DELETE ASSET
         } else if (POP_DELETE == type) {
             // delete holds
             QString accountCode = node->nodeData.value<myAssetHold>().accountCode;
@@ -431,7 +477,7 @@ bool myAssetNode::deleteOneAsset(const QString &accountCode, const QString &asse
     } else { return false;}
 }
 
-bool myAssetNode::doInsertAccount(insertAccountData data) {
+bool myAssetNode::doInsertAccount(myAccountData data) {
     if (myAssetNode::nodeRoot != this->type) {
         return false;
     }

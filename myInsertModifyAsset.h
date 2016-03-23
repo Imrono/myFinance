@@ -11,17 +11,18 @@ namespace Ui {
 class myInsertAsset;
 }
 
-class myInsertAsset : public QDialog
+class myInsertModifyAsset : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit myInsertAsset(QString accountCode, QString accountName, QWidget *parent = 0);
-    ~myInsertAsset();
+    explicit myInsertModifyAsset(QString accountCode, QString accountName, QWidget *parent = 0);
+    ~myInsertModifyAsset();
 
-    insertAssetData getData() {
+    myAssetData getData() {
         return data;
     }
+    void setUI(myAssetData assetData);
 
 private slots:
     void on_buttonBox_accepted();
@@ -45,7 +46,7 @@ private:
     myStockCodeName *stockCode; //用于从code到name的推导
 
 
-    insertAssetData data;
+    myAssetData data;
 };
 
 #endif // MYINSERTASSET_H

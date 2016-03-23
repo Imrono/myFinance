@@ -19,6 +19,7 @@ struct myAssetAccount {
 //    };
     QString type;
     QString logo;
+    QString note;
 
     float value;
 };
@@ -86,7 +87,7 @@ public:
     bool doExchange(const exchangeData data);
     bool checkExchange(const exchangeData &data, QString &abnormalInfo);
     bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
-    bool doInsertAccount(insertAccountData data);
+    bool doInsertAccount(myAccountData data);
 
     nodeType type;
     QVariant nodeData;

@@ -40,22 +40,34 @@ struct exchangeData {
     float     fee;
 };
 
-struct insertAccountData {
+struct myAssetAccount;
+struct myAssetHold;
+struct myAccountData {
+    myAccountData();
+    myAccountData(myAssetAccount data);
+    QString originCode;
     QString Code;
     QString Name;
     QString Type;
     QString Note;
+    static bool isSameAccountData(const myAccountData &data1, const myAccountData &data2);
 };
-struct insertAssetData {
+struct myAssetData {
+    myAssetData();
+    myAssetData(myAssetHold data);
+    QString originAccountCode;
+    QString originAssetCode;
     QString accountCode;
     QString assetCode;
     QString assetName;
     int     amount;
     float   price;
     QString type;
+    static bool isSameAssetData(const myAssetData &data1, const myAssetData &data2);
 };
 
-Q_DECLARE_METATYPE(insertAssetData)
+Q_DECLARE_METATYPE(myAccountData)
+Q_DECLARE_METATYPE(myAssetData)
 
 #endif // MYDATABASEDATATYPE
 

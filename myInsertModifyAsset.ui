@@ -114,9 +114,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="lineEditPrice"/>
-      </item>
       <item row="3" column="0">
        <widget class="QLabel" name="labelType">
         <property name="text">
@@ -137,17 +134,33 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="spinBoxPrice">
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>100000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEditAmount"/>
+       <widget class="QSpinBox" name="spinBoxAmount">
+        <property name="maximum">
+         <number>1000000</number>
+        </property>
+        <property name="singleStep">
+         <number>100</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
    </layout>
   </widget>
-  <zorder>buttonBox</zorder>
-  <zorder>labelAccount</zorder>
-  <zorder>horizontalLayoutWidget</zorder>
-  <zorder>radioSH</zorder>
  </widget>
  <resources/>
  <connections>

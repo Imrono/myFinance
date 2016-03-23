@@ -9,17 +9,18 @@ namespace Ui {
 class myInsertAccount;
 }
 
-class myInsertAccount : public QDialog
+class myInsertModifyAccount : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit myInsertAccount(QWidget *parent = 0);
-    ~myInsertAccount();
+    explicit myInsertModifyAccount(QWidget *parent = 0);
+    ~myInsertModifyAccount();
 
-    insertAccountData getData() {
+    myAccountData getData() {
         return data;
     }
+    void setUI(myAccountData accountData);
 
 private slots:
     void on_buttonBox_accepted();
@@ -27,7 +28,7 @@ private slots:
 private:
     Ui::myInsertAccount *ui;
 
-    insertAccountData data;
+    myAccountData data;
 };
 
 #endif // MYINSERTACCOUNT_H
