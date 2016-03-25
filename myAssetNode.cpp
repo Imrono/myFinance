@@ -60,6 +60,7 @@ bool myAssetNode::initial() {
             tmpAccount.name = query.value(1).toString();
             tmpAccount.type = query.value(2).toString();
             tmpAccount.note = query.value(3).toString();
+            tmpAccount.pos  = query.value(4).toInt();
             if (tmpAccount.name == QString::fromLocal8Bit("中国工商银行")) {
                 tmpAccount.logo = "gsyh.png";
             } else if (tmpAccount.name == QString::fromLocal8Bit("中国招商银行")) {
@@ -110,6 +111,7 @@ bool myAssetNode::initial() {
             tmpHold.amount      = query.value(3).toInt();
             tmpHold.price       = query.value(4).toFloat();
             tmpHold.type        = query.value(5).toString();
+            tmpHold.pos         = query.value(6).toInt();
 
             QVariant data;
             data.setValue(tmpHold);
@@ -129,6 +131,8 @@ bool myAssetNode::initial() {
     query.finish();
     numRows = 0;
     ///读“资产变化”表
+
+    doSortPosition();
 
     return true;
 }
@@ -252,7 +256,6 @@ bool myAssetNode::doExchange(exchangeData data) {
     query.clear();
     return true;
 }
-
 bool myAssetNode::checkExchange(const exchangeData &data, QString &abnormalInfo) {
     exchangeAbnomal abnormalCode = NORMAL;
 
@@ -476,7 +479,6 @@ bool myAssetNode::deleteOneAsset(const QString &accountCode, const QString &asse
         } else { return false;}
     } else { return false;}
 }
-
 bool myAssetNode::doInsertAccount(myAccountData data) {
     if (myAssetNode::nodeRoot != this->type) {
         return false;
@@ -499,4 +501,185 @@ bool myAssetNode::doInsertAccount(myAccountData data) {
         } else { return false;}
     } else { return false;}
     return false;
+}
+
+/// POSITION
+bool myAssetNode::setAccountPosition(const QString &accountCode, int pos) {
+    QSqlQuery query;
+    QString filter   = QString::fromLocal8Bit("代号='%1'").arg(accountCode);
+    QString execWord = QString::fromLocal8Bit("select * from 资产帐户 WHERE %1").arg(filter);
+    qDebug() << execWord;
+    if(query.exec(execWord)) {
+        if (1 == query.size()) {
+            execWord = QString::fromLocal8Bit("UPDATE 资产帐户 SET pos='%1' WHERE %2")
+                    .arg(pos).arg(filter);
+            qDebug() << execWord;
+            if(!query.exec(execWord)) {
+                qDebug() << query.lastError().text();
+                return false;
+            } else { return true;}
+        } else { return false;}
+    } else { return false;}
+}
+bool myAssetNode::setAssetPosition(const QString &accountCode, const QString &assetCode, int pos) {
+    QSqlQuery query;
+    QString filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'")
+                    .arg(accountCode).arg(assetCode);
+    QString execWord = QString::fromLocal8Bit("select * from 资产 WHERE %1").arg(filter);
+    qDebug() << execWord;
+    if(query.exec(execWord)) {
+        if (1 == query.size()) {
+            execWord = QString::fromLocal8Bit("UPDATE 资产 "
+                                              "SET pos='%1' WHERE %2")
+                    .arg(pos).arg(filter);
+            qDebug() << execWord;
+            if(!query.exec(execWord)) {
+                qDebug() << query.lastError().text();
+                return false;
+            } else { return true;}
+        } else { return false;}
+    } else { return false;}
+}
+
+void myAssetNode::doSortPosition() {
+    if (myAssetNode::nodeRoot != this->type) {
+        return;
+    }
+
+    /// SORT ACCOUNT
+    sortPositionAccount();
+
+    /// SORT ASSET
+    int numOfAccount = this->children.count();
+    for (int i = 0; i < numOfAccount; i++) {
+        sortPositionAsset(this->children.at(i));
+    }
+}
+void myAssetNode::sortPositionAccount() {
+    if (myAssetNode::nodeRoot != this->type) {
+        return;
+    }
+
+//    QList<int> posList;
+//    int numOfAccount = this->children.count();
+//    int lastPos = numOfAccount - 1;
+//    for (int i = 0; i < numOfAccount; i++) {
+//        myAssetAccount &tmpAccount = (this->children.at(i)->nodeData).value<myAssetAccount>();
+//        if (tmpAccount.pos < 0 || tmpAccount.pos > numOfAccount - 1 || posList.contains(tmpAccount.pos)) {
+//            tmpAccount.pos = lastPos;
+//            if (setAccountPosition(tmpAccount.code, tmpAccount.pos)) {
+//                lastPos --;
+//            } else {} //sql error
+//        } else {}
+//        posList.append(tmpAccount.pos);
+//    }
+
+//    for (int i = numOfAccount-1; i >= 0; i--) {
+//        int pos1 = posList.back();
+//        int pos2 = (this->children.at(pos1)->nodeData).value<myAssetAccount>().pos;
+//        if (pos1 != pos2) {
+//            this->children.swap(pos1, pos2);
+//        }
+//        posList.pop_back();
+//    }
+
+
+    QList<int> left;
+    QList<int> posList;
+    // 0 ~ numOfAsset-1 中找一个没用到的，给重复使用或超出范围的使用
+    int numOfAccount = this->children.count();
+    for (int i = 0; i < numOfAccount; i++) {
+        left.append(i);
+    }
+    for (int i = 0; i < numOfAccount; i++) {
+        myAssetAccount &tmpHold = (this->children.at(i)->nodeData).value<myAssetAccount>();
+        posList.append(tmpHold.pos);
+        for (int j = 0; j < left.count(); j++) {
+            if (tmpHold.pos == left.at(j)) {
+                left.removeAt(j);
+                break;
+            }
+        }
+    }
+
+    for (int i = 0; i < numOfAccount; i++) {
+        myAssetAccount &tmpAccount = (this->children.at(i)->nodeData).value<myAssetAccount>();
+        if (tmpAccount.pos < 0 || tmpAccount.pos > numOfAccount - 1 || posList.count(tmpAccount.pos)>1 ) {
+            int tmpPos = tmpAccount.pos;
+            tmpAccount.pos = left.back();
+            if (setAccountPosition(tmpAccount.code, tmpAccount.pos)) {
+                for (int j = 0; j < posList.count(); j++) {
+                    if (posList.at(j) == tmpPos) {
+                        posList.removeAt(j);
+                    }
+                }
+                posList.append(tmpAccount.pos);
+                left.pop_back();
+            } else {} //sql error
+        } else {}
+    }
+
+    // 按排好的顺序更新rootNode的children
+    QList<myAssetNode *> tmpChild;
+    for (int i = 0; i < numOfAccount; i++) {
+        for (int j = 0; j < numOfAccount; j++) {
+            if (i == (this->children.at(j)->nodeData).value<myAssetAccount>().pos) {
+                tmpChild.append(this->children.at(j));
+                break;
+            }
+        }
+    }
+    this->children = tmpChild;
+}
+void myAssetNode::sortPositionAsset(myAssetNode *accountNode) {
+    if (myAssetNode::nodeAccount != accountNode->type) {
+        return;
+    }
+
+    QList<int> left;
+    QList<int> posList;
+    // 0 ~ numOfAsset-1 中找一个没用到的，给重复使用或超出范围的使用
+    int numOfAsset = accountNode->children.count();
+    for (int i = 0; i < numOfAsset; i++) {
+        left.append(i);
+    }
+    for (int i = 0; i < numOfAsset; i++) {
+        myAssetHold &tmpHold = (accountNode->children.at(i)->nodeData).value<myAssetHold>();
+        posList.append(tmpHold.pos);
+        for (int j = 0; j < left.count(); j++) {
+            if (tmpHold.pos == left.at(j)) {
+                left.removeAt(j);
+                break;
+            }
+        }
+    }
+
+    for (int i = 0; i < numOfAsset; i++) {
+        myAssetHold &tmpHold = (accountNode->children.at(i)->nodeData).value<myAssetHold>();
+        if (tmpHold.pos < 0 || tmpHold.pos > numOfAsset - 1 || posList.count(tmpHold.pos)>1 ) {
+            int tmpPos = tmpHold.pos;
+            tmpHold.pos = left.back();
+            if (setAssetPosition(tmpHold.accountCode, tmpHold.assetCode, tmpHold.pos)) {
+                for (int j = 0; j < posList.count(); j++) {
+                    if (posList.at(j) == tmpPos) {
+                        posList.removeAt(j);
+                    }
+                }
+                posList.append(tmpHold.pos);
+                left.pop_back();
+            } else {} //sql error
+        } else {}
+    }
+
+    // 按排好的顺序更新accountNode的children
+    QList<myAssetNode *> tmpChild;
+    for (int i = 0; i < numOfAsset; i++) {
+        for (int j = 0; j < numOfAsset; j++) {
+            if (i == (accountNode->children.at(j)->nodeData).value<myAssetHold>().pos) {
+                tmpChild.append(accountNode->children.at(j));
+                break;
+            }
+        }
+    }
+    accountNode->children = tmpChild;
 }

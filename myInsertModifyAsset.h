@@ -45,7 +45,6 @@ private:
     void updateMarketInfo();
     myStockCodeName *stockCode; //用于从code到name的推导
 
-
     myAssetData data;
 };
 

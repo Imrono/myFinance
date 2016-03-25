@@ -22,6 +22,8 @@ struct myAssetAccount {
     QString note;
 
     float value;
+
+    int pos;
 };
 
 struct myAssetHold {
@@ -39,6 +41,8 @@ struct myAssetHold {
 
     float currentPrice;
     float value;
+
+    int pos;
 };
 
 Q_DECLARE_METATYPE(myAssetAccount)
@@ -89,6 +93,10 @@ public:
     bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
     bool doInsertAccount(myAccountData data);
 
+    bool setAccountPosition(const QString &accountCode, int pos);
+    bool setAssetPosition(const QString &accountCode, const QString &assetCode, int pos);
+
+
     nodeType type;
     QVariant nodeData;
     myAssetNode *parent;
@@ -97,6 +105,10 @@ public:
 
 private:
     bool deleteOneAsset(const QString &accountCode, const QString &assetCode);
+
+    void doSortPosition();
+    void sortPositionAccount();
+    void sortPositionAsset(myAssetNode *accountNode);
 };
 
 #endif // MYASSETNODE_H

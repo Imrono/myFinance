@@ -11,7 +11,7 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
     QMainWindow(parent),
     ui(new Ui::myFinanceMainWindow), statusLabel(this),
     stockCode(inStockCode),
-    assetModel(nullptr), exchangeModel(nullptr), changeAsset(nullptr),
+    assetModel(nullptr), exchangeModel(nullptr), editAsset(nullptr),
     deleteAsset(nullptr), insertAsset(nullptr), modifyAsset(nullptr)
 {
     assetModel = new myAssetModel(this);
@@ -43,13 +43,17 @@ myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *
         statusLabel.setText("ready");
     }
 
-    changeAsset = new QMenu(this);
+    editAsset = new QMenu(this);
     deleteAsset = new QAction(ui->treeView);
     insertAsset = new QAction(ui->treeView);
     modifyAsset = new QAction(ui->treeView);
+    upAsset     = new QAction(ui->treeView);;
+    downAsset   = new QAction(ui->treeView);;
     connect(deleteAsset, SIGNAL(triggered()), this, SLOT(deleteAsset_clicked()));
     connect(insertAsset, SIGNAL(triggered()), this, SLOT(insertAsset_clicked()));
     connect(modifyAsset, SIGNAL(triggered()), this, SLOT(modifyAsset_clicked()));
+    connect(upAsset    , SIGNAL(triggered()), this, SLOT(upAsset_clicked()));
+    connect(downAsset  , SIGNAL(triggered()), this, SLOT(downAsset_clicked()));
 
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeView, SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -71,21 +75,29 @@ myFinanceMainWindow::~myFinanceMainWindow()
         delete exchangeModel;
         exchangeModel = nullptr;
     }
-    if (nullptr != deleteAsset) {
-        delete deleteAsset;
-        deleteAsset = nullptr;
+    if (nullptr != upAsset) {
+        delete upAsset;
+        upAsset = nullptr;
     }
-    if (nullptr != insertAsset) {
-        delete insertAsset;
-        insertAsset = nullptr;
+    if (nullptr != downAsset) {
+        delete downAsset;
+        downAsset = nullptr;
     }
     if (nullptr != modifyAsset) {
         delete modifyAsset;
         modifyAsset = nullptr;
     }
-    if (nullptr != changeAsset) {
-        delete changeAsset;
-        changeAsset = nullptr;
+    if (nullptr != insertAsset) {
+        delete insertAsset;
+        insertAsset = nullptr;
+    }
+    if (nullptr != deleteAsset) {
+        delete deleteAsset;
+        deleteAsset = nullptr;
+    }
+    if (nullptr != editAsset) {
+        delete editAsset;
+        editAsset = nullptr;
     }
 }
 
@@ -173,23 +185,55 @@ void myFinanceMainWindow::contextMenuEvent(QContextMenuEvent *event) {
 }
 void myFinanceMainWindow::treeViewContextMenu(const QPoint& pt) {
     myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
-    changeAsset->clear();
+    editAsset->clear();
     if (myAssetNode::nodeAccount == node->type) {
         insertAsset->setText(QString::fromLocal8Bit("添加资产"));
-        changeAsset->addAction(insertAsset);
+        editAsset->addAction(insertAsset);
         modifyAsset->setText(QString::fromLocal8Bit("更新帐户"));
-        changeAsset->addAction(modifyAsset);
+        editAsset->addAction(modifyAsset);
         deleteAsset->setText(QString::fromLocal8Bit("删除帐户"));
-        changeAsset->addAction(deleteAsset);
+        editAsset->addAction(deleteAsset);
     } else if (myAssetNode::nodeHolds == node->type) {
         modifyAsset->setText(QString::fromLocal8Bit("更新资产"));
-        changeAsset->addAction(modifyAsset);
+        editAsset->addAction(modifyAsset);
         deleteAsset->setText(QString::fromLocal8Bit("删除资产"));
-        changeAsset->addAction(deleteAsset);
+        editAsset->addAction(deleteAsset);
     } else if (myAssetNode::nodeRoot == node->type) {
     } else {}
 
-    changeAsset->exec(QCursor::pos());
+    upAsset->setEnabled(true);
+    downAsset->setEnabled(true);
+    unsigned int upDownType = myFinanceMainWindow::HAS_NONE;
+    if (myAssetNode::nodeAccount == node->type) {
+        int pos = node->nodeData.value<myAssetAccount>().pos;
+        if (0 != pos) {
+            upDownType |= myFinanceMainWindow::HAS_UP;
+        }
+        if (node->parent->children.count()-1 != pos){
+            upDownType |= myFinanceMainWindow::HAS_DOWN;
+        }
+    } else if (myAssetNode::nodeHolds == node->type) {
+        int pos = node->nodeData.value<myAssetHold>().pos;
+        if (0 != pos) {
+            upDownType |= myFinanceMainWindow::HAS_UP;
+        }
+        if (node->parent->children.count()-1 != pos){
+            upDownType |= myFinanceMainWindow::HAS_DOWN;
+        }
+    } else {}
+
+    editAsset->addSeparator();
+    upAsset->setText(QString::fromLocal8Bit("上移"));
+    editAsset->addAction(upAsset);
+    downAsset->setText(QString::fromLocal8Bit("下移"));
+    editAsset->addAction(downAsset);
+    if (!(upDownType & myFinanceMainWindow::HAS_UP)) {
+        upAsset->setDisabled(true);
+    }
+    if (!(upDownType & myFinanceMainWindow::HAS_DOWN)) {
+        downAsset->setDisabled(true);
+    }
+    editAsset->exec(QCursor::pos());
 }
 void myFinanceMainWindow::deleteAsset_clicked() {
     doChangeAssetDirectly(POP_DELETE);
@@ -200,6 +244,13 @@ void myFinanceMainWindow::insertAsset_clicked() {
 void myFinanceMainWindow::modifyAsset_clicked() {
     doChangeAssetDirectly(POP_MODIFY);
 }
+void myFinanceMainWindow::upAsset_clicked() {
+    doUpDown(true);
+}
+void myFinanceMainWindow::downAsset_clicked() {
+    doUpDown(false);
+}
+
 void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
     myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
     QVariant data;
@@ -288,6 +339,15 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
     if (!assetModel->doChangeAssetDirectly(node, type, data)) {
         ui->treeView->expandAll();
         QMessageBox::warning(this, info+"failed", info+"failed", QMessageBox::Ok, QMessageBox::Ok);
+    }
+    ui->treeView->expandAll();
+}
+
+void myFinanceMainWindow::doUpDown(bool isUp) {
+    myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
+    if (!assetModel->doUpDown(isUp, node)) {
+        ui->treeView->expandAll();
+        QMessageBox::warning(this, "doUpDown failed", "doUpDown failed", QMessageBox::Ok, QMessageBox::Ok);
     }
     ui->treeView->expandAll();
 }

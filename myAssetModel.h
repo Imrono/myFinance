@@ -36,6 +36,7 @@ public:
     bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
     bool doInsertAccount(myAccountData data);
 
+    bool doUpDown(bool isUp, myAssetNode *node);
 
     myAssetNode *getRootNode() { return &rootNode;}
     myAssetNode *nodeFromIndex(const QModelIndex &index) const;

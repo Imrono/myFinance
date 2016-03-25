@@ -302,9 +302,49 @@ bool myAssetModel::doChangeAssetDirectly(const myAssetNode *node, changeType typ
     doReflashAssetData();
     return ans;
 }
-
 bool myAssetModel::doInsertAccount(myAccountData data) {
     bool ans = rootNode.doInsertAccount(data);
+    doReflashAssetData();
+    return ans;
+}
+
+bool myAssetModel::doUpDown(bool isUp, myAssetNode *node) {
+    bool ans = false;
+    int pos = -1;
+    int pos2 = -1;
+    if (myAssetNode::nodeAccount == node->type) {
+        pos = node->nodeData.value<myAssetAccount>().pos;
+        if (   (0 == pos && isUp == true)
+            || (node->parent->children.count()-1 == pos && isUp == false)) {
+            return false;
+        }
+    } else if (myAssetNode::nodeHolds == node->type) {
+        pos = node->nodeData.value<myAssetHold>().pos;
+        if (   (0 == pos && isUp == true)
+            || (node->parent->children.count()-1 == pos && isUp == false)) {
+            return false;
+        }
+    } else { return false;}
+
+    if (isUp) {
+        node->parent->children.swap(pos, pos-1);
+        pos2 = pos-1;
+    } else {
+        node->parent->children.swap(pos, pos+1);
+        pos2 = pos+1;
+    }
+
+    if (myAssetNode::nodeAccount == node->type) {
+        rootNode.setAccountPosition(node->nodeData.value<myAssetAccount>().code, pos2);
+        rootNode.setAccountPosition(node->parent->children.at(pos)->nodeData.value<myAssetAccount>().code, pos);
+        ans = true;
+    } else if (myAssetNode::nodeHolds == node->type) {
+        myAssetHold &hold1 = node->nodeData.value<myAssetHold>();
+        myAssetHold &hold2 = node->parent->children.at(pos)->nodeData.value<myAssetHold>();
+        rootNode.setAssetPosition(hold1.accountCode, hold1.assetCode, pos2);
+        rootNode.setAssetPosition(hold2.accountCode, hold2.assetCode, pos);
+        ans = true;
+    } else { return false;}
     doReflashAssetData();
     return ans;
 }

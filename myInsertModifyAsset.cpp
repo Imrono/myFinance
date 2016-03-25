@@ -169,6 +169,14 @@ void myInsertModifyAsset::on_lineEditAssetName_editingFinished()
 }
 
 void myInsertModifyAsset::setUI(myAssetData assetData) {
+    if (assetData.assetCode.left(3) == "sh.") {
+        ui->radioSH->setChecked(true);
+    } else if (assetData.assetCode.left(3) == "sz.") {
+        ui->radioSZ->setChecked(true);
+    } else {
+        ui->radioOther->setChecked(true);
+    }
+
     ui->lineEditAssetCode->setText(assetData.assetCode);
     ui->lineEditAssetName->setText(assetData.assetName);
     ui->spinBoxAmount->setValue(assetData.amount);

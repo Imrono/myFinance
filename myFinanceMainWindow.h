@@ -57,13 +57,14 @@ private:
 
     bool doExchange();
 
-    QMenu *changeAsset;
+    QMenu *editAsset;
     QAction *deleteAsset;
     QAction *insertAsset;
     QAction *modifyAsset;
+    QAction *upAsset;
+    QAction *downAsset;
 
     void contextMenuEvent(QContextMenuEvent *event);
-    void doChangeAssetDirectly(changeType type);
 
 private slots:
     void priceDataReflashed();
@@ -71,8 +72,21 @@ private slots:
     void deleteAsset_clicked();
     void insertAsset_clicked();
     void modifyAsset_clicked();
+    void upAsset_clicked();
+    void downAsset_clicked();
 
     void treeViewContextMenu(const QPoint& pt);
+
+private:
+    void doChangeAssetDirectly(changeType type);
+
+    enum upDownMenu {
+        HAS_UP   = 1,
+        HAS_DOWN = 2,
+        HAS_UPDOWN = 3,
+        HAS_NONE   = 0
+    };
+    void doUpDown(bool isUp);
 };
 
 #endif // MYFINANCEMAINWINDOW_H
