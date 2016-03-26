@@ -9,6 +9,8 @@
 #include "myDatabaseDatatype.h"
 
 struct myAssetAccount {
+    myAssetAccount();
+    myAssetAccount(myAccountData data);
     QString code;
     QString name;
 //    enum accountType {
@@ -27,6 +29,8 @@ struct myAssetAccount {
 };
 
 struct myAssetHold {
+    myAssetHold();
+    myAssetHold(myAssetData data);
     QString assetCode;
     QString name;
     QString accountCode;

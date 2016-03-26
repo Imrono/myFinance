@@ -32,6 +32,7 @@ public:
     bool checkExchange(const exchangeData &data, QString &abnormalInfo);
     void doReflashAssetData();
     void doUpdatePrice();
+    float doGetTotalAsset();
     void doReflash();
     bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
     bool doInsertAccount(myAccountData data);

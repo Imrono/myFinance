@@ -108,6 +108,9 @@ void myFinanceMainWindow::priceDataReflashed() {
 
     ui->treeView->expandAll();
     ui->dateTimePrice->setDateTime(QDateTime::currentDateTime());
+    float totalAsset = assetModel->doGetTotalAsset();
+    QString strAsset = QString::number(totalAsset, 'f', 2);
+    ui->lineEditTotalAsset->setText(strAsset);
     qDebug() << QString::fromLocal8Bit("价格更新 finished");
 }
 void myFinanceMainWindow::codeDataReady() {

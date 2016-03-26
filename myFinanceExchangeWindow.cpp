@@ -250,7 +250,12 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
             ui->radioSZ->setChecked(true);
         } else if (subStr == "60") {
             ui->radioSH->setChecked(true);
-        } else {}
+        } else {
+            subStr = data.code.mid(pointIndex+1, 4);
+            if (subStr == "cash") {
+                ui->radioOther->setChecked(true);
+            } else {}
+        }
     }
 
     updateMarketInfo();

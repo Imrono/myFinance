@@ -108,9 +108,11 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             case myAssetNode::nodeHolds: {
                 myAssetHold holds = node->nodeData.value<myAssetHold>();
                 if (holds.assetCode == "cash") {
-                    return QString("%1").arg(holds.price);
+                    QString strPrice = QString::number(holds.price, 'f', 2);
+                    return QString("%1").arg(strPrice);
                 } else {
-                    return QString("%1@%2").arg(holds.amount).arg(holds.price);
+                    QString strPrice = QString::number(holds.price, 'f', 3);
+                    return QString("%1@%2").arg(holds.amount).arg(strPrice);
                 }
             }
             default:
@@ -122,14 +124,16 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             if (holds.assetCode == "cash") {
                 return QVariant();
             } else {
-                return QString("%1").arg(currentPrice(stockPrice.getStockPriceRt(), holds.assetCode));
+                QString strPrice = QString::number(currentPrice(stockPrice.getStockPriceRt(), holds.assetCode), 'f', 2);
+                return QString("%1").arg(strPrice);
             }
         /// 第4列
         } else if (index.column() == 3 && stockPrice.isInit()) {
             if (myAssetNode::nodeHolds == node->type) {
                 myAssetHold holds = node->nodeData.value<myAssetHold>();
                 if (holds.assetCode == "cash") {
-                    return QString("%1").arg(holds.price);
+                    QString strValue = QString::number(holds.price, 'f', 2);
+                    return QString("%1").arg(strValue);
                 } else {
                     float price = currentPrice(stockPrice.getStockPriceRt(), holds.assetCode);
                     float totalValue = static_cast<float>(holds.amount) * price;
@@ -146,7 +150,8 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                         totalValue += static_cast<float>(holds.amount) * price;
                     }
                 }
-                return QString("%1").arg(totalValue);
+                QString strValue = QString::number(totalValue, 'f', 2);
+                return QString("%1").arg(strValue);
             } else {
                 return QVariant();
             }
@@ -265,6 +270,26 @@ void myAssetModel::doUpdatePrice() {
     stockPrice.getStockPrice();
     endResetModel();
 }
+float myAssetModel::doGetTotalAsset() {
+    float totalValue = 0.0f;
+    if (stockPrice.isInit()) {
+        for (int i = 0; i < rootNode.children.count(); i++) {
+            myAssetNode *tmpAccount = rootNode.children.at(i);
+            for (int j = 0; j < tmpAccount->children.count(); j++) {
+                const myAssetHold &holds = tmpAccount->children.at(j)->nodeData.value<myAssetHold>();
+                if (holds.assetCode == "cash" ) {
+                    totalValue += holds.price;
+                } else {
+                    float price = currentPrice(stockPrice.getStockPriceRt(), holds.assetCode);
+                    totalValue += static_cast<float>(holds.amount) * price;
+                }
+            }
+        }
+    }
+
+    return totalValue;
+}
+
 void myAssetModel::doReflash() {
     beginResetModel();
     endResetModel();
