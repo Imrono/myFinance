@@ -17,38 +17,8 @@ myStockPrice::~myStockPrice()
     }
 }
 
-QStringList myStockPrice::getStockCodeList(myAssetNode *rootNode) {
-    if (!rootNode) {
-        return QStringList();
-    } else if (rootNode->type != myAssetNode::nodeRoot) {
-        return QStringList();
-    }
-
-    QStringList list;
-    int numAccount = rootNode->children.size();
-    for (int i = 0; i < numAccount; i++) {
-        myAssetNode *account = rootNode->children.at(i);
-        int numAsset = account->children.size();
-        for (int j = 0; j < numAsset; j++) {
-            myAssetNode *asset = account->children.at(j);
-            list.append((asset->nodeData).value<myAssetHold>().assetCode);
-        }
-    }
-    list.removeDuplicates();
-
-    for (QStringList::iterator it = list.begin(); it != list.end();) {
-        qDebug() << *it;
-        if (!it->contains(".")) {
-            it = list.erase(it);
-        } else {
-            ++it;
-        }
-    }
+void myStockPrice::getStockPrice(const QStringList &list) {
     stockList = list;
-    return list;
-}
-
-void myStockPrice::getStockPrice() {
     QString urlSina;
     QString prefix = "http://hq.sinajs.cn/list=";
     urlSina = prefix;

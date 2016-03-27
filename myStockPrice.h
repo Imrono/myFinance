@@ -58,8 +58,7 @@ public:
     myStockPrice();
     ~myStockPrice();
 
-    QStringList getStockCodeList(myAssetNode *rootNode);
-    void getStockPrice();
+    void getStockPrice(const QStringList &list);
 
     QMap<QString, sinaRealTimeData> const *getStockPriceRt() const {
         return &stockPriceRt;

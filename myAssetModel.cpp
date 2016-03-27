@@ -23,10 +23,6 @@ myAssetModel::~myAssetModel()
     Q_UNUSED(ans);
 }
 
-void myAssetModel::updatePriceFinish() {
-    doReflash();
-}
-
 QModelIndex myAssetModel::index(int row, int column, const QModelIndex &parent) const {
     if (row < 0 || column < 0)
         return QModelIndex();
@@ -240,14 +236,8 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
 
 /////////////////////////////////////////////////////////////////////
 bool myAssetModel::doExchange(const exchangeData data) {
-    bool ans = true;
-    //刷新rootNode
-    beginResetModel();
-    ans = ans && rootNode.doExchange(data);
-    ans = ans && rootNode.callback();
-    ans = ans && rootNode.initial();
-    endResetModel();
-
+    bool ans = rootNode.doExchange(data);
+    ans = doReflashAssetData() && ans;
     qDebugNodeData();
     return ans;
 }
@@ -255,20 +245,27 @@ bool myAssetModel::checkExchange(const exchangeData &data, QString &abnormalInfo
     return rootNode.checkExchange(data, abnormalInfo);
 }
 
-void myAssetModel::doReflashAssetData() {
+bool myAssetModel::doReflashAssetData() {
     beginResetModel();
     bool ans = rootNode.callback();
-    Q_UNUSED(ans);
-    ans = rootNode.initial();
-    Q_UNUSED(ans);
+    ans = rootNode.initial() && ans;
     endResetModel();
+    return ans;
 }
+void myAssetModel::doReflash() {
+    beginResetModel();
+    endResetModel();
+    emit priceDataReflashed();
+}
+
 void myAssetModel::doUpdatePrice() {
     beginResetModel();
-    QStringList list = stockPrice.getStockCodeList(&rootNode);
-    Q_UNUSED(list);
-    stockPrice.getStockPrice();
+    QStringList list = rootNode.getAllStockCodeList();
+    stockPrice.getStockPrice(list);
     endResetModel();
+}
+void myAssetModel::updatePriceFinish() {
+    doReflash();
 }
 float myAssetModel::doGetTotalAsset() {
     float totalValue = 0.0f;
@@ -288,12 +285,6 @@ float myAssetModel::doGetTotalAsset() {
     }
 
     return totalValue;
-}
-
-void myAssetModel::doReflash() {
-    beginResetModel();
-    endResetModel();
-    emit priceDataReflashed();
 }
 
 void myAssetModel::qDebugNodeData()

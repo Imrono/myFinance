@@ -30,7 +30,7 @@ public:
 
     bool doExchange(const exchangeData data);
     bool checkExchange(const exchangeData &data, QString &abnormalInfo);
-    void doReflashAssetData();
+    bool doReflashAssetData();
     void doUpdatePrice();
     float doGetTotalAsset();
     void doReflash();

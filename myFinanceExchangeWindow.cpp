@@ -83,7 +83,7 @@ void myFinanceExchangeWindow::initial(myAssetNode* rootNode) {
 
 void myFinanceExchangeWindow::on_buttonBox_accepted()
 {
-    qDebug() << "资产变化 accepted";
+    qDebug() << QString::fromLocal8Bit("资产变化 accepted");
     data.time     = ui->timeDateTimeEdit->dateTime();
     data.type     = ui->typeLineEdit->text();
     updataData();

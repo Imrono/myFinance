@@ -94,6 +94,9 @@ public:
 
     bool doExchange(const exchangeData data);
     bool checkExchange(const exchangeData &data, QString &abnormalInfo);
+
+    QStringList getAllStockCodeList();
+
     bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
     bool doInsertAccount(myAccountData data);
 

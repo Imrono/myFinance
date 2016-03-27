@@ -201,10 +201,11 @@ bool myAssetNode::doExchange(exchangeData data) {
         if (1 == query.size()) {
             query.next();
             float moneyOrigin = query.value(0).toDouble();
-            float money = moneyOrigin+data.money;
+            float money = moneyOrigin + data.money;
+            QString strMoney = QString::number(money, 'f', 3);
             qDebug() << moneyOrigin << "  " << data.money << "  " << money;
             execWord = QString::fromLocal8Bit("UPDATE 资产 SET 单位成本=%1"
-                                              " WHERE %2").arg(money).arg(filter);
+                                              " WHERE %2").arg(strMoney).arg(filter);
             qDebug() << execWord;
             if(!query.exec(execWord)) {
                 qDebug() << query.lastError().text();
@@ -371,6 +372,37 @@ bool myAssetNode::checkExchange(const exchangeData &data, QString &abnormalInfo)
     abnormalCode = NORMAL;
     abnormalInfo = QString::fromLocal8Bit("EXCHANGE CHECK OK");
     return true;
+}
+
+QStringList myAssetNode::getAllStockCodeList() {
+    myAssetNode *rootNode = this;
+    if (!rootNode) {
+        return QStringList();
+    } else if (rootNode->type != myAssetNode::nodeRoot) {
+        return QStringList();
+    }
+
+    QStringList list;
+    int numAccount = rootNode->children.size();
+    for (int i = 0; i < numAccount; i++) {
+        myAssetNode *account = rootNode->children.at(i);
+        int numAsset = account->children.size();
+        for (int j = 0; j < numAsset; j++) {
+            myAssetNode *asset = account->children.at(j);
+            list.append((asset->nodeData).value<myAssetHold>().assetCode);
+        }
+    }
+    list.removeDuplicates();
+
+    for (QStringList::iterator it = list.begin(); it != list.end();) {
+        qDebug() << *it;
+        if (!it->contains(".")) {
+            it = list.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    return list;
 }
 
 bool myAssetNode::doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data) {
