@@ -39,7 +39,7 @@ public:
 
     bool doUpDown(bool isUp, myAssetNode *node);
 
-    myAssetNode *getRootNode() { return &rootNode;}
+    const myRootAccountAsset &getRootNode() { return root;}
     myAssetNode *nodeFromIndex(const QModelIndex &index) const;
 
 signals:
@@ -50,7 +50,7 @@ private:
     /// \brief rootNode:提供帐户与资产的关系
     /// \brief stockPrice:提供股票的价格
     ///
-    myAssetNode rootNode;
+    myRootAccountAsset root;
     myStockPrice stockPrice;
 
     float currentPrice(const QMap<QString, sinaRealTimeData> *priceMap, const QString assetCode) const;

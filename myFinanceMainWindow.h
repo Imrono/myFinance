@@ -24,14 +24,11 @@ class myFinanceMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *parent = 0);
+    explicit myFinanceMainWindow(QWidget *parent = 0);
     ~myFinanceMainWindow();
 
     myAssetModel *getAssetModel() {
         return assetModel;
-    }
-    myStockCodeName *getStockCode() {
-        return stockCode;
     }
 
 private slots:

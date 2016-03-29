@@ -1,4 +1,4 @@
-#include "myExchangeListModel.h"
+Ôªø#include "myExchangeListModel.h"
 #include "myFinanceDatabase.h"
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlDriver>
@@ -22,8 +22,8 @@ bool myExchangeListModel::doExchange(const exchangeData data) {
     QString exchangeType = data.type;
     QSqlQuery query;
     // 1 update database
-    // "◊ ≤˙±‰ªØ"±Ì CHANGE
-    QString execWord = QString::fromLocal8Bit("INSERT INTO ◊ ≤˙±‰ªØ "
+    // "ËµÑ‰∫ßÂèòÂåñ"Ë°® CHANGE
+    QString execWord = QString::fromLocal8Bit("INSERT INTO ËµÑ‰∫ßÂèòÂåñ "
                                       "VALUES (null, '%1', '%2', '%3', %4, '%5', '%6', '%7', %8, %9)")
             .arg(exchangeTime).arg(exchangeType).arg(data.account1).arg(data.money)
             .arg(data.account2).arg(data.code).arg(data.name).arg(data.price).arg(data.amount);
@@ -33,7 +33,7 @@ bool myExchangeListModel::doExchange(const exchangeData data) {
         qDebug() << query.lastError().text();
         return false;
     }
-    // 2 ∏¸–¬list£¨À¢–¬
+    // 2 Êõ¥Êñ∞listÔºåÂà∑Êñ∞
     return initial();
 }
 
@@ -41,8 +41,8 @@ bool myExchangeListModel::initial() {
     list.clear();
     QSqlQuery query;
     int numRows = 0;
-    ///∂¡°∞◊ ≤˙’ ªß°±±Ì
-    if(query.exec(QString::fromLocal8Bit("select * from ◊ ≤˙±‰ªØ"))) {
+    ///ËØª‚ÄúËµÑ‰∫ßÂ∏êÊà∑‚ÄùË°®
+    if(query.exec(QString::fromLocal8Bit("select * from ËµÑ‰∫ßÂèòÂåñ"))) {
         if(myFinanceDatabase::db.driver()->hasFeature(QSqlDriver::QuerySize)){
             numRows = query.size();
         } else {
@@ -50,7 +50,7 @@ bool myExchangeListModel::initial() {
             numRows = query.at() + 1;
         }
         int i = 0;
-        while(query.next() && i < numRows) { // ∂®ŒªΩ·π˚µΩœ¬“ªÃıº«¬º
+        while(query.next() && i < numRows) { // ÂÆö‰ΩçÁªìÊûúÂà∞‰∏ã‰∏ÄÊù°ËÆ∞ÂΩï
             exchangeData tmpExchange;
             tmpExchange.id       = query.value(0).toInt();
             tmpExchange.time     = QDateTime::fromString(query.value(1).toString(), "yyyy-MM-ddThh:mm:ss");
@@ -67,13 +67,13 @@ bool myExchangeListModel::initial() {
             QString exchangeStr;
             if (CASH == tmpExchange.code && 1 == tmpExchange.amount) {
                 if (tmpExchange.price + tmpExchange.money > 0.0001f)
-                    qDebug() << "[◊™’ ]" << tmpExchange.account1 << " " << tmpExchange.money
+                    qDebug() << "[ËΩ¨Â∏ê]" << tmpExchange.account1 << " " << tmpExchange.money
                              << "!="    << tmpExchange.account2 << " " << tmpExchange.price;
-                exchangeStr = QString::fromLocal8Bit("[%1]%2->%3(£§%4)")
+                exchangeStr = QString::fromLocal8Bit("[%1]%2->%3(Ôø•%4)")
                         .arg(tmpExchange.type)
                         .arg(tmpExchange.account1).arg(tmpExchange.account2).arg(tmpExchange.price);
             } else {
-                exchangeStr = QString::fromLocal8Bit("[%1]%2(£§%3) - %4@%5(%6*%7)")
+                exchangeStr = QString::fromLocal8Bit("[%1]%2(Ôø•%3) - %4@%5(%6*%7)")
                         .arg(tmpExchange.type)
                         .arg(tmpExchange.account1).arg(tmpExchange.money)
                         .arg(tmpExchange.name).arg(tmpExchange.account2)
@@ -82,7 +82,7 @@ bool myExchangeListModel::initial() {
             list.append(exchangeStr);
         }
         qDebug() << "num of exchange data : " << i;
-    } else { // »Áπ˚≤È—Ø ß∞‹£¨”√œ¬√Êµƒ∑Ω∑®µ√µΩæﬂÃÂ ˝æ›ø‚∑µªÿµƒ‘≠“Ú
+    } else { // Â¶ÇÊûúÊü•ËØ¢Â§±Ë¥•ÔºåÁî®‰∏ãÈù¢ÁöÑÊñπÊ≥ïÂæóÂà∞ÂÖ∑‰ΩìÊï∞ÊçÆÂ∫ìËøîÂõûÁöÑÂéüÂõ†
         qDebug() << "Fetch Account Data to MySql error: " << query.lastError().text();
         return nullptr;
     }

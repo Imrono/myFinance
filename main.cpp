@@ -11,9 +11,9 @@ int main(int argc, char *argv[])
 
     myFinanceDatabase::connectDB();
 
-    myStockCodeName stockCode;
+    myStockCodeName::initial();
 
-    myFinanceMainWindow w(&stockCode);
+    myFinanceMainWindow w;
     w.show();
 
 

@@ -73,6 +73,7 @@ enum changeType {
     BTN_INSERT = 3
 };
 
+class myRootAccountAsset;
 class myAssetNode
 {
 public:
@@ -87,13 +88,30 @@ public:
     ~myAssetNode();
 
     void addChild(myAssetNode *childNode);
-    myAssetNode *getAccountNode(QString accountCode);
+
+    static bool doExchange(const exchangeData data, const myRootAccountAsset &rootNode);
+    static bool checkExchange(const exchangeData &data, QString &abnormalInfo);
+
+    nodeType type;
+    QVariant nodeData;
+    myAssetNode *parent;
+
+    QList<myAssetNode *> children;
+
+};
+
+class myRootAccountAsset {
+public:
+    myRootAccountAsset();
+    ~myRootAccountAsset();
 
     bool initial();
     bool callback();
 
-    bool doExchange(const exchangeData data);
-    bool checkExchange(const exchangeData &data, QString &abnormalInfo);
+    myAssetNode *getRootNode() const { return const_cast<myAssetNode *>(&rootNode);}
+    myAssetNode *getAccountNode(QString accountCode) const;
+    myAssetNode *getAccountNode(int i) const;
+    int getAccountCount() const { return rootNode.children.count();}
 
     QStringList getAllStockCodeList();
 
@@ -103,14 +121,9 @@ public:
     bool setAccountPosition(const QString &accountCode, int pos);
     bool setAssetPosition(const QString &accountCode, const QString &assetCode, int pos);
 
-
-    nodeType type;
-    QVariant nodeData;
-    myAssetNode *parent;
-
-    QList<myAssetNode *> children;
-
 private:
+    myAssetNode rootNode;
+
     bool deleteOneAsset(const QString &accountCode, const QString &assetCode);
 
     void doSortPosition();

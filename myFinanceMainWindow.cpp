@@ -7,10 +7,10 @@
 #include "myInsertModifyAccount.h"
 #include "myInsertModifyAsset.h"
 
-myFinanceMainWindow::myFinanceMainWindow(myStockCodeName *inStockCode, QWidget *parent) :
+myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::myFinanceMainWindow), statusLabel(this),
-    stockCode(inStockCode),
+    stockCode(myStockCodeName::getInstance()),
     assetModel(nullptr), exchangeModel(nullptr), editAsset(nullptr),
     deleteAsset(nullptr), insertAsset(nullptr), modifyAsset(nullptr)
 {
@@ -123,10 +123,6 @@ void myFinanceMainWindow::codeDataReady() {
 void myFinanceMainWindow::on_exchange_clicked()
 {
     qDebug() << QString::fromLocal8Bit("资产变化 clicked");
-    if (!assetModel->getRootNode()) {
-        QMessageBox::information(NULL, QString::fromLocal8Bit("提示"), "rootNode is invalid");
-        return;
-    }
     myFinanceExchangeWindow exWin(this);
     if(exWin.exec() == QDialog::Accepted) {
         exchangeData data = exWin.getExchangeData();
@@ -307,7 +303,7 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
         if (POP_MODIFY == type) {
             info = QString::fromLocal8Bit("更新资产");
             myAssetHold nodeData = node->nodeData.value<myAssetHold>();
-            myAssetNode *accountNode = assetModel->getRootNode()->getAccountNode(nodeData.accountCode);
+            myAssetNode *accountNode = assetModel->getRootNode().getAccountNode(nodeData.accountCode);
             myAssetAccount accountNodeData = accountNode->nodeData.value<myAssetAccount>();
             myInsertModifyAsset dial(accountNodeData.code, accountNodeData.name, this);
             dial.setUI(myAssetData(nodeData));

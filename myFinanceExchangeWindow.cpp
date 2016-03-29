@@ -9,7 +9,7 @@
 myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     QDialog(parent), grpBuySell(nullptr),
     ui(new Ui::myFinanceExchangeWindow),
-    stockCode(static_cast<myFinanceMainWindow *>(parent)->getStockCode())
+    stockCode(myStockCodeName::getInstance())
 {
     ui->setupUi(this);
 
@@ -55,18 +55,18 @@ myFinanceExchangeWindow::~myFinanceExchangeWindow()
     delete ui;
 }
 
-void myFinanceExchangeWindow::initial(myAssetNode* rootNode) {
+void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
     ui->moneyAccount->clear();
     // 交易：资产变化
-    for (int i = 0; i < rootNode->children.count(); i++) {
-        myAssetNode *accountNode = rootNode->children.at(i);
+    for (int i = 0; i < rootNode.getAccountCount(); i++) {
+        myAssetNode *accountNode = rootNode.getAccountNode(i);
         QIcon   icon = QString("resource//icon//%1").arg(accountNode->nodeData.value<myAssetAccount>().logo);
         QString code = accountNode->nodeData.value<myAssetAccount>().code;
         ui->moneyAccount->addItem(icon, code);
     }
     // 转帐：资金变化
-    for (int i = 0; i < rootNode->children.count(); i++) {
-        myAssetNode *accountNode = rootNode->children.at(i);
+    for (int i = 0; i < rootNode.getAccountCount(); i++) {
+        myAssetNode *accountNode = rootNode.getAccountNode(i);
         for (int j = 0; j < accountNode->children.count(); j++) {
             myAssetNode *holdNode = accountNode->children.at(j);
             QString assetCode = holdNode->nodeData.value<myAssetHold>().assetCode;
@@ -264,7 +264,7 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
 void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
 {
     int count = stockCode->codeName.count();
-    qDebug() << "代号EditLine" << ui->codeLineEdit->text() << "(" << count << ")";
+    qDebug() << QString::fromLocal8Bit("代号EditLine") << ui->codeLineEdit->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
             if (stockCode->codeName.contains(data.code)) {

@@ -66,7 +66,7 @@ private:
 
     myStockCodeName *stockCode; //用于从code到name的推导
 
-    void initial(myAssetNode* rootNode);
+    void initial(const myRootAccountAsset &rootNode);
     void updateBuySell();
     void updateMarketInfo();
     void updataData();

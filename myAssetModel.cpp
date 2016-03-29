@@ -7,9 +7,9 @@
 #include <QFont>
 
 myAssetModel::myAssetModel(QObject *parent)
-    : QAbstractItemModel(parent), rootNode(myAssetNode::nodeRoot, "RootNode")
+    : QAbstractItemModel(parent), root()
 {
-    if (!rootNode.initial())
+    if (!root.initial())
         qDebug() << "ERROR @ initial rootNode";
 
     connect(&stockPrice, SIGNAL(updatePriceFinish()), this, SLOT(updatePriceFinish()));
@@ -19,7 +19,7 @@ myAssetModel::myAssetModel(QObject *parent)
 
 myAssetModel::~myAssetModel()
 {
-    bool ans = rootNode.callback();
+    bool ans = root.callback();
     Q_UNUSED(ans);
 }
 
@@ -217,7 +217,7 @@ myAssetNode *myAssetModel::nodeFromIndex(const QModelIndex &index) const
     if (index.isValid()) {
         return static_cast<myAssetNode *>(index.internalPointer());
     } else {
-        return const_cast<myAssetNode *>(&rootNode);
+        return const_cast<myAssetNode *>(root.getRootNode());
     }
 }
 
@@ -236,19 +236,19 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
 
 /////////////////////////////////////////////////////////////////////
 bool myAssetModel::doExchange(const exchangeData data) {
-    bool ans = rootNode.doExchange(data);
+    bool ans = myAssetNode::doExchange(data, root);
     ans = doReflashAssetData() && ans;
     qDebugNodeData();
     return ans;
 }
 bool myAssetModel::checkExchange(const exchangeData &data, QString &abnormalInfo) {
-    return rootNode.checkExchange(data, abnormalInfo);
+    return myAssetNode::checkExchange(data, abnormalInfo);
 }
 
 bool myAssetModel::doReflashAssetData() {
     beginResetModel();
-    bool ans = rootNode.callback();
-    ans = rootNode.initial() && ans;
+    bool ans = root.callback();
+    ans = root.initial() && ans;
     endResetModel();
     return ans;
 }
@@ -260,7 +260,7 @@ void myAssetModel::doReflash() {
 
 void myAssetModel::doUpdatePrice() {
     beginResetModel();
-    QStringList list = rootNode.getAllStockCodeList();
+    QStringList list = root.getAllStockCodeList();
     stockPrice.getStockPrice(list);
     endResetModel();
 }
@@ -270,8 +270,8 @@ void myAssetModel::updatePriceFinish() {
 float myAssetModel::doGetTotalAsset() {
     float totalValue = 0.0f;
     if (stockPrice.isInit()) {
-        for (int i = 0; i < rootNode.children.count(); i++) {
-            myAssetNode *tmpAccount = rootNode.children.at(i);
+        for (int i = 0; i < root.getAccountCount(); i++) {
+            myAssetNode *tmpAccount = root.getAccountNode(i);
             for (int j = 0; j < tmpAccount->children.count(); j++) {
                 const myAssetHold &holds = tmpAccount->children.at(j)->nodeData.value<myAssetHold>();
                 if (holds.assetCode == "cash" ) {
@@ -289,17 +289,17 @@ float myAssetModel::doGetTotalAsset() {
 
 void myAssetModel::qDebugNodeData()
 {
-    for (int i = 0; i < rootNode.children.count(); i++) {
-        myAssetAccount pAccount = rootNode.children.at(i)->nodeData.value<myAssetAccount>();
+    for (int i = 0; i < root.getAccountCount(); i++) {
+        myAssetAccount pAccount = root.getAccountNode(i)->nodeData.value<myAssetAccount>();
         QString code = pAccount.code;
         QString name = pAccount.name;
         QString type = pAccount.type;
 
-        int assetCount = rootNode.children.at(i)->children.count();
+        int assetCount = root.getAccountNode(i)->children.count();
         qDebug() << code << name << type << "has hold count:" << assetCount;
 
         for (int j = 0; j < assetCount; j++) {
-            myAssetHold pHold = rootNode.children.at(i)->children.at(j)->nodeData.value<myAssetHold>();
+            myAssetHold pHold   = root.getAccountNode(i)->children.at(j)->nodeData.value<myAssetHold>();
             QString code        = pHold.assetCode;
             QString name        = pHold.name;
             QString accountCode = pHold.accountCode;
@@ -314,12 +314,12 @@ void myAssetModel::qDebugNodeData()
 
 bool myAssetModel::doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data) {
     qDebug() << "myAssetModel";
-    bool ans = rootNode.doChangeAssetDirectly(node, type, data);
+    bool ans = root.doChangeAssetDirectly(node, type, data);
     doReflashAssetData();
     return ans;
 }
 bool myAssetModel::doInsertAccount(myAccountData data) {
-    bool ans = rootNode.doInsertAccount(data);
+    bool ans = root.doInsertAccount(data);
     doReflashAssetData();
     return ans;
 }
@@ -351,14 +351,14 @@ bool myAssetModel::doUpDown(bool isUp, myAssetNode *node) {
     }
 
     if (myAssetNode::nodeAccount == node->type) {
-        rootNode.setAccountPosition(node->nodeData.value<myAssetAccount>().code, pos2);
-        rootNode.setAccountPosition(node->parent->children.at(pos)->nodeData.value<myAssetAccount>().code, pos);
+        root.setAccountPosition(node->nodeData.value<myAssetAccount>().code, pos2);
+        root.setAccountPosition(node->parent->children.at(pos)->nodeData.value<myAssetAccount>().code, pos);
         ans = true;
     } else if (myAssetNode::nodeHolds == node->type) {
         myAssetHold &hold1 = node->nodeData.value<myAssetHold>();
         myAssetHold &hold2 = node->parent->children.at(pos)->nodeData.value<myAssetHold>();
-        rootNode.setAssetPosition(hold1.accountCode, hold1.assetCode, pos2);
-        rootNode.setAssetPosition(hold2.accountCode, hold2.assetCode, pos);
+        root.setAssetPosition(hold1.accountCode, hold1.assetCode, pos2);
+        root.setAssetPosition(hold2.accountCode, hold2.assetCode, pos);
         ans = true;
     } else { return false;}
     doReflashAssetData();

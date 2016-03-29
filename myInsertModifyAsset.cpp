@@ -8,7 +8,7 @@
 myInsertModifyAsset::myInsertModifyAsset(QString accountCode, QString accountName, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::myInsertAsset),
-    stockCode(static_cast<myFinanceMainWindow *>(parent)->getStockCode())
+    stockCode(myStockCodeName::getInstance())
 {
     data.accountCode = accountCode;
     data.originAccountCode = accountCode;
@@ -122,7 +122,7 @@ void myInsertModifyAsset::on_lineEditAssetCode_textChanged(const QString &str)
 void myInsertModifyAsset::on_lineEditAssetCode_editingFinished()
 {
     int count = stockCode->codeName.count();
-    qDebug() << "代号EditLine" << ui->lineEditAssetCode->text() << "(" << count << ")";
+    qDebug() << QString::fromLocal8Bit("代号EditLine") << ui->lineEditAssetCode->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
             if (stockCode->codeName.contains(data.assetCode)) {
