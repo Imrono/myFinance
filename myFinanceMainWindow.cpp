@@ -111,6 +111,9 @@ void myFinanceMainWindow::priceDataReflashed() {
     float totalAsset = assetModel->doGetTotalAsset();
     QString strAsset = QString::number(totalAsset, 'f', 2);
     ui->lineEditTotalAsset->setText(strAsset);
+    float securityAsset = assetModel->doGetSecurityAsset();
+    strAsset = QString::number(securityAsset, 'f', 2);
+    ui->lineEditSecurity->setText(strAsset);
     qDebug() << QString::fromLocal8Bit("价格更新 finished");
 }
 void myFinanceMainWindow::codeDataReady() {

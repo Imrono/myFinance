@@ -461,8 +461,10 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
         } else if (POP_DELETE == type) {
             QString accountCode = node->nodeData.value<myAssetAccount>().code;
             // delete holds
-            for ( int i = 0; i != node->children.size(); ++i ) {
+            int count = node->children.count();
+            for (int i = count-1; i >= 0; i--) {
                 QString assetCode = node->children.at(i)->nodeData.value<myAssetHold>().assetCode;
+                qDebug() << "delete " << i << "@total:" << node->children.count();
                 if (!deleteOneAsset(accountCode, assetCode)) {
                     return false;
                 }

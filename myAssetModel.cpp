@@ -287,6 +287,28 @@ float myAssetModel::doGetTotalAsset() {
     return totalValue;
 }
 
+float myAssetModel::doGetSecurityAsset() {
+    float securityAsset = 0.0f;
+    if (stockPrice.isInit()) {
+        for (int i = 0; i < root.getAccountCount(); i++) {
+            myAssetNode *tmpAccount = root.getAccountNode(i);
+            for (int j = 0; j < tmpAccount->children.count(); j++) {
+                if (tmpAccount->nodeData.value<myAssetAccount>().type == QString::fromLocal8Bit("券商")) {
+                    const myAssetHold &holds = tmpAccount->children.at(j)->nodeData.value<myAssetHold>();
+                    if (holds.assetCode == "cash" ) {
+                        securityAsset += holds.price;
+                    } else {
+                        float price = currentPrice(stockPrice.getStockPriceRt(), holds.assetCode);
+                        securityAsset += static_cast<float>(holds.amount) * price;
+                    }
+                }
+            }
+        }
+    }
+
+    return securityAsset;
+}
+
 void myAssetModel::qDebugNodeData()
 {
     for (int i = 0; i < root.getAccountCount(); i++) {
