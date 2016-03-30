@@ -153,7 +153,7 @@ void myFinanceMainWindow::on_new_account_clicked()
         if(!assetModel->doInsertAccount(dial.getData())) {
             ui->treeView->expandAll();
             QMessageBox::warning(this, QString::fromLocal8Bit("新建帐户错误"),
-                                 QString::fromLocal8Bit("新建帐户错误") +
+                                 QString::fromLocal8Bit("新建帐户错误"),
                                  QMessageBox::Ok, QMessageBox::Ok);
         }
     } else {
@@ -186,6 +186,7 @@ void myFinanceMainWindow::contextMenuEvent(QContextMenuEvent *event) {
     event->accept();
 }
 void myFinanceMainWindow::treeViewContextMenu(const QPoint& pt) {
+    Q_UNUSED(pt);
     myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
     editAsset->clear();
     if (myAssetNode::nodeAccount == node->type) {

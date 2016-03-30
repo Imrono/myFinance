@@ -54,10 +54,17 @@ private slots:
 
     void on_feeRateSpinBox_valueChanged(double feeRate);
 
+    void on_radioSalary_clicked();
+
+    void on_radioOtherIncome_clicked();
+
+    void on_lineEditIncomeType_textChanged(const QString &arg1);
+
 private:
     Ui::myFinanceExchangeWindow *ui;
     QButtonGroup *grpBuySell;
     QButtonGroup *grpMarket;
+    QButtonGroup *grpIncomeType;
     exchangeData data;
     double buySellFlag;
     int dataSource;
@@ -72,6 +79,7 @@ private:
     void updataData();
     void updateExchangeFee();
     void updateExchangeType();
+    void updateIncomeType();
 };
 
 #endif // MYFINANCEEXCHANGEWINDOW_H

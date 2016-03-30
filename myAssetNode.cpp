@@ -288,7 +288,8 @@ bool myRootAccountAsset::initial() {
             myAssetNode *account = new myAssetNode(myAssetNode::nodeAccount, data);
             account->parent = &rootNode;
 
-            rootNode.addChild(account);
+            if (tmpAccount.code != OTHER_ACCOUNT)
+                rootNode.addChild(account);
 
             i ++;
         }

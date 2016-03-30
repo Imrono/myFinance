@@ -5,7 +5,10 @@
 #include <QString>
 #include <QVariant>
 
-#define CASH "cash"
+#define CASH            "cash"
+#define OTHER_ACCOUNT   "myOtherAccount"
+#define OTHER_ASSET     "myOtherAsset"
+
 #define MONEY_EPS  0.0001f
 enum BuyAndSell {
     BUY  = 0,

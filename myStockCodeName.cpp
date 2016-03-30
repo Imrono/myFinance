@@ -51,7 +51,7 @@ myStockCodeName::~myStockCodeName() {
 void myStockCodeName::replyFinished(QNetworkReply* data) {
     qDebug() << requestType << "begin";
     switch(requestType) {
-    case E_RequestTpye::REQUEST_CODE: {
+    case REQUEST_CODE: {
         QByteArray codeDataArray = data->readAll();
         QString codeData = QString::fromLocal8Bit(codeDataArray);
         QFile file(CodeDataFile);
@@ -86,7 +86,7 @@ void myStockCodeName::getStockCode() {
     QDateTime fileCreateTime = info.lastModified();
     if (!info.exists() || time.date().toJulianDay() - fileCreateTime.date().toJulianDay() >= 1) {
         ntRequest.setUrl(QUrl("http://quote.eastmoney.com/stocklist.html"));
-        requestType = E_RequestTpye::REQUEST_CODE;
+        requestType = REQUEST_CODE;
         manager->get(ntRequest);
     } else {
         emit codeDataReady();
