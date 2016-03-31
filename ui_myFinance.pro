@@ -47,4 +47,5 @@ CONFIG += console
 
 DISTFILES +=
 
-RESOURCES +=
+RESOURCES += \
+    icon.qrc
