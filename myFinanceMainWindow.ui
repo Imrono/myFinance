@@ -117,11 +117,14 @@
      </layout>
     </item>
     <item row="1" column="1">
+<<<<<<< e17a8d903f3e159a2c53626781384ded11f5b4ad
 <<<<<<< 37a2673947c90c93cf142e800a31e0f613c652d2
      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,1,1,1,1">
       <item>
        <widget class="QLabel" name="priceReflash">
 =======
+=======
+>>>>>>> optimization_6
      <layout class="QVBoxLayout" name="verticalLayout" stretch="1,1,1,1,1,1,1">
       <item>
        <widget class="QLabel" name="priceReflash">
@@ -131,6 +134,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+<<<<<<< e17a8d903f3e159a2c53626781384ded11f5b4ad
+>>>>>>> optimization_6
+=======
 >>>>>>> optimization_6
         <property name="text">
          <string>刷新时间：</string>
@@ -168,14 +174,20 @@
       </item>
       <item>
        <widget class="QLabel" name="label">
+<<<<<<< e17a8d903f3e159a2c53626781384ded11f5b4ad
 <<<<<<< 37a2673947c90c93cf142e800a31e0f613c652d2
 =======
+=======
+>>>>>>> optimization_6
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+<<<<<<< e17a8d903f3e159a2c53626781384ded11f5b4ad
+>>>>>>> optimization_6
+=======
 >>>>>>> optimization_6
         <property name="text">
          <string>总资产：</string>
@@ -187,14 +199,20 @@
       </item>
       <item>
        <widget class="QLabel" name="labelSecurity">
+<<<<<<< e17a8d903f3e159a2c53626781384ded11f5b4ad
 <<<<<<< 37a2673947c90c93cf142e800a31e0f613c652d2
 =======
+=======
+>>>>>>> optimization_6
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+<<<<<<< e17a8d903f3e159a2c53626781384ded11f5b4ad
+>>>>>>> optimization_6
+=======
 >>>>>>> optimization_6
         <property name="text">
          <string>证券帐户：</string>
