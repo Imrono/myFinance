@@ -6,36 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>876</width>
+    <width>873</width>
     <height>427</height>
    </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>我的资产</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="resfinance.qrc">
-    <normaloff>:/icon/myLogo/resource/icon/myLogo.ico</normaloff>:/icon/myLogo/resource/icon/myLogo.ico</iconset>
-  </property>
   <widget class="QWidget" name="centralWidget">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <layout class="QGridLayout" name="gridLayout" rowstretch="2,1" columnstretch="10,1">
+   <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0" rowspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="10,7">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetFixedSize</enum>
-      </property>
       <property name="rightMargin">
        <number>0</number>
       </property>
@@ -121,44 +102,48 @@
      </layout>
     </item>
     <item row="1" column="1">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,1,1,1,1">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="1,1,1,1,1,1">
       <item>
-       <widget class="QLabel" name="priceReflash">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="1,1,1,1,1,1,1">
-      <item>
-       <widget class="QLabel" name="priceReflash">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <layout class="QVBoxLayout" name="vlPriceTime" stretch="1,1">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
         </property>
-        <property name="text">
-         <string>刷新时间：</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDateTimeEdit" name="dateTimePrice">
-        <property name="wrapping">
-         <bool>false</bool>
-        </property>
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="showGroupSeparator" stdset="0">
-         <bool>false</bool>
-        </property>
-        <property name="displayFormat">
-         <string>yyyy/M/d H:mm:ss</string>
-        </property>
-       </widget>
+        <item>
+         <widget class="QLabel" name="priceReflash">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>刷新时间：</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDateTimeEdit" name="dateTimePrice">
+          <property name="wrapping">
+           <bool>false</bool>
+          </property>
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+          <property name="showGroupSeparator" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="displayFormat">
+           <string>yyyy/M/d H:mm:ss</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QPushButton" name="updatePrice">
@@ -170,7 +155,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -181,12 +166,19 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEditTotalAsset"/>
+       <widget class="QLineEdit" name="lineEditTotalAsset">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="labelSecurity">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -197,7 +189,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEditSecurity"/>
+       <widget class="QLineEdit" name="lineEditSecurity">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -208,7 +207,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>876</width>
+     <width>873</width>
      <height>23</height>
     </rect>
    </property>
@@ -224,8 +223,6 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="resfinance.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
