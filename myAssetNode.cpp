@@ -267,9 +267,9 @@ bool myRootAccountAsset::initial() {
             tmpAccount.type = query.value(2).toString();
             tmpAccount.note = query.value(3).toString();
             tmpAccount.pos  = query.value(4).toInt();
-            if (tmpAccount.name == QString::fromLocal8Bit("中国工商银行")) {
+            if (tmpAccount.name.contains(QString::fromLocal8Bit("工商银行"))) {
                 tmpAccount.logo = "gsyh.png";
-            } else if (tmpAccount.name == QString::fromLocal8Bit("中国招商银行")) {
+            } else if (tmpAccount.name.contains(QString::fromLocal8Bit("招商银行"))) {
                 tmpAccount.logo = "zsyh.png";
             } else if (tmpAccount.name == QString::fromLocal8Bit("中国银行")) {
                 tmpAccount.logo = "zgyh.png";

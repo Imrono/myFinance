@@ -162,7 +162,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
 
         if (index.column() == 0) {
             if (myAssetNode::nodeAccount == node->type) {
-                return QIcon(QString(".//resource//icon//%1").arg(node->nodeData.value<myAssetAccount>().logo));
+                return QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(node->nodeData.value<myAssetAccount>().logo));
             }
         }
     } else if (Qt::FontRole == role) {

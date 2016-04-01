@@ -48,4 +48,10 @@ CONFIG += console
 DISTFILES +=
 
 RESOURCES += \
+<<<<<<< HEAD
     icon.qrc
+=======
+    resfinance.qrc
+
+RC_ICONS = resource/icon/myLogo.ico
+>>>>>>> fe714ab... icon 1_3
