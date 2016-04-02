@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     myInsertModifyAccount.cpp \
     myInsertModifyAsset.cpp \
     assetChangeDelegate.cpp \
-    myDatabaseDatatype.cpp
+    myDatabaseDatatype.cpp \
+    myModifyExchange.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \
@@ -37,12 +38,14 @@ HEADERS  += myFinanceMainWindow.h \
     myFinanceDatabase.h \
     myInsertModifyAccount.h \
     myInsertModifyAsset.h \
-    assetChangeDelegate.h
+    assetChangeDelegate.h \
+    myModifyExchange.h
 
 FORMS    += myFinanceMainWindow.ui \
     myFinanceExchangeWindow.ui \
     myInsertModifyAccount.ui \
-    myInsertModifyAsset.ui
+    myInsertModifyAsset.ui \
+    myModifyExchange.ui
 CONFIG += console
 
 DISTFILES +=

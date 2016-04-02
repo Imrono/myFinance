@@ -20,10 +20,10 @@ myInsertModifyAsset::myInsertModifyAsset(QString accountCode, QString accountNam
     grpMarket->addButton(ui->radioSH);
     grpMarket->addButton(ui->radioSZ);
     grpMarket->addButton(ui->radioOther);
-    grpMarket->setExclusive(true);           //璁句负浜掓枼
-    grpMarket->setId(ui->radioSH, SH);       //radioBuy鐨処d璁句负0
-    grpMarket->setId(ui->radioSZ, SZ);       //radioBuy鐨処d璁句负1
-    grpMarket->setId(ui->radioOther, OTHER); //radioBuy鐨処d璁句负2
+    grpMarket->setExclusive(true);           //设为互斥
+    grpMarket->setId(ui->radioSH, SH);       //radioBuy的Id设为0
+    grpMarket->setId(ui->radioSZ, SZ);       //radioBuy的Id设为1
+    grpMarket->setId(ui->radioOther, OTHER); //radioBuy的Id设为2
     ui->radioSH->setChecked(true);
 }
 
@@ -97,7 +97,7 @@ void myInsertModifyAsset::on_lineEditAssetCode_textChanged(const QString &str)
 {
     data.assetCode = str;
 
-    // 涓婃捣锛屾繁鍦抽�氳繃鑲＄エ浠ｇ爜鑷姩鍒ゆ柇
+    // 上海，深圳通过股票代码自动判断
     int pointIndex = data.assetCode.indexOf(QString("."));
     int len = data.assetCode.size();
     if (len - pointIndex > 2 &&
@@ -117,24 +117,28 @@ void myInsertModifyAsset::on_lineEditAssetCode_textChanged(const QString &str)
     }
 
     updateMarketInfo();
+
+    if (data.assetCode == "cash") {
+        data.amount = 1;
+        ui->spinBoxAmount->setValue(data.amount);
+        ui->spinBoxAmount->setDisabled(true);
+        ui->labelPrice->setText(QString::fromLocal8Bit("资金："));
+    } else {
+        if (!ui->spinBoxAmount->isEnabled()) {
+            ui->spinBoxAmount->setEnabled(true);
+            ui->labelPrice->setText(QString::fromLocal8Bit("单价："));
+        }
+    }
 }
 
 void myInsertModifyAsset::on_lineEditAssetCode_editingFinished()
 {
     int count = stockCode->codeName.count();
-    qDebug() << QString::fromLocal8Bit("浠ｅ彿EditLine") << ui->lineEditAssetCode->text() << "(" << count << ")";
+    qDebug() << QString::fromLocal8Bit("代号EditLine") << ui->lineEditAssetCode->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
-            if (stockCode->codeName.contains(data.assetCode)) {
-                QMap<QString, QString>::const_iterator ii = stockCode->codeName.find(data.assetCode);
-                if (ii != stockCode->codeName.end() && ii.key() == data.assetCode) {
-                    data.assetName = ii.value();
-                    ui->lineEditAssetName->setText(data.assetName);
-                }
-            } else {
-                data.assetName = "";
-                ui->lineEditAssetName->setText(data.assetName);
-            }
+            data.assetName = stockCode->findNameFromCode(data.assetCode);
+            ui->lineEditAssetName->setText(data.assetName);
         }
     }
 }
@@ -143,7 +147,7 @@ void myInsertModifyAsset::on_lineEditAssetName_editingFinished()
 {
     QString str = ui->lineEditAssetName->text();
     int count = stockCode->codeName.count();
-    qDebug() << QString::fromLocal8Bit("鍚嶇ОEditLine") << str << "(" << count << ")";
+    qDebug() << QString::fromLocal8Bit("名称EditLine") << str << "(" << count << ")";
 
     QMap<QString,QString>::iterator it = stockCode->codeName.begin();
     for (; it != stockCode->codeName.end(); ++it) {

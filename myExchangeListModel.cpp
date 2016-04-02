@@ -7,17 +7,20 @@
 
 #include <QDebug>
 
-myExchangeListModel::myExchangeListModel() {
+myExchangeListModel::myExchangeListModel() : data(nullptr) {
     if (!myFinanceDatabase::isConnected) {
         myFinanceDatabase::connectDB();
     }
     initial();
 }
 myExchangeListModel::~myExchangeListModel() {
-
+    if (nullptr != data) {
+        delete []data;
+        data = nullptr;
+    }
 }
 
-bool myExchangeListModel::doExchange(const exchangeData data) {
+bool myExchangeListModel::doExchange(const myExchangeData data) {
     QString exchangeTime = data.time.toString(("yyyy-mm-dd hh:mm:ss"));
     QString exchangeType = data.type;
     QSqlQuery query;
@@ -39,6 +42,11 @@ bool myExchangeListModel::doExchange(const exchangeData data) {
 
 bool myExchangeListModel::initial() {
     list.clear();
+    if (nullptr != data) {
+        delete []data;
+        data = nullptr;
+    }
+
     QSqlQuery query;
     int numRows = 0;
     ///读“资产帐户”表
@@ -49,9 +57,10 @@ bool myExchangeListModel::initial() {
             query.last();
             numRows = query.at() + 1;
         }
+        data = new myExchangeData[numRows];
         int i = 0;
         while(query.next() && i < numRows) { // 定位结果到下一条记录
-            exchangeData tmpExchange;
+            myExchangeData tmpExchange;
             tmpExchange.id       = query.value(0).toInt();
             tmpExchange.time     = QDateTime::fromString(query.value(1).toString(), "yyyy-MM-ddThh:mm:ss");
             tmpExchange.type     = query.value(2).toString();
@@ -63,7 +72,6 @@ bool myExchangeListModel::initial() {
             tmpExchange.price    = query.value(8).toDouble();
             tmpExchange.amount   = query.value(9).toInt();
 
-            i ++;
             QString exchangeStr;
             if (CASH == tmpExchange.code && 1 == tmpExchange.amount) {
                 if (tmpExchange.price + tmpExchange.money > 0.0001f)
@@ -80,6 +88,8 @@ bool myExchangeListModel::initial() {
                         .arg(tmpExchange.amount).arg(tmpExchange.price);
             }
             list.append(exchangeStr);
+            data[i] = tmpExchange;
+            i ++;
         }
         qDebug() << "num of exchange data : " << i;
     } else { // 如果查询失败，用下面的方法得到具体数据库返回的原因
@@ -88,4 +98,8 @@ bool myExchangeListModel::initial() {
     }
     setStringList(list);
     return true;
+}
+
+myExchangeData myExchangeListModel::getDataFromRow(int row) {
+    return data[row];
 }

@@ -28,7 +28,7 @@ enum databaseExchangeType {
     numOfType = 4
 };
 
-struct exchangeData {
+struct myExchangeData {
     int       id;
     QDateTime time;
     QString   type;

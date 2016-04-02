@@ -21,7 +21,7 @@ public:
     explicit myFinanceExchangeWindow(QWidget *parent = 0);
     ~myFinanceExchangeWindow();
 
-    exchangeData const &getExchangeData() { return data;}
+    myExchangeData const &getExchangeData() { return data;}
 
 private slots:
     void on_buttonBox_accepted();
@@ -65,7 +65,7 @@ private:
     QButtonGroup *grpBuySell;
     QButtonGroup *grpMarket;
     QButtonGroup *grpIncomeType;
-    exchangeData data;
+    myExchangeData data;
     double buySellFlag;
     int dataSource;
 	int lastRadioBuySell;

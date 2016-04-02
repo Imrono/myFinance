@@ -49,6 +49,7 @@ public:
     bool getIsDataReady() {return isDataReady;}
     QMap <QString, QString> codeName;
 
+    QString findNameFromCode(const QString &code);
 
 private:
     QNetworkAccessManager *manager;

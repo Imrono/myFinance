@@ -150,7 +150,7 @@ void myFinanceExchangeWindow::updateBuySell() {
     data.buySell = grpBuySell->checkedId() == BUY ? (bool)BUY : (bool)SELL;
     buySellFlag = data.buySell == SELL ? 1.0f : -1.0f;
 
-	data.amount = ui->amountSpinBox->text().toInt();
+    data.amount = ui->spinBoxAmount->text().toInt();
 	data.amount *= -buySellFlag;
     data.money = -(float)data.amount * data.price - data.fee;
 
@@ -183,12 +183,17 @@ void myFinanceExchangeWindow::on_moneyTransferSpinBox_valueChanged(double value)
 void myFinanceExchangeWindow::updataData() {
     if (0 == dataSource) {
         data.account1 = ui->moneyAccount->itemText(ui->moneyAccount->currentIndex());
-        data.account2 = data.account1;
-        data.amount = ui->amountSpinBox->text().toInt() * -buySellFlag;
-        data.price  = ui->priceSpinBox->text().toDouble();
         data.money  = ui->moneySpinBox->text().toDouble();
+
+        data.account2 = data.account1;
         data.code   = ui->codeLineEdit->text();
-        data.name   = ui->nameLineEdit->text();
+        if (data.code == "cash") {
+            data.amount = 1;
+        } else {
+            data.amount = ui->spinBoxAmount->text().toInt() * -buySellFlag;
+        }
+        data.price  = ui->spinBoxPrice->text().toDouble();
+        data.name   = ui->lineEditName->text();
         data.fee    = ui->exchangeFeeSpinBox->text().toDouble();
 
     } else if (1 == dataSource) {
@@ -306,6 +311,18 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
     }
 
     updateMarketInfo();
+
+    if (data.code == "cash") {
+        data.amount = 1;
+        ui->spinBoxAmount->setValue(data.amount);
+        ui->spinBoxAmount->setDisabled(true);
+        ui->labelPrice->setText(QString::fromLocal8Bit("资金："));
+    } else {
+        if (!ui->spinBoxAmount->isEnabled()) {
+            ui->spinBoxAmount->setEnabled(true);
+            ui->labelPrice->setText(QString::fromLocal8Bit("单价："));
+        }
+    }
 }
 void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
 {
@@ -313,22 +330,14 @@ void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
     qDebug() << QString::fromLocal8Bit("代号EditLine") << ui->codeLineEdit->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
-            if (stockCode->codeName.contains(data.code)) {
-                QMap<QString, QString>::const_iterator ii = stockCode->codeName.find(data.code);
-                if (ii != stockCode->codeName.end() && ii.key() == data.code) {
-                    data.name = ii.value();
-                    ui->nameLineEdit->setText(data.name);
-                }
-            } else {
-                data.name = "";
-                ui->nameLineEdit->setText(data.name);
-            }
+            data.name = stockCode->findNameFromCode(data.code);
+            ui->lineEditName->setText(data.name);
         }
     }
 }
 void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
 {
-    QString str = ui->nameLineEdit->text();
+    QString str = ui->lineEditName->text();
     int count = stockCode->codeName.count();
     qDebug() << QString::fromLocal8Bit("名称EditLine") << str << "(" << count << ")";
 

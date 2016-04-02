@@ -18,11 +18,14 @@ public:
         //endResetModel();
         setStringList(list);
     }
-    bool doExchange(const exchangeData data);
+    bool doExchange(const myExchangeData data);
     bool initial();
+
+    myExchangeData getDataFromRow(int row);
 
 private:
     QStringList list;
+    myExchangeData *data;
 };
 
 #endif // MYEXCHANGELISTMODEL_H

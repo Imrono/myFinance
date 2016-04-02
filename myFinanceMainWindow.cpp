@@ -6,6 +6,7 @@
 #include "myFinanceExchangeWindow.h"
 #include "myInsertModifyAccount.h"
 #include "myInsertModifyAsset.h"
+#include "myModifyExchange.h"
 
 myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -24,7 +25,7 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     //ui->treeView->setItemDelegate(delegate);
     //ui->treeView->header()->resizeSections(QHeaderView::ResizeToContents);
     ui->treeView->header()->resizeSections(QHeaderView::Fixed);
-    ui->treeView->header()->resizeSection(0, 170);
+    ui->treeView->header()->resizeSection(0, 180);
     ui->treeView->header()->resizeSection(1, 90);
     ui->treeView->header()->resizeSection(2, 50);
     ui->treeView->expandAll();
@@ -43,6 +44,7 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
         statusLabel.setText("ready");
     }
 
+    /// treeView
     editAsset = new QMenu(this);
     deleteAsset = new QAction(ui->treeView);
     insertAsset = new QAction(ui->treeView);
@@ -54,10 +56,18 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     connect(modifyAsset, SIGNAL(triggered()), this, SLOT(modifyAsset_clicked()));
     connect(upAsset    , SIGNAL(triggered()), this, SLOT(upAsset_clicked()));
     connect(downAsset  , SIGNAL(triggered()), this, SLOT(downAsset_clicked()));
-
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeView, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(treeViewContextMenu(const QPoint&)));
+    /// listView
+    editExchange = new QMenu(this);
+    modifyExchange = new QAction(ui->listView);
+    modifyExchange->setText(QString::fromLocal8Bit("更改交易"));
+    editExchange->addAction(modifyExchange);
+    connect(modifyExchange, SIGNAL(triggered()), this, SLOT(modifyExchange_clicked()));
+    ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->listView, SIGNAL(customContextMenuRequested(const QPoint&)),
+            this, SLOT(listViewContextMenu(const QPoint&)));
 }
 
 myFinanceMainWindow::~myFinanceMainWindow()
@@ -74,6 +84,14 @@ myFinanceMainWindow::~myFinanceMainWindow()
     if (nullptr != exchangeModel) {
         delete exchangeModel;
         exchangeModel = nullptr;
+    }
+    if (nullptr != modifyExchange) {
+        delete modifyExchange;
+        modifyExchange = nullptr;
+    }
+    if (nullptr != editExchange) {
+        delete editExchange;
+        editExchange = nullptr;
     }
     if (nullptr != upAsset) {
         delete upAsset;
@@ -102,7 +120,7 @@ myFinanceMainWindow::~myFinanceMainWindow()
 }
 
 void myFinanceMainWindow::priceDataReflashed() {
-    ui->treeView->header()->resizeSection(0, 170);
+    ui->treeView->header()->resizeSection(0, 180);
     ui->treeView->header()->resizeSection(1, 90);
     ui->treeView->header()->resizeSection(2, 50);
 
@@ -128,7 +146,7 @@ void myFinanceMainWindow::on_exchange_clicked()
     qDebug() << QString::fromLocal8Bit("资产变化 clicked");
     myFinanceExchangeWindow exWin(this);
     if(exWin.exec() == QDialog::Accepted) {
-        exchangeData data = exWin.getExchangeData();
+        myExchangeData data = exWin.getExchangeData();
         QString abnormalInfo;
         if (assetModel->checkExchange(data, abnormalInfo)) {
             assetModel->doExchange(data);
@@ -181,10 +199,6 @@ void myFinanceMainWindow::on_updatePrice_clicked()
     qDebug() << QString::fromLocal8Bit("更新价格 clicked assetModel->doUpdatePrice requested");
 }
 
-void myFinanceMainWindow::contextMenuEvent(QContextMenuEvent *event) {
-    //changeAsset->exec(QCursor::pos());
-    event->accept();
-}
 void myFinanceMainWindow::treeViewContextMenu(const QPoint& pt) {
     Q_UNUSED(pt);
     myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
@@ -353,4 +367,22 @@ void myFinanceMainWindow::doUpDown(bool isUp) {
         QMessageBox::warning(this, "doUpDown failed", "doUpDown failed", QMessageBox::Ok, QMessageBox::Ok);
     }
     ui->treeView->expandAll();
+}
+
+void myFinanceMainWindow::listViewContextMenu(const QPoint& pt) {
+    Q_UNUSED(pt);
+
+    editExchange->exec(QCursor::pos());
+}
+void myFinanceMainWindow::modifyExchange_clicked() {
+    QString info = QString::fromLocal8Bit("更改资产变化");
+    int line = ui->listView->currentIndex().row();
+    myExchangeData exchangeData = exchangeModel->getDataFromRow(line);
+    myModifyExchange dial(this);
+    dial.setWindowTitle(info);
+    dial.setUI(exchangeData);
+    if(dial.exec() == QDialog::Accepted) {
+        qDebug() << info + "Accepted";
+
+    }
 }

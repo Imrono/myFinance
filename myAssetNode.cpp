@@ -48,7 +48,7 @@ void myAssetNode::addChild(myAssetNode *childNode) {
     this->children.append(childNode);
 }
 
-bool myAssetNode::doExchange(exchangeData data, const myRootAccountAsset &rootNode) {
+bool myAssetNode::doExchange(myExchangeData data, const myRootAccountAsset &rootNode) {
     QSqlQuery query;
     // 改变"资产"表*2
     // 1 MONEY CHANGE
@@ -133,7 +133,7 @@ bool myAssetNode::doExchange(exchangeData data, const myRootAccountAsset &rootNo
     query.clear();
     return true;
 }
-bool myAssetNode::checkExchange(const exchangeData &data, QString &abnormalInfo) {
+bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInfo) {
     exchangeAbnomal abnormalCode = NORMAL;
 
     if (qAbs(data.money + data.fee) < MONEY_EPS) {

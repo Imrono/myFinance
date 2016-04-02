@@ -61,18 +61,24 @@ private:
     QAction *upAsset;
     QAction *downAsset;
 
-    void contextMenuEvent(QContextMenuEvent *event);
+    QMenu *editExchange;
+    QAction *modifyExchange;
 
 private slots:
     void priceDataReflashed();
     void codeDataReady();
+
+    /// treeView
     void deleteAsset_clicked();
     void insertAsset_clicked();
     void modifyAsset_clicked();
     void upAsset_clicked();
     void downAsset_clicked();
-
     void treeViewContextMenu(const QPoint& pt);
+
+    /// listView
+    void modifyExchange_clicked();
+    void listViewContextMenu(const QPoint& pt);
 
 private:
     void doChangeAssetDirectly(changeType type);

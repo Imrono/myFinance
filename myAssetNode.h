@@ -89,8 +89,8 @@ public:
 
     void addChild(myAssetNode *childNode);
 
-    static bool doExchange(const exchangeData data, const myRootAccountAsset &rootNode);
-    static bool checkExchange(const exchangeData &data, QString &abnormalInfo);
+    static bool doExchange(const myExchangeData data, const myRootAccountAsset &rootNode);
+    static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
 
     nodeType type;
     QVariant nodeData;
