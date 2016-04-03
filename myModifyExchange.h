@@ -28,8 +28,6 @@ private slots:
 private:
     Ui::myModifyExchange *ui;
     myExchangeData data;
-
-    int isRollback;
 };
 
 #endif // MYMODIFYEXCHANGE_H
