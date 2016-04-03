@@ -19,21 +19,30 @@ public:
         setStringList(list);
     }
 
-    bool doExchange(const myExchangeData data);
+    bool doExchange(const myExchangeData &data);
     bool initial();
 
     myExchangeData getDataFromRow(int row);
 
-    enum coordinatorType {
-        NO_CHANGE = 0,
-        ACCOUNT1_CHANGE = 0x01,
-        ACCOUNT2_CHANGE = 0x02,
-        MONEY_CHANGE = 0x04,
-        ASSET_CHANGE = 0x08,
-        OTHER_CHANGE = 0x10
+    /*
+     * changeIdx:
+     * 1  changes -> origin account1
+     * 2  changes -> origin account2
+     * 4  changes -> origin/target account1
+     * 8  changes -> origin/target account2
+     * 16 changes -> origin/target account1/account2
+     */
+    enum exchangeType {
+        NO_DO_EXCHANGE = 0x0,
+        ORIG_ACCOUNT_1 = 0x01,
+        ORIG_ACCOUNT_2 = 0x02,
+        TARG_ACCOUNT_1 = 0x04,
+        TARG_ACCOUNT_2 = 0x08,
+        CASH_ACCOUNT_2 = 0x10,
+        OTHER_EXCHANGE = 0x20
     };
 
-    void coordinatorModifyExchange(myExchangeData &originData, myExchangeData &targetData, int &type);
+    void coordinatorModifyExchange(myExchangeData &originData, myExchangeData &targetData, int &changeIdx);
 
 private:
     QStringList list;

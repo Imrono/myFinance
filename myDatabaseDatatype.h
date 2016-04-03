@@ -5,7 +5,7 @@
 #include <QString>
 #include <QVariant>
 
-#define CASH            "cash"
+#define MY_CASH            "cash"
 #define OTHER_ACCOUNT   "myOtherAccount"
 #define OTHER_ASSET     "myOtherAsset"
 
@@ -29,6 +29,7 @@ enum databaseExchangeType {
 };
 
 struct myExchangeData {
+    myExchangeData();
     int       id;
     QDateTime time;
     QString   type;

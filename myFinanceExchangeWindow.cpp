@@ -201,14 +201,14 @@ void myFinanceExchangeWindow::updataData() {
         data.money    = -ui->moneyTransferSpinBox->text().toDouble();
 
         data.account2 = ui->moneyAccountIn->itemText(ui->moneyAccountIn->currentIndex());
-        data.code     = CASH;
+        data.code     = MY_CASH;
         data.name     = QString::fromLocal8Bit("现有资金");
         data.amount   = 1;
         data.price    = ui->moneyTransferSpinBox->text().toDouble();
         data.fee      = 0.0f;
     } else if (2 == dataSource) {
         data.account2 = ui->moneyAccountIncome->itemText(ui->moneyAccountIncome->currentIndex());
-        data.code     = CASH;
+        data.code     = MY_CASH;
         data.name     = QString::fromLocal8Bit("现有资金");
         data.amount   = 1;
         data.price    = ui->spinBoxIncome->text().toDouble();

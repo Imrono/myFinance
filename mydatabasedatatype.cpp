@@ -1,5 +1,20 @@
 #include "myDatabaseDatatype.h"
 
+myExchangeData::myExchangeData() {
+    id       = -1;
+    time     = QDateTime();
+    type     = "";
+    account1 = "";
+    money    = 0.0f;
+    account2 = "";
+    code     = "";
+    name     = "";
+    price    = 0.0f;
+    amount   = 0;
+    buySell  = true;
+    fee      = 0.0f;
+}
+
 bool myAccountData::isSameAccountData(const myAccountData &data1, const myAccountData &data2) {
     return (   data1.Code == data2.Code
             && data1.Name == data2.Name

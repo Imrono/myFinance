@@ -20,22 +20,47 @@ myExchangeListModel::~myExchangeListModel() {
     }
 }
 
-bool myExchangeListModel::doExchange(const myExchangeData data) {
+bool myExchangeListModel::doExchange(const myExchangeData &data) {
     QString exchangeTime = data.time.toString(("yyyy-mm-dd hh:mm:ss"));
     QString exchangeType = data.type;
     QSqlQuery query;
-    // 1 update database
-    // "资产变化"表 CHANGE
-    QString execWord = QString::fromLocal8Bit("INSERT INTO 资产变化 "
-                                      "VALUES (null, '%1', '%2', '%3', %4, '%5', '%6', '%7', %8, %9)")
-            .arg(exchangeTime).arg(exchangeType).arg(data.account1).arg(data.money)
-            .arg(data.account2).arg(data.code).arg(data.name).arg(data.price).arg(data.amount);
-    qDebug() << execWord;
+    QString execWord;
 
-    if(!query.exec(execWord)) {
+    // 1 update database, "资产变化"表 CHANGE
+    execWord = QString::fromLocal8Bit("SELECT * FROM 资产变化 WHERE id=%1").arg(data.id);
+    qDebug() << execWord;
+    if(query.exec(execWord)) {
+        if (1 == query.size()) {        //UPDATE
+            execWord = QString::fromLocal8Bit("UPDATE 资产变化 "
+                                              "SET ='%1', ='%2', ='%3', =%4, ='%5', ='%6', ='%7', =%8, =%9) "
+                                              "WHERE id=%10")
+                    .arg(exchangeTime).arg(exchangeType).arg(data.account1).arg(data.money)
+                    .arg(data.account2).arg(data.code).arg(data.name).arg(data.price).arg(data.amount).arg(data.id);
+            qDebug() << execWord;
+
+            if(!query.exec(execWord)) {
+                qDebug() << query.lastError().text();
+                return false;
+            }
+        } else if (0 == query.size()) { //INSERT
+            execWord = QString::fromLocal8Bit("INSERT INTO 资产变化 "
+                                              "VALUES (null, '%1', '%2', '%3', %4, '%5', '%6', '%7', %8, %9)")
+                    .arg(exchangeTime).arg(exchangeType).arg(data.account1).arg(data.money)
+                    .arg(data.account2).arg(data.code).arg(data.name).arg(data.price).arg(data.amount);
+            qDebug() << execWord;
+
+            if(!query.exec(execWord)) {
+                qDebug() << query.lastError().text();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    } else {
         qDebug() << query.lastError().text();
         return false;
     }
+
     // 2 更新list，刷新
     return initial();
 }
@@ -73,7 +98,7 @@ bool myExchangeListModel::initial() {
             tmpExchange.amount   = query.value(9).toInt();
 
             QString exchangeStr;
-            if (CASH == tmpExchange.code && 1 == tmpExchange.amount) {
+            if (MY_CASH == tmpExchange.code && 1 == tmpExchange.amount) {
                 if (tmpExchange.price + tmpExchange.money > 0.0001f)
                     qDebug() << "[转帐]" << tmpExchange.account1 << " " << tmpExchange.money
                              << "!="    << tmpExchange.account2 << " " << tmpExchange.price;
@@ -104,22 +129,102 @@ myExchangeData myExchangeListModel::getDataFromRow(int row) {
     return data[row];
 }
 
-void myExchangeListModel::coordinatorModifyExchange(myExchangeData &originData, myExchangeData &targetData, int &type) {
-    type = NO_CHANGE;
-    if (originData.account1 != targetData.account1)
-        type |= ACCOUNT1_CHANGE;
-    if (originData.account2 != targetData.account2)
-        type |= ACCOUNT2_CHANGE;
-    if (originData.money != targetData.money)
-        type |= MONEY_CHANGE;
+void myExchangeListModel::coordinatorModifyExchange(myExchangeData &originData, myExchangeData &targetData, int &changeIdx) {
+    changeIdx = NO_DO_EXCHANGE;
+    myExchangeData tmpOrigin, tmpTarget;
+    if (originData.account1 != targetData.account1) {
+        changeIdx |= ORIG_ACCOUNT_1;
+        changeIdx |= TARG_ACCOUNT_1;
+    }
+    if (originData.account2 != targetData.account2) {
+        changeIdx |= ORIG_ACCOUNT_2;
+        changeIdx |= TARG_ACCOUNT_2;
+    }
+    if (qAbs(originData.money - targetData.money) < MONEY_EPS) {
+        changeIdx |= ORIG_ACCOUNT_1;
+    }
     if (   originData.code != targetData.code
         || originData.name != targetData.name
-        || (originData.price - targetData.price < MONEY_EPS)
+        || (qAbs(originData.price - targetData.price) < MONEY_EPS)
         || originData.amount != targetData.amount) {
-        type |=ASSET_CHANGE;
+        changeIdx |= ORIG_ACCOUNT_2;
     }
     if (   originData.time != targetData.time
         || originData.type != targetData.type) {
-        type |=OTHER_CHANGE;
+        changeIdx |= OTHER_EXCHANGE;
+        tmpOrigin.time = targetData.time;
+        tmpTarget.time = targetData.time;
+        tmpOrigin.type = targetData.type;
+        tmpTarget.type = targetData.type;
     }
+
+    if (changeIdx & ORIG_ACCOUNT_1) {
+        tmpOrigin.account1 = originData.account1;
+        if (changeIdx & TARG_ACCOUNT_1) {
+            tmpTarget.account1 = targetData.account1;
+            tmpOrigin.money = -originData.money;
+            tmpTarget.money = targetData.money;
+        } else {
+            tmpOrigin.money = targetData.money - originData.money;
+            tmpTarget.money = 0.0f;
+        }
+    }
+    if (changeIdx & ORIG_ACCOUNT_2) {
+        tmpOrigin.account2 = originData.account2;
+        tmpOrigin.code = originData.code;
+        tmpOrigin.name = originData.name;
+
+        if (changeIdx & TARG_ACCOUNT_2) {
+            tmpTarget.account2 = targetData.account2;
+
+            if (originData.code == MY_CASH && 1 == originData.amount) {
+                tmpOrigin.amount = originData.amount;
+                tmpOrigin.price = -originData.price;
+            } else {
+                tmpOrigin.amount = -originData.amount;
+                tmpOrigin.price = originData.price;
+            }
+
+            tmpTarget.code = targetData.code;
+            tmpTarget.name = targetData.name;
+            tmpTarget.amount = targetData.amount;
+            tmpTarget.price = targetData.price;
+        } else {
+            if (originData.code == MY_CASH && 1 == originData.amount) {
+                if (targetData.code == MY_CASH && 1 == targetData.amount) {
+                    tmpOrigin.amount = 1;
+                    tmpOrigin.price = targetData.price - originData.price;
+                } else {
+                    changeIdx |= TARG_ACCOUNT_1;
+
+                    tmpOrigin.amount = originData.amount;
+                    tmpOrigin.price = -originData.price;
+
+                    tmpTarget.code = targetData.code;
+                    tmpTarget.name = targetData.name;
+                    tmpTarget.price = targetData.price;
+                    tmpTarget.amount = targetData.amount;
+                }
+            } else {
+                if (targetData.code == MY_CASH && 1 == targetData.amount) {
+                    changeIdx |= TARG_ACCOUNT_1;
+
+                    tmpOrigin.amount = -originData.amount;
+                    tmpOrigin.price = originData.price;
+
+                    tmpTarget.code = targetData.code;
+                    tmpTarget.name = targetData.name;
+                    tmpTarget.price = targetData.price;
+                    tmpTarget.amount = targetData.amount;
+                } else {
+                    tmpOrigin.amount = targetData.amount - originData.amount;
+                    tmpOrigin.price = originData.price;
+                }
+            }
+
+        }
+    }
+
+    originData = tmpOrigin;
+    targetData = tmpTarget;
 }
