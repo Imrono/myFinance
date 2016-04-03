@@ -387,14 +387,16 @@ void myFinanceMainWindow::modifyExchange_clicked() {
     if(dial.exec() == QDialog::Accepted) {
         qDebug() << info + "Accepted";
         // 1. DO EXCHANGE ASSET_DATA
-        myExchangeData targetExchangeData = dial.getData();
+        bool isRollback = false;
+        myExchangeData targetExchangeData = dial.getData(isRollback);
         myExchangeData doExchangeData = targetExchangeData;
-        int type = myExchangeListModel::NO_DO_EXCHANGE;
-        exchangeModel->coordinatorModifyExchange(originExchangeData, targetExchangeData, type);
+        if (isRollback) {
+            int type = myExchangeListModel::NO_DO_EXCHANGE;
+            exchangeModel->coordinatorModifyExchange(originExchangeData, targetExchangeData, type);
 
-        ans = assetModel->doExchange(originExchangeData, type&myExchangeListModel::ORIG_ACCOUNT_1, type&myExchangeListModel::ORIG_ACCOUNT_2, false) && ans;
-        ans = assetModel->doExchange(targetExchangeData, type&myExchangeListModel::TARG_ACCOUNT_1, type&myExchangeListModel::TARG_ACCOUNT_2, true) && ans;
-
+            ans = assetModel->doExchange(originExchangeData, type&myExchangeListModel::ORIG_ACCOUNT_1, type&myExchangeListModel::ORIG_ACCOUNT_2, false) && ans;
+            ans = assetModel->doExchange(targetExchangeData, type&myExchangeListModel::TARG_ACCOUNT_1, type&myExchangeListModel::TARG_ACCOUNT_2, true) && ans;
+        }
         // 2. DO EXCHANGE EXCHANGE_DATA
         if (false == ans) {
             QMessageBox::warning(this, info, info + " ERROR", QMessageBox::Ok, QMessageBox::Ok);

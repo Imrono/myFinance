@@ -6,7 +6,6 @@ myModifyExchange::myModifyExchange(QWidget *parent) :
     ui(new Ui::myModifyExchange)
 {
     ui->setupUi(this);
-    isRollback = ui->checkBoxRollback->isChecked();
 }
 
 myModifyExchange::~myModifyExchange()
@@ -57,7 +56,7 @@ void myModifyExchange::on_buttonBox_accepted()
     data.price = ui->spinBoxPrice->value();
 }
 
-void myModifyExchange::on_checkBoxRollback_clicked()
-{
+myExchangeData myModifyExchange::getData(bool &isRollback) {
     isRollback = ui->checkBoxRollback->isChecked();
+    return data;
 }

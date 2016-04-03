@@ -18,16 +18,12 @@ public:
     ~myModifyExchange();
 
     void setUI(myExchangeData exchangeData);
-    myExchangeData getData() {
-        return data;
-    }
+    myExchangeData getData(bool &isRollback);
 
 private slots:
     void on_lineEditCode_textChanged(const QString &str);
 
     void on_buttonBox_accepted();
-
-    void on_checkBoxRollback_clicked();
 
 private:
     Ui::myModifyExchange *ui;
