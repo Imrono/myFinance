@@ -271,7 +271,7 @@ void myFinanceMainWindow::downAsset_clicked() {
 void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
     myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
     QVariant data;
-    QString info;
+     QString info;
 
     if (myAssetNode::nodeAccount == node->type) {
         /// INSERT ASSET
@@ -290,17 +290,18 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
         } else if (POP_MODIFY == type) {
             info = QString::fromLocal8Bit("更新帐户");
             myAssetAccount nodeData = node->nodeData.value<myAssetAccount>();
+            myAccountData originAccountData(nodeData);
             myInsertModifyAccount dial(this);
             dial.setWindowTitle(info);
             dial.setUI(myAccountData(nodeData));
             if(dial.exec() == QDialog::Accepted) {
                 qDebug() << info + "Accepted";
-                myAccountData originAccountData(nodeData);
-                if (myAccountData::isSameAccountData(dial.getData(), originAccountData)) {
+                myAccountData targetAccountData = dial.getData();
+                if (myAccountData::isSameAccountData(targetAccountData, originAccountData)) {
                     qDebug() << info + "Nothing Changed";
                     return;
                 } else {
-                    data.setValue(dial.getData());
+                    data.setValue(targetAccountData);
                 }
             } else {
                 return;
@@ -321,6 +322,7 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
         if (POP_MODIFY == type) {
             info = QString::fromLocal8Bit("更新资产");
             myAssetHold nodeData = node->nodeData.value<myAssetHold>();
+            myAssetData originAssetData(nodeData);
             myAssetNode *accountNode = assetModel->getRootNode().getAccountNode(nodeData.accountCode);
             myAssetAccount accountNodeData = accountNode->nodeData.value<myAssetAccount>();
             myInsertModifyAsset dial(accountNodeData.code, accountNodeData.name, this);
@@ -328,12 +330,12 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
             dial.setWindowTitle(info);
             if(dial.exec() == QDialog::Accepted) {
                 qDebug() << info + "Accepted";
-                myAssetData originAssetData(nodeData);
-                if (myAssetData::isSameAssetData(dial.getData(), originAssetData)) {
+                myAssetData targetAssetData = dial.getData();
+                if (myAssetData::isSameAssetData(targetAssetData, originAssetData)) {
                     qDebug() << info + "Nothing Changed";
                     return;
                 } else {
-                    data.setValue(dial.getData());
+                    data.setValue(targetAssetData);
                 }
             } else {
                 return;
@@ -377,12 +379,14 @@ void myFinanceMainWindow::listViewContextMenu(const QPoint& pt) {
 void myFinanceMainWindow::modifyExchange_clicked() {
     QString info = QString::fromLocal8Bit("更改资产变化");
     int line = ui->listView->currentIndex().row();
-    myExchangeData exchangeData = exchangeModel->getDataFromRow(line);
+    myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
     myModifyExchange dial(this);
     dial.setWindowTitle(info);
-    dial.setUI(exchangeData);
+    dial.setUI(originExchangeData);
     if(dial.exec() == QDialog::Accepted) {
         qDebug() << info + "Accepted";
-
+        myExchangeData targetExchangeData = dial.getData();
+        int type = myExchangeListModel::NO_CHANGE;
+        exchangeModel->coordinatorModifyExchange(originExchangeData, targetExchangeData, type);
     }
 }

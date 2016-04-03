@@ -103,3 +103,23 @@ bool myExchangeListModel::initial() {
 myExchangeData myExchangeListModel::getDataFromRow(int row) {
     return data[row];
 }
+
+void myExchangeListModel::coordinatorModifyExchange(myExchangeData &originData, myExchangeData &targetData, int &type) {
+    type = NO_CHANGE;
+    if (originData.account1 != targetData.account1)
+        type |= ACCOUNT1_CHANGE;
+    if (originData.account2 != targetData.account2)
+        type |= ACCOUNT2_CHANGE;
+    if (originData.money != targetData.money)
+        type |= MONEY_CHANGE;
+    if (   originData.code != targetData.code
+        || originData.name != targetData.name
+        || (originData.price - targetData.price < MONEY_EPS)
+        || originData.amount != targetData.amount) {
+        type |=ASSET_CHANGE;
+    }
+    if (   originData.time != targetData.time
+        || originData.type != targetData.type) {
+        type |=OTHER_CHANGE;
+    }
+}

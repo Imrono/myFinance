@@ -6,6 +6,7 @@ myModifyExchange::myModifyExchange(QWidget *parent) :
     ui(new Ui::myModifyExchange)
 {
     ui->setupUi(this);
+    isRollback = ui->checkBoxRollback->isChecked();
 }
 
 myModifyExchange::~myModifyExchange()
@@ -38,4 +39,25 @@ void myModifyExchange::on_lineEditCode_textChanged(const QString &str) {
             ui->labelPrice->setText(QString::fromLocal8Bit("µ¥¼Û£º"));
         }
     }
+}
+
+void myModifyExchange::on_buttonBox_accepted()
+{
+    data.id = ui->lineEditId->text().toInt();
+    data.time = ui->dateTimeEditTime->dateTime();
+    data.type = ui->lineEditType->text();
+
+    data.account1 = ui->lineEditAccount1->text();
+    data.money = ui->spinBoxMoney->value();
+
+    data.account2 = ui->lineEditAccount2->text();
+    data.code = ui->lineEditCode->text();
+    data.name = ui->lineEditName->text();
+    data.amount = ui->spinBoxAmount->value();
+    data.price = ui->spinBoxPrice->value();
+}
+
+void myModifyExchange::on_checkBoxRollback_clicked()
+{
+    isRollback = ui->checkBoxRollback->isChecked();
 }
