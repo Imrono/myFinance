@@ -18,7 +18,10 @@ public:
     ~myModifyExchange();
 
     void setUI(const myExchangeData &exchangeData);
-    myExchangeData getData(bool &isRollback);
+    void setUI4Delete();
+    bool isRollback();
+
+    myExchangeData getData();
 
 private slots:
     void on_lineEditCode_textChanged(const QString &str);

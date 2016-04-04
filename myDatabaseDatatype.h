@@ -30,6 +30,8 @@ enum databaseExchangeType {
 
 struct myExchangeData {
     myExchangeData();
+    myExchangeData operator -();
+
     int       id;
     QDateTime time;
     QString   type;

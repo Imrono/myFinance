@@ -19,7 +19,7 @@ public:
         setStringList(list);
     }
 
-    bool doExchange(const myExchangeData &data);
+    bool doExchange(const myExchangeData &data, bool isDelete = false);
     bool initial();
 
     myExchangeData getDataFromRow(int row);

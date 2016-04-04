@@ -14,6 +14,17 @@ myExchangeData::myExchangeData() {
     buySell  = true;
     fee      = 0.0f;
 }
+myExchangeData myExchangeData::operator -() {
+    myExchangeData tmp;
+    tmp = *this;
+    tmp.money = -tmp.money;
+    if (code == MY_CASH) {
+        tmp.price = -tmp.price;
+    } else {
+        tmp.amount = -tmp.amount;
+    }
+    return tmp;
+}
 
 bool myAccountData::isSameAccountData(const myAccountData &data1, const myAccountData &data2) {
     return (   data1.Code == data2.Code

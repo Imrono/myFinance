@@ -63,6 +63,7 @@ private:
 
     QMenu *editExchange;
     QAction *modifyExchange;
+    QAction *deleteExchange;
 
 private slots:
     void priceDataReflashed();
@@ -78,6 +79,7 @@ private slots:
 
     /// listView
     void modifyExchange_clicked();
+    void deleteExchange_clicked();
     void listViewContextMenu(const QPoint& pt);
 
 private:

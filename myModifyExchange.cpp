@@ -28,6 +28,20 @@ void myModifyExchange::setUI(const myExchangeData &exchangeData) {
     ui->spinBoxAmount->setValue(data.amount);
     ui->spinBoxPrice->setValue(data.price);
 }
+void myModifyExchange::setUI4Delete() {
+    ui->lineEditId->setDisabled(true);
+    ui->dateTimeEditTime->setDisabled(true);
+    ui->lineEditType->setDisabled(true);
+
+    ui->lineEditAccount1->setDisabled(true);
+    ui->spinBoxMoney->setDisabled(true);
+
+    ui->lineEditAccount2->setDisabled(true);
+    ui->lineEditCode->setDisabled(true);
+    ui->lineEditName->setDisabled(true);
+    ui->spinBoxAmount->setDisabled(true);
+    ui->spinBoxPrice->setDisabled(true);
+}
 
 void myModifyExchange::on_lineEditCode_textChanged(const QString &str) {
     if (str == "cash") {
@@ -59,9 +73,11 @@ void myModifyExchange::on_buttonBox_accepted()
     data.price = ui->spinBoxPrice->value();
 }
 
-myExchangeData myModifyExchange::getData(bool &isRollback) {
-    isRollback = ui->checkBoxRollback->isChecked();
+myExchangeData myModifyExchange::getData() {
     return data;
+}
+bool myModifyExchange::isRollback() {
+    return ui->checkBoxRollback->isChecked();
 }
 
 void myModifyExchange::on_spinBoxPrice_valueChanged(double price) {

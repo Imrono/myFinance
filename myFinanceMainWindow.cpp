@@ -63,8 +63,14 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     editExchange = new QMenu(this);
     modifyExchange = new QAction(ui->listView);
     modifyExchange->setText(QString::fromLocal8Bit("更改交易"));
+    deleteExchange = new QAction(ui->listView);
+    deleteExchange->setText(QString::fromLocal8Bit("撤消交易"));
     editExchange->addAction(modifyExchange);
+    editExchange->addAction(deleteExchange);
+
     connect(modifyExchange, SIGNAL(triggered()), this, SLOT(modifyExchange_clicked()));
+    connect(deleteExchange, SIGNAL(triggered()), this, SLOT(deleteExchange_clicked()));
+
     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listView, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(listViewContextMenu(const QPoint&)));
@@ -84,6 +90,10 @@ myFinanceMainWindow::~myFinanceMainWindow()
     if (nullptr != exchangeModel) {
         delete exchangeModel;
         exchangeModel = nullptr;
+    }
+    if (nullptr != deleteExchange) {
+        delete deleteExchange;
+        deleteExchange = nullptr;
     }
     if (nullptr != modifyExchange) {
         delete modifyExchange;
@@ -387,12 +397,11 @@ void myFinanceMainWindow::modifyExchange_clicked() {
     if(dial.exec() == QDialog::Accepted) {
         qDebug() << info + "Accepted";
         // 1. DO EXCHANGE ASSET_DATA
-        bool isRollback = false;
-        myExchangeData targetExchangeData = dial.getData(isRollback);
+        myExchangeData targetExchangeData = dial.getData();
         myExchangeData doExchangeData = targetExchangeData;
         int type = myExchangeListModel::NO_DO_EXCHANGE;
         exchangeModel->coordinatorModifyExchange(originExchangeData, targetExchangeData, type);
-        if (isRollback) {
+        if (dial.isRollback()) {
             bool isMoneyChange = false, isAssetChange = false;
             isMoneyChange = type&myExchangeListModel::ORIG_ACCOUNT_1;
             isAssetChange = type&myExchangeListModel::ORIG_ACCOUNT_2;
@@ -410,6 +419,30 @@ void myFinanceMainWindow::modifyExchange_clicked() {
             } else {
                 exchangeModel->doExchange(doExchangeData);
             }
+        }
+    }
+    ui->treeView->expandAll();
+}
+void myFinanceMainWindow::deleteExchange_clicked() {
+    bool ans = true;
+    QString info = QString::fromLocal8Bit("撤消资产变化");
+    int line = ui->listView->currentIndex().row();
+    myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
+    myModifyExchange dial(this);
+    dial.setWindowTitle(info);
+    dial.setUI(originExchangeData);
+    dial.setUI4Delete();
+    if(dial.exec() == QDialog::Accepted) {
+        qDebug() << info + "Accepted";
+        // 1. DO EXCHANGE ASSET_DATA
+        if (dial.isRollback()) {
+            ans = assetModel->doExchange(-originExchangeData) && ans;
+        }
+        // 2. DO EXCHANGE EXCHANGE_DATA
+        if (false == ans) {
+            QMessageBox::warning(this, info, info + " ERROR", QMessageBox::Ok, QMessageBox::Ok);
+        } else {
+            exchangeModel->doExchange(originExchangeData, true);
         }
     }
     ui->treeView->expandAll();
