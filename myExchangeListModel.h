@@ -47,6 +47,8 @@ public:
 private:
     QStringList list;
     myExchangeData *data;
+
+    QString updateStrFromExchangeData(const myExchangeData &exchangeData);
 };
 
 #endif // MYEXCHANGELISTMODEL_H

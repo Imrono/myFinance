@@ -17,13 +17,17 @@ public:
     explicit myModifyExchange(QWidget *parent = 0);
     ~myModifyExchange();
 
-    void setUI(myExchangeData exchangeData);
+    void setUI(const myExchangeData &exchangeData);
     myExchangeData getData(bool &isRollback);
 
 private slots:
     void on_lineEditCode_textChanged(const QString &str);
 
     void on_buttonBox_accepted();
+
+    void on_spinBoxPrice_valueChanged(double price);
+
+    void on_spinBoxMoney_valueChanged(double money);
 
 private:
     Ui::myModifyExchange *ui;

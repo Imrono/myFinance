@@ -390,18 +390,27 @@ void myFinanceMainWindow::modifyExchange_clicked() {
         bool isRollback = false;
         myExchangeData targetExchangeData = dial.getData(isRollback);
         myExchangeData doExchangeData = targetExchangeData;
+        int type = myExchangeListModel::NO_DO_EXCHANGE;
+        exchangeModel->coordinatorModifyExchange(originExchangeData, targetExchangeData, type);
         if (isRollback) {
-            int type = myExchangeListModel::NO_DO_EXCHANGE;
-            exchangeModel->coordinatorModifyExchange(originExchangeData, targetExchangeData, type);
-
-            ans = assetModel->doExchange(originExchangeData, type&myExchangeListModel::ORIG_ACCOUNT_1, type&myExchangeListModel::ORIG_ACCOUNT_2, false) && ans;
-            ans = assetModel->doExchange(targetExchangeData, type&myExchangeListModel::TARG_ACCOUNT_1, type&myExchangeListModel::TARG_ACCOUNT_2, true) && ans;
+            bool isMoneyChange = false, isAssetChange = false;
+            isMoneyChange = type&myExchangeListModel::ORIG_ACCOUNT_1;
+            isAssetChange = type&myExchangeListModel::ORIG_ACCOUNT_2;
+            ans = assetModel->doExchange(originExchangeData, isMoneyChange, isAssetChange, false) && ans;
+            isMoneyChange = type&myExchangeListModel::TARG_ACCOUNT_1;
+            isAssetChange = type&myExchangeListModel::TARG_ACCOUNT_2;
+            ans = assetModel->doExchange(targetExchangeData, isMoneyChange, isAssetChange, true) && ans;
         }
         // 2. DO EXCHANGE EXCHANGE_DATA
         if (false == ans) {
             QMessageBox::warning(this, info, info + " ERROR", QMessageBox::Ok, QMessageBox::Ok);
         } else {
-            exchangeModel->doExchange(doExchangeData);
+            if (myExchangeListModel::NO_DO_EXCHANGE == type) {
+                qDebug() << "NO EXCHANGE DATA CHANGES";
+            } else {
+                exchangeModel->doExchange(doExchangeData);
+            }
         }
     }
+    ui->treeView->expandAll();
 }

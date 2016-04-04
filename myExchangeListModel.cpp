@@ -20,33 +20,42 @@ myExchangeListModel::~myExchangeListModel() {
     }
 }
 
-bool myExchangeListModel::doExchange(const myExchangeData &data) {
-    QString exchangeTime = data.time.toString(("yyyy-mm-dd hh:mm:ss"));
-    QString exchangeType = data.type;
+bool myExchangeListModel::doExchange(const myExchangeData &exchangeData) {
+    QString exchangeTime = exchangeData.time.toString(("yyyy-MM-dd hh:mm:ss"));
+    QString exchangeType = exchangeData.type;
     QSqlQuery query;
     QString execWord;
 
     // 1 update database, "资产变化"表 CHANGE
-    execWord = QString::fromLocal8Bit("SELECT * FROM 资产变化 WHERE id=%1").arg(data.id);
+    execWord = QString::fromLocal8Bit("SELECT * FROM 资产变化 WHERE id=%1").arg(exchangeData.id);
     qDebug() << execWord;
     if(query.exec(execWord)) {
         if (1 == query.size()) {        //UPDATE
             execWord = QString::fromLocal8Bit("UPDATE 资产变化 "
-                                              "SET ='%1', ='%2', ='%3', =%4, ='%5', ='%6', ='%7', =%8, =%9) "
+                                              "SET 时间='%1', 变化类别='%2', 资产帐户代号1='%3', 变化资金=%4, "
+                                              "资产帐户代号2='%5', 代号='%6', 名称='%7', 单价=%8, 数量=%9 "
                                               "WHERE id=%10")
-                    .arg(exchangeTime).arg(exchangeType).arg(data.account1).arg(data.money)
-                    .arg(data.account2).arg(data.code).arg(data.name).arg(data.price).arg(data.amount).arg(data.id);
+                    .arg(exchangeTime).arg(exchangeType).arg(exchangeData.account1).arg(exchangeData.money)
+                    .arg(exchangeData.account2).arg(exchangeData.code).arg(exchangeData.name).arg(exchangeData.price).arg(exchangeData.amount).arg(exchangeData.id);
             qDebug() << execWord;
 
             if(!query.exec(execWord)) {
                 qDebug() << query.lastError().text();
                 return false;
+            } else {
+                for (int i = 0; i < list.count(); i++) {
+                    if (data[i].id == exchangeData.id) {
+                        QString exchangeStr = updateStrFromExchangeData(exchangeData);
+                        data[i] = exchangeData;
+                        list.replace(i, exchangeStr);
+                    }
+                }
             }
         } else if (0 == query.size()) { //INSERT
             execWord = QString::fromLocal8Bit("INSERT INTO 资产变化 "
                                               "VALUES (null, '%1', '%2', '%3', %4, '%5', '%6', '%7', %8, %9)")
-                    .arg(exchangeTime).arg(exchangeType).arg(data.account1).arg(data.money)
-                    .arg(data.account2).arg(data.code).arg(data.name).arg(data.price).arg(data.amount);
+                    .arg(exchangeTime).arg(exchangeType).arg(exchangeData.account1).arg(exchangeData.money)
+                    .arg(exchangeData.account2).arg(exchangeData.code).arg(exchangeData.name).arg(exchangeData.price).arg(exchangeData.amount);
             qDebug() << execWord;
 
             if(!query.exec(execWord)) {
@@ -64,6 +73,25 @@ bool myExchangeListModel::doExchange(const myExchangeData &data) {
     // 2 更新list，刷新
     return initial();
 }
+QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exchangeData) {
+    QString exchangeStr;
+    if (MY_CASH == exchangeData.code && 1 == exchangeData.amount) {
+        if (exchangeData.price + exchangeData.money > 0.0001f)
+            qDebug() << "[转帐]" << exchangeData.account1 << " " << exchangeData.money
+                     << "!="    << exchangeData.account2 << " " << exchangeData.price;
+        exchangeStr = QString::fromLocal8Bit("[%1]%2->%3(￥%4)")
+                .arg(exchangeData.type)
+                .arg(exchangeData.account1).arg(exchangeData.account2).arg(exchangeData.price);
+    } else {
+        exchangeStr = QString::fromLocal8Bit("[%1]%2(￥%3) - %4@%5(%6*%7)")
+                .arg(exchangeData.type)
+                .arg(exchangeData.account1).arg(exchangeData.money)
+                .arg(exchangeData.name).arg(exchangeData.account2)
+                .arg(exchangeData.amount).arg(exchangeData.price);
+    }
+    return exchangeStr;
+}
+
 
 bool myExchangeListModel::initial() {
     list.clear();
@@ -97,21 +125,8 @@ bool myExchangeListModel::initial() {
             tmpExchange.price    = query.value(8).toDouble();
             tmpExchange.amount   = query.value(9).toInt();
 
-            QString exchangeStr;
-            if (MY_CASH == tmpExchange.code && 1 == tmpExchange.amount) {
-                if (tmpExchange.price + tmpExchange.money > 0.0001f)
-                    qDebug() << "[转帐]" << tmpExchange.account1 << " " << tmpExchange.money
-                             << "!="    << tmpExchange.account2 << " " << tmpExchange.price;
-                exchangeStr = QString::fromLocal8Bit("[%1]%2->%3(￥%4)")
-                        .arg(tmpExchange.type)
-                        .arg(tmpExchange.account1).arg(tmpExchange.account2).arg(tmpExchange.price);
-            } else {
-                exchangeStr = QString::fromLocal8Bit("[%1]%2(￥%3) - %4@%5(%6*%7)")
-                        .arg(tmpExchange.type)
-                        .arg(tmpExchange.account1).arg(tmpExchange.money)
-                        .arg(tmpExchange.name).arg(tmpExchange.account2)
-                        .arg(tmpExchange.amount).arg(tmpExchange.price);
-            }
+            QString exchangeStr = updateStrFromExchangeData(tmpExchange);
+            // 下标为i的list与data要保持对应的
             list.append(exchangeStr);
             data[i] = tmpExchange;
             i ++;
@@ -140,12 +155,12 @@ void myExchangeListModel::coordinatorModifyExchange(myExchangeData &originData, 
         changeIdx |= ORIG_ACCOUNT_2;
         changeIdx |= TARG_ACCOUNT_2;
     }
-    if (qAbs(originData.money - targetData.money) < MONEY_EPS) {
+    if (qAbs(originData.money - targetData.money) > MONEY_EPS) {
         changeIdx |= ORIG_ACCOUNT_1;
     }
     if (   originData.code != targetData.code
         || originData.name != targetData.name
-        || (qAbs(originData.price - targetData.price) < MONEY_EPS)
+        || (qAbs(originData.price - targetData.price) > MONEY_EPS)
         || originData.amount != targetData.amount) {
         changeIdx |= ORIG_ACCOUNT_2;
     }

@@ -13,29 +13,32 @@ myModifyExchange::~myModifyExchange()
     delete ui;
 }
 
-void myModifyExchange::setUI(myExchangeData exchangeData) {
-    ui->lineEditId->setText(QString("%1").arg(exchangeData.id));
-    ui->dateTimeEditTime->setDateTime(exchangeData.time);
-    ui->lineEditType->setText(exchangeData.type);
+void myModifyExchange::setUI(const myExchangeData &exchangeData) {
+    data = exchangeData;
+    ui->lineEditId->setText(QString("%1").arg(data.id));
+    ui->dateTimeEditTime->setDateTime(data.time);
+    ui->lineEditType->setText(data.type);
 
-    ui->lineEditAccount1->setText(exchangeData.account1);
-    ui->spinBoxMoney->setValue(exchangeData.money);
+    ui->lineEditAccount1->setText(data.account1);
+    ui->spinBoxMoney->setValue(data.money);
 
-    ui->lineEditAccount2->setText(exchangeData.account2);
-    ui->lineEditCode->setText(exchangeData.code);
-    ui->lineEditName->setText(exchangeData.name);
-    ui->spinBoxAmount->setValue(exchangeData.amount);
-    ui->spinBoxPrice->setValue(exchangeData.price);
+    ui->lineEditAccount2->setText(data.account2);
+    ui->lineEditCode->setText(data.code);
+    ui->lineEditName->setText(data.name);
+    ui->spinBoxAmount->setValue(data.amount);
+    ui->spinBoxPrice->setValue(data.price);
 }
 
 void myModifyExchange::on_lineEditCode_textChanged(const QString &str) {
     if (str == "cash") {
+        data.amount = 1;
+        ui->spinBoxAmount->setValue(data.amount);
         ui->spinBoxAmount->setDisabled(true);
-        ui->labelPrice->setText(QString::fromLocal8Bit("资金："));
+        ui->labelPrice->setText(QString::fromLocal8Bit("金额"));
     } else {
         if (!ui->spinBoxAmount->isEnabled()) {
             ui->spinBoxAmount->setEnabled(true);
-            ui->labelPrice->setText(QString::fromLocal8Bit("单价："));
+            ui->labelPrice->setText(QString::fromLocal8Bit("单价"));
         }
     }
 }
@@ -59,4 +62,20 @@ void myModifyExchange::on_buttonBox_accepted()
 myExchangeData myModifyExchange::getData(bool &isRollback) {
     isRollback = ui->checkBoxRollback->isChecked();
     return data;
+}
+
+void myModifyExchange::on_spinBoxPrice_valueChanged(double price) {
+    if (ui->lineEditCode->text() == MY_CASH) {
+        data.price = price;
+        data.money = - data.price;
+        ui->spinBoxMoney->setValue(data.money);
+    }
+}
+
+void myModifyExchange::on_spinBoxMoney_valueChanged(double money) {
+    if (ui->lineEditCode->text() == MY_CASH) {
+        data.money = money;
+        data.price = - data.money;
+        ui->spinBoxPrice->setValue(data.price);
+    }
 }
