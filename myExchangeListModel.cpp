@@ -84,18 +84,21 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
 QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exchangeData) {
     QString exchangeStr;
     if (MY_CASH == exchangeData.code && 1 == exchangeData.amount) {
-        if (exchangeData.price + exchangeData.money > 0.0001f)
+        if (qAbs(exchangeData.price + exchangeData.money) > 0.0001f)
             qDebug() << "[转帐]" << exchangeData.account1 << " " << exchangeData.money
                      << "!="    << exchangeData.account2 << " " << exchangeData.price;
+        QString strMoney = QString::number(exchangeData.money, 'f', 2);
         exchangeStr = QString::fromLocal8Bit("[%1]%2->%3(￥%4)")
                 .arg(exchangeData.type)
-                .arg(exchangeData.account1).arg(exchangeData.account2).arg(exchangeData.price);
+                .arg(exchangeData.account1).arg(exchangeData.account2).arg(strMoney);
     } else {
+        QString strMoney = QString::number(exchangeData.money, 'f', 2);
+        QString strPrice = QString::number(exchangeData.price, 'f', 2);
         exchangeStr = QString::fromLocal8Bit("[%1]%2(￥%3) - %4@%5(%6*%7)")
                 .arg(exchangeData.type)
-                .arg(exchangeData.account1).arg(exchangeData.money)
+                .arg(exchangeData.account1).arg(strMoney)
                 .arg(exchangeData.name).arg(exchangeData.account2)
-                .arg(exchangeData.amount).arg(exchangeData.price);
+                .arg(exchangeData.amount).arg(strPrice);
     }
     return exchangeStr;
 }

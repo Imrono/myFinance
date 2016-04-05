@@ -122,12 +122,12 @@ void myFinanceExchangeWindow::on_buttonBox_accepted()
     updataData();
 }
 
-void myFinanceExchangeWindow::on_amountSpinBox_valueChanged(int value)
+void myFinanceExchangeWindow::on_spinBoxAmount_valueChanged(int value)
 {
     data.amount = value;
     updateBuySell();
 }
-void myFinanceExchangeWindow::on_priceSpinBox_valueChanged(double value) {
+void myFinanceExchangeWindow::on_spinBoxPrice_valueChanged(double value) {
     data.price = value;
     updateBuySell();
 }
@@ -152,7 +152,7 @@ void myFinanceExchangeWindow::updateBuySell() {
 
     data.amount = ui->spinBoxAmount->text().toInt();
 	data.amount *= -buySellFlag;
-    data.money = -(float)data.amount * data.price - data.fee;
+    data.money = -static_cast<float>(data.amount) * data.price - data.fee;
 
     ui->moneySpinBox->setValue(data.money);
 
@@ -440,4 +440,3 @@ void myFinanceExchangeWindow::updateIncomeType() {
         data.type = ui->lineEditIncomeType->text();
     } else {}
 }
-

@@ -26,9 +26,9 @@ public:
 private slots:
     void on_buttonBox_accepted();
 
-    void on_amountSpinBox_valueChanged(int value);
+    void on_spinBoxAmount_valueChanged(int value);
 
-    void on_priceSpinBox_valueChanged(double value);
+    void on_spinBoxPrice_valueChanged(double value);
 
     void on_radioBuy_clicked();
 

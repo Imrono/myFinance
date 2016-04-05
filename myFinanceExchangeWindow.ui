@@ -207,7 +207,7 @@
              <enum>Qt::LeftToRight</enum>
             </property>
             <property name="text">
-             <string>资金</string>
+             <string>所需资金：</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
