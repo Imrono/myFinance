@@ -157,20 +157,33 @@ myExchangeData myExchangeListModel::getDataFromRow(int row) {
 
 void myExchangeListModel::coordinatorModifyExchange(myExchangeData &originData, myExchangeData &targetData, int &changeIdx) {
     changeIdx = NO_DO_EXCHANGE;
-    myExchangeData tmpOrigin, tmpTarget;
+    myExchangeData tmp1, tmp2;
+    tmp1.id = originData.id;
+    tmp2.id = targetData.id;
+    tmp1.time = targetData.time;
+    tmp2.time = targetData.time;
+    tmp1.type = targetData.type;
+    tmp2.type = targetData.type;
+    tmp1.account1 = originData.account1;
+    tmp2.account1 = targetData.account1;
+    tmp1.account2 = originData.account2;
+    tmp2.account2 = targetData.account2;
+    tmp1.code = originData.code;
+    tmp2.code = targetData.code;
+
     if (originData.account1 != targetData.account1) {
         changeIdx |= ORIG_ACCOUNT_1;
         changeIdx |= TARG_ACCOUNT_1;
     }
-    if (originData.account2 != targetData.account2) {
+    if (   originData.account2 != targetData.account2
+        && originData.code != targetData.code) {
         changeIdx |= ORIG_ACCOUNT_2;
         changeIdx |= TARG_ACCOUNT_2;
     }
     if (qAbs(originData.money - targetData.money) > MONEY_EPS) {
         changeIdx |= ORIG_ACCOUNT_1;
     }
-    if (   originData.code != targetData.code
-        || originData.name != targetData.name
+    if (   originData.name != targetData.name
         || (qAbs(originData.price - targetData.price) > MONEY_EPS)
         || originData.amount != targetData.amount) {
         changeIdx |= ORIG_ACCOUNT_2;
@@ -178,79 +191,62 @@ void myExchangeListModel::coordinatorModifyExchange(myExchangeData &originData, 
     if (   originData.time != targetData.time
         || originData.type != targetData.type) {
         changeIdx |= OTHER_EXCHANGE;
-        tmpOrigin.time = targetData.time;
-        tmpTarget.time = targetData.time;
-        tmpOrigin.type = targetData.type;
-        tmpTarget.type = targetData.type;
     }
 
     if (changeIdx & ORIG_ACCOUNT_1) {
-        tmpOrigin.account1 = originData.account1;
         if (changeIdx & TARG_ACCOUNT_1) {
-            tmpTarget.account1 = targetData.account1;
-            tmpOrigin.money = -originData.money;
-            tmpTarget.money = targetData.money;
+            tmp1.money = -originData.money;
+            tmp2.money = targetData.money;
         } else {
-            tmpOrigin.money = targetData.money - originData.money;
-            tmpTarget.money = 0.0f;
+            tmp1.money = targetData.money - originData.money;
+            tmp2.money = 0.0f;
         }
     }
+
     if (changeIdx & ORIG_ACCOUNT_2) {
-        tmpOrigin.account2 = originData.account2;
-        tmpOrigin.code = originData.code;
-        tmpOrigin.name = originData.name;
-
+        tmp2.name = targetData.name;
         if (changeIdx & TARG_ACCOUNT_2) {
-            tmpTarget.account2 = targetData.account2;
-
+            tmp1.name = originData.name;
             if (originData.code == MY_CASH && 1 == originData.amount) {
-                tmpOrigin.amount = originData.amount;
-                tmpOrigin.price = -originData.price;
+                tmp1.amount = originData.amount;
+                tmp1.price = -originData.price;
             } else {
-                tmpOrigin.amount = -originData.amount;
-                tmpOrigin.price = originData.price;
+                tmp1.amount = -originData.amount;
+                tmp1.price = originData.price;
             }
-
-            tmpTarget.code = targetData.code;
-            tmpTarget.name = targetData.name;
-            tmpTarget.amount = targetData.amount;
-            tmpTarget.price = targetData.price;
+            tmp2.amount = targetData.amount;
+            tmp2.price = targetData.price;
         } else {
+            tmp1.name = targetData.name;
             if (originData.code == MY_CASH && 1 == originData.amount) {
                 if (targetData.code == MY_CASH && 1 == targetData.amount) {
-                    tmpOrigin.amount = 1;
-                    tmpOrigin.price = targetData.price - originData.price;
+                    tmp1.amount = 1;
+                    tmp1.price = targetData.price - originData.price;
                 } else {
                     changeIdx |= TARG_ACCOUNT_1;
 
-                    tmpOrigin.amount = originData.amount;
-                    tmpOrigin.price = -originData.price;
-
-                    tmpTarget.code = targetData.code;
-                    tmpTarget.name = targetData.name;
-                    tmpTarget.price = targetData.price;
-                    tmpTarget.amount = targetData.amount;
+                    tmp1.amount = originData.amount;
+                    tmp1.price = -originData.price;
+                    tmp2.amount = targetData.amount;
+                    tmp2.price = targetData.price;
                 }
             } else {
                 if (targetData.code == MY_CASH && 1 == targetData.amount) {
                     changeIdx |= TARG_ACCOUNT_1;
 
-                    tmpOrigin.amount = -originData.amount;
-                    tmpOrigin.price = originData.price;
-
-                    tmpTarget.code = targetData.code;
-                    tmpTarget.name = targetData.name;
-                    tmpTarget.price = targetData.price;
-                    tmpTarget.amount = targetData.amount;
+                    tmp1.amount = -originData.amount;
+                    tmp1.price = originData.price;
+                    tmp2.amount = targetData.amount;
+                    tmp2.price = targetData.price;
                 } else {
-                    tmpOrigin.amount = targetData.amount - originData.amount;
-                    tmpOrigin.price = originData.price;
+                    tmp1.amount = targetData.amount - originData.amount;
+                    tmp1.price = targetData.price;
                 }
             }
 
         }
     }
 
-    originData = tmpOrigin;
-    targetData = tmpTarget;
+    originData = tmp1;
+    targetData = tmp2;
 }

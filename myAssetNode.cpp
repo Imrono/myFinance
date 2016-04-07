@@ -104,8 +104,9 @@ bool myAssetNode::doExchange(myExchangeData data, const myRootAccountAsset &root
                     avgCost = priceOrigin + data.price - data.fee;
                 }
                 if (amount != 0) {  //即使为0，"cash"不会被删除
-                    execWord = QString::fromLocal8Bit("UPDATE 资产 SET 数量=%1, 单位成本=%2"
-                                                      " WHERE %3").arg(amount).arg(avgCost).arg(filter);
+                    execWord = QString::fromLocal8Bit("UPDATE 资产 SET 数量=%1, 单位成本=%2, 名称=%3"
+                                                      " WHERE %5").arg(amount).arg(avgCost).arg(data.name)
+                                                                  .arg(filter);
                 } else {
                     execWord = QString::fromLocal8Bit("delete from 资产"
                                                       " WHERE %1").arg(filter);
