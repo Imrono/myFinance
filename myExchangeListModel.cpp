@@ -176,7 +176,8 @@ void myExchangeListModel::coordinatorModifyExchange(myExchangeData &originData, 
         changeIdx |= TARG_ACCOUNT_1;
     }
     if (   originData.account2 != targetData.account2
-        && originData.code != targetData.code) {
+        || originData.code != targetData.code
+        || (qAbs(originData.price - targetData.price) > MONEY_EPS)) {
         changeIdx |= ORIG_ACCOUNT_2;
         changeIdx |= TARG_ACCOUNT_2;
     }
@@ -184,7 +185,6 @@ void myExchangeListModel::coordinatorModifyExchange(myExchangeData &originData, 
         changeIdx |= ORIG_ACCOUNT_1;
     }
     if (   originData.name != targetData.name
-        || (qAbs(originData.price - targetData.price) > MONEY_EPS)
         || originData.amount != targetData.amount) {
         changeIdx |= ORIG_ACCOUNT_2;
     }
