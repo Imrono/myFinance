@@ -2,6 +2,7 @@
 #include "ui_myFinanceExchangeWindow.h"
 
 #include <QtCore/QMap>
+#include <QtWidgets/QCheckBox>
 #include "myFinanceMainWindow.h"
 
 #include <QtDebug>
@@ -9,7 +10,8 @@
 myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     QDialog(parent), grpBuySell(nullptr),
     ui(new Ui::myFinanceExchangeWindow),
-    stockCode(myStockCodeName::getInstance())
+    stockCode(myStockCodeName::getInstance()),
+    isRollback(false)
 {
     ui->setupUi(this);
 
@@ -57,6 +59,9 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     data.amount = 0;
     commisionRate = 0.0f;
     updateExchangeFee();
+
+    ui->checkBoxRollback->setChecked(isRollback);
+    ui->checkBoxRollback->hide();
 }
 
 myFinanceExchangeWindow::~myFinanceExchangeWindow()
@@ -439,4 +444,21 @@ void myFinanceExchangeWindow::updateIncomeType() {
         ui->lineEditIncomeType->setReadOnly(false);
         data.type = ui->lineEditIncomeType->text();
     } else {}
+}
+
+void myFinanceExchangeWindow::on_checkBox_clicked() {
+    isRollback = (Qt::Checked == ui->checkBoxRollback->checkState());
+}
+void myFinanceExchangeWindow::showRollback() {
+    ui->checkBoxRollback->setVisible(true);
+}
+void myFinanceExchangeWindow::setUI(myExchangeData exchangeData) {
+    data = exchangeData;
+    ui->timeDateTimeEdit->setDateTime(data.time);
+    ui->typeLineEdit->setText(data.type);
+
+    ui->lineEditName->setText(data.name);
+    ui->codeLineEdit->setText(data.code);
+    ui->spinBoxPrice->setValue(data.price);
+    ui->spinBoxAmount->setValue(data.amount);
 }

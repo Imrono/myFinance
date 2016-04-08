@@ -22,6 +22,8 @@ public:
     ~myFinanceExchangeWindow();
 
     myExchangeData const &getExchangeData() { return data;}
+    void showRollback();
+    void setUI(myExchangeData exchangeData);
 
 private slots:
     void on_buttonBox_accepted();
@@ -60,6 +62,8 @@ private slots:
 
     void on_lineEditIncomeType_textChanged(const QString &arg1);
 
+    void on_checkBox_clicked();
+
 private:
     Ui::myFinanceExchangeWindow *ui;
     QButtonGroup *grpBuySell;
@@ -70,6 +74,8 @@ private:
     int dataSource;
 	int lastRadioBuySell;
     double commisionRate;
+
+    bool isRollback;
 
     myStockCodeName *stockCode; //用于从code到name的推导
 
