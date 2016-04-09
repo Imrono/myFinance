@@ -152,7 +152,7 @@ void myFinanceExchangeWindow::on_exchangeFeeSpinBox_valueChanged(double value) {
     updateBuySell();
 }
 void myFinanceExchangeWindow::updateBuySell() {
-    data.buySell = grpBuySell->checkedId() == BUY ? (bool)BUY : (bool)SELL;
+    data.buySell = grpBuySell->checkedId() == BUY ? static_cast<bool>(BUY) : static_cast<bool>(SELL);
     buySellFlag = data.buySell == SELL ? 1.0f : -1.0f;
 
     data.amount = ui->spinBoxAmount->text().toInt();
@@ -161,7 +161,9 @@ void myFinanceExchangeWindow::updateBuySell() {
 
     ui->moneySpinBox->setValue(data.money);
 
-    updateExchangeFee();
+    if (grpMarket->checkedId() != OTHER) {
+        updateExchangeFee();
+    }
 
     qDebug() << "data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
              << "data.amount " << data.amount << ","
@@ -452,7 +454,7 @@ void myFinanceExchangeWindow::on_checkBox_clicked() {
 void myFinanceExchangeWindow::showRollback() {
     ui->checkBoxRollback->setVisible(true);
 }
-void myFinanceExchangeWindow::setUI(myExchangeData exchangeData) {
+void myFinanceExchangeWindow::setUI(myExchangeData exchangeData, bool rollbackShow) {
     data = exchangeData;
     ui->timeDateTimeEdit->setDateTime(data.time);
     ui->typeLineEdit->setText(data.type);
@@ -461,4 +463,18 @@ void myFinanceExchangeWindow::setUI(myExchangeData exchangeData) {
     ui->codeLineEdit->setText(data.code);
     ui->spinBoxPrice->setValue(data.price);
     ui->spinBoxAmount->setValue(data.amount);
+
+    if (rollbackShow) {
+        showRollback();
+        ui->exchangeFeeSpinBox->setValue(data.fee);
+        if (MY_CASH == data.code) {
+            int indexOut = ui->moneyAccountOut->findText(data.account1);
+            ui->moneyAccountOut->setCurrentIndex(indexOut);
+            int indexIn = ui->moneyAccountIn->findText(data.account2);
+            ui->moneyAccountIn->setCurrentIndex(indexIn);
+
+            ui->moneyTransferSpinBox->setValue(data.price);
+            ui->tabWidget->setCurrentIndex(1);
+        }
+    }
 }

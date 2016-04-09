@@ -18,6 +18,7 @@ myExchangeData myExchangeData::operator -() {
     myExchangeData tmp;
     tmp = *this;
     tmp.money = -tmp.money;
+    tmp.fee = -tmp.fee;
     if (code == MY_CASH) {
         tmp.price = -tmp.price;
     } else {

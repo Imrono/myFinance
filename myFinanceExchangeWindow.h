@@ -22,8 +22,9 @@ public:
     ~myFinanceExchangeWindow();
 
     myExchangeData const &getExchangeData() { return data;}
+    bool getIsRollback() { return isRollback;}
     void showRollback();
-    void setUI(myExchangeData exchangeData);
+    void setUI(myExchangeData exchangeData, bool rollbackShow = false);
 
 private slots:
     void on_buttonBox_accepted();

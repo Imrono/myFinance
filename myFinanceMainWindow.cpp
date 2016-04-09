@@ -391,17 +391,17 @@ void myFinanceMainWindow::modifyExchange_clicked() {
     QString info = QString::fromLocal8Bit("更改资产变化");
     int line = ui->listView->currentIndex().row();
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myModifyExchange dial(this);
-    dial.setWindowTitle(info);
-    dial.setUI(originExchangeData);
-    if(dial.exec() == QDialog::Accepted) {
+    myFinanceExchangeWindow exWin(this);
+    exWin.setWindowTitle(info);
+    exWin.setUI(originExchangeData, true);
+    if(exWin.exec() == QDialog::Accepted) {
         qDebug() << info + "Accepted";
         // 1. DO EXCHANGE ASSET_DATA
-        myExchangeData targetExchangeData = dial.getData();
+        myExchangeData targetExchangeData = exWin.getExchangeData();
         myExchangeData doExchangeData = targetExchangeData;
         int type = myExchangeListModel::NO_DO_EXCHANGE;
         exchangeModel->coordinatorModifyExchange(originExchangeData, targetExchangeData, type);
-        if (dial.isRollback()) {
+        if (exWin.getIsRollback()) {
             bool isMoneyChange = false, isAssetChange = false;
             isMoneyChange = type&myExchangeListModel::ORIG_ACCOUNT_1;
             isAssetChange = type&myExchangeListModel::ORIG_ACCOUNT_2;
