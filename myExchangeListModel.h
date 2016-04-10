@@ -42,7 +42,7 @@ public:
         OTHER_EXCHANGE = 0x20
     };
 
-    void coordinatorModifyExchange(myExchangeData &originData, myExchangeData &targetData, int &changeIdx);
+    void coordinatorModifyExchange(const myExchangeData &originData, const myExchangeData &targetData, int &changeIdx);
 
 private:
     QStringList list;

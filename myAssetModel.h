@@ -28,7 +28,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role) const;
 
-    bool doExchange(const myExchangeData data, bool isMoneyChange = true, bool isAssetChange = true, bool reflash = true);
+    bool doExchange(const myExchangeData &data, bool isMoneyChange = true, bool isAssetChange = true, bool reflash = true);
     bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
     bool doReflashAssetData();
 

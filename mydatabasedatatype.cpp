@@ -26,6 +26,21 @@ myExchangeData myExchangeData::operator -() {
     }
     return tmp;
 }
+myExchangeData &myExchangeData::operator =(const myExchangeData &data) {
+    id       = data.id;
+    time     = data.time;
+    type     = data.type;
+    account1 = data.account1;
+    money    = data.money;
+    account2 = data.account2;
+    code     = data.code;
+    name     = data.name;
+    price    = data.price;
+    amount   = data.amount;
+    buySell  = data.buySell;
+    fee      = data.fee;
+    return *this;
+}
 
 bool myAccountData::isSameAccountData(const myAccountData &data1, const myAccountData &data2) {
     return (   data1.Code == data2.Code

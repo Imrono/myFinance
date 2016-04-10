@@ -24,7 +24,7 @@ public:
     myExchangeData const &getExchangeData() { return data;}
     bool getIsRollback() { return isRollback;}
     void showRollback();
-    void setUI(myExchangeData exchangeData, bool rollbackShow = false);
+    void setUI(const myExchangeData &exchangeData, bool rollbackShow = false);
 
 private slots:
     void on_buttonBox_accepted();
@@ -63,7 +63,7 @@ private slots:
 
     void on_lineEditIncomeType_textChanged(const QString &arg1);
 
-    void on_checkBox_clicked();
+    void on_checkBoxRollback_clicked();
 
 private:
     Ui::myFinanceExchangeWindow *ui;

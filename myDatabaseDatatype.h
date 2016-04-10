@@ -31,6 +31,7 @@ enum databaseExchangeType {
 struct myExchangeData {
     myExchangeData();
     myExchangeData operator -();
+    myExchangeData &operator =(const myExchangeData &data);
 
     int       id;
     QDateTime time;

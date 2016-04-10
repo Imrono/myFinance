@@ -32,7 +32,8 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     grpMarket->setId(ui->radioSH, SH);       //radioBuy的Id设为0
     grpMarket->setId(ui->radioSZ, SZ);       //radioBuy的Id设为1
     grpMarket->setId(ui->radioOther, OTHER); //radioBuy的Id设为2
-    ui->radioSH->setChecked(true);
+    //ui->radioSH->setChecked(true);
+    ui->radioOther->setChecked(true);
     updateMarketInfo();
 
     grpIncomeType = new QButtonGroup(this);
@@ -54,9 +55,6 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
 
     initial(static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode());
 
-    data.money  = 0.0f;
-    data.price  = 0.0f;
-    data.amount = 0;
     commisionRate = 0.0f;
     updateExchangeFee();
 
@@ -315,6 +313,13 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
                 ui->radioOther->setChecked(true);
             } else {}
         }
+    } else if (grpMarket->checkedId() == OTHER) {
+        QString subStr = data.code.left(3);
+        if (subStr == "sh.") {
+            ui->radioSH->setChecked(true);
+        } else if (subStr == "sz.") {
+            ui->radioSZ->setChecked(true);
+        } else {}
     }
 
     updateMarketInfo();
@@ -448,33 +453,47 @@ void myFinanceExchangeWindow::updateIncomeType() {
     } else {}
 }
 
-void myFinanceExchangeWindow::on_checkBox_clicked() {
-    isRollback = (Qt::Checked == ui->checkBoxRollback->checkState());
-}
 void myFinanceExchangeWindow::showRollback() {
     ui->checkBoxRollback->setVisible(true);
 }
-void myFinanceExchangeWindow::setUI(myExchangeData exchangeData, bool rollbackShow) {
+void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rollbackShow) {
     data = exchangeData;
     ui->timeDateTimeEdit->setDateTime(data.time);
     ui->typeLineEdit->setText(data.type);
-
-    ui->lineEditName->setText(data.name);
-    ui->codeLineEdit->setText(data.code);
-    ui->spinBoxPrice->setValue(data.price);
-    ui->spinBoxAmount->setValue(data.amount);
-
+    if (qAbs(data.fee) > MONEY_EPS) {
+        ui->exchangeFeeSpinBox->setValue(data.fee);
+    } else {
+        double fee = static_cast<double>(data.amount)*data.price + data.money;
+        ui->exchangeFeeSpinBox->setValue(fee);
+    }
+    data = exchangeData;
     if (rollbackShow) {
         showRollback();
-        ui->exchangeFeeSpinBox->setValue(data.fee);
-        if (MY_CASH == data.code) {
-            int indexOut = ui->moneyAccountOut->findText(data.account1);
-            ui->moneyAccountOut->setCurrentIndex(indexOut);
-            int indexIn = ui->moneyAccountIn->findText(data.account2);
-            ui->moneyAccountIn->setCurrentIndex(indexIn);
-
-            ui->moneyTransferSpinBox->setValue(data.price);
-            ui->tabWidget->setCurrentIndex(1);
-        }
     }
+
+    if (data.type.contains(QString::fromLocal8Bit("转帐"))) {
+        int indexOut = ui->moneyAccountOut->findText(data.account1);
+        ui->moneyAccountOut->setCurrentIndex(indexOut);
+        int indexIn = ui->moneyAccountIn->findText(data.account2);
+        ui->moneyAccountIn->setCurrentIndex(indexIn);
+
+        ui->moneyTransferSpinBox->setValue(data.price);
+
+        ui->tabWidget->setCurrentIndex(1);
+    } else if (data.type.contains(QString::fromLocal8Bit("证券"))) {
+        int index = ui->moneyAccount->findText(data.account2);
+        ui->moneyAccount->setCurrentIndex(index);
+        ui->lineEditName->setText(data.name);
+        ui->codeLineEdit->setText(data.code);
+        ui->spinBoxPrice->setValue(data.price);
+        data = exchangeData;
+        ui->spinBoxAmount->setValue(data.amount);
+        data = exchangeData;
+
+        ui->tabWidget->setCurrentIndex(0);
+    } else {}
+}
+
+void myFinanceExchangeWindow::on_checkBoxRollback_clicked() {
+    isRollback = (Qt::Checked == ui->checkBoxRollback->checkState());
 }

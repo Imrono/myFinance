@@ -405,7 +405,7 @@ void myFinanceMainWindow::modifyExchange_clicked() {
             bool isMoneyChange = false, isAssetChange = false;
             isMoneyChange = type&myExchangeListModel::ORIG_ACCOUNT_1;
             isAssetChange = type&myExchangeListModel::ORIG_ACCOUNT_2;
-            ans = assetModel->doExchange(originExchangeData, isMoneyChange, isAssetChange, false) && ans;
+            ans = assetModel->doExchange(-originExchangeData, isMoneyChange, isAssetChange, false) && ans;
             isMoneyChange = type&myExchangeListModel::TARG_ACCOUNT_1;
             isAssetChange = type&myExchangeListModel::TARG_ACCOUNT_2;
             ans = assetModel->doExchange(targetExchangeData, isMoneyChange, isAssetChange, true) && ans;
