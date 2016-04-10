@@ -159,38 +159,24 @@ void myExchangeListModel::coordinatorModifyExchange(const myExchangeData &origin
     changeIdx = NO_DO_EXCHANGE;
 
     if (originData.account1 != targetData.account1) {
-        changeIdx |= ORIG_ACCOUNT_1;
+        changeIdx |= ROLLBACK_ACCOUNT_1;
         changeIdx |= TARG_ACCOUNT_1;
     }
     if (   originData.account2 != targetData.account2
         || originData.code != targetData.code
-        || (qAbs(originData.price - targetData.price) > MONEY_EPS)) {   //price会影响avgCost的计算
-        changeIdx |= ORIG_ACCOUNT_2;
+        || (qAbs(originData.price - targetData.price) > MONEY_EPS)  //price会影响avgCost的计算
+        || originData.amount != targetData.amount) {                //amount会影响avgCost的计算
+        changeIdx |= ROLLBACK_ACCOUNT_2;
         changeIdx |= TARG_ACCOUNT_2;
     }
     if (qAbs(originData.money - targetData.money) > MONEY_EPS) {
-        changeIdx |= ORIG_ACCOUNT_1;
+        changeIdx |= TARG_ACCOUNT_1;
     }
-    if (   originData.name != targetData.name
-        || originData.amount != targetData.amount) {
-        changeIdx |= ORIG_ACCOUNT_2;
+    if (   originData.name != targetData.name) {
+        changeIdx |= TARG_ACCOUNT_2;
     }
     if (   originData.time != targetData.time
         || originData.type != targetData.type) {
         changeIdx |= OTHER_EXCHANGE;
-    }
-
-    if (changeIdx & ORIG_ACCOUNT_2) {
-        if (!(changeIdx & TARG_ACCOUNT_2)) {
-            if (originData.code == MY_CASH && 1 == originData.amount) {
-                if (targetData.code != MY_CASH || 1 != targetData.amount) {
-                    changeIdx |= TARG_ACCOUNT_2;
-                }
-            } else {
-                if (targetData.code == MY_CASH && 1 == targetData.amount) {
-                    changeIdx |= TARG_ACCOUNT_2;
-                }
-            }
-        }
     }
 }

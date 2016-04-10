@@ -146,7 +146,7 @@ void myStockCodeName::threadProcessFinish() {
     emit codeDataReady();
 }
 
-QString myStockCodeName::findNameFromCode(const QString &code) {
+QString myStockCodeName::findNameFromCode(const QString &code) const {
     if (this->getIsInitialed()) {
         QMap<QString, QString>::const_iterator ii = codeName.find(code);
         if (ii != codeName.end() && ii.key() == code) {

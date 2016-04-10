@@ -61,9 +61,13 @@ private slots:
 
     void on_radioOtherIncome_clicked();
 
-    void on_lineEditIncomeType_textChanged(const QString &arg1);
+    void on_lineEditIncomeType_textChanged(const QString &str);
 
     void on_checkBoxRollback_clicked();
+
+    void on_moneySpinBox_valueChanged(double value);
+
+    void on_moneyAccount_currentIndexChanged(int index);
 
 private:
     Ui::myFinanceExchangeWindow *ui;
@@ -75,10 +79,13 @@ private:
     int dataSource;
 	int lastRadioBuySell;
     double commisionRate;
+    float remainMoney;
+    float totalMoney;
 
     bool isRollback;
 
-    myStockCodeName *stockCode; //用于从code到name的推导
+    const myStockCodeName *stockCode; //用于从code到name的推导
+    const myRootAccountAsset *rootNode;
 
     void initial(const myRootAccountAsset &rootNode);
     void updateBuySell();

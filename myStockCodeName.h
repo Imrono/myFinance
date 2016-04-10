@@ -42,14 +42,14 @@ public:
 
     void getStockCode();
     void getStockAbbreviation();
-    bool getIsInitialed() { return isInitialed;}
+    bool getIsInitialed() const { return isInitialed;}
     codeDataProcessThread &getThread() {
         return thread;
     }
     bool getIsDataReady() {return isDataReady;}
     QMap <QString, QString> codeName;
 
-    QString findNameFromCode(const QString &code);
+    QString findNameFromCode(const QString &code) const;
 
 private:
     QNetworkAccessManager *manager;

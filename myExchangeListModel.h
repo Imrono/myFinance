@@ -34,12 +34,11 @@ public:
      */
     enum exchangeType {
         NO_DO_EXCHANGE = 0x0,
-        ORIG_ACCOUNT_1 = 0x01,
-        ORIG_ACCOUNT_2 = 0x02,
+        ROLLBACK_ACCOUNT_1 = 0x01,
+        ROLLBACK_ACCOUNT_2 = 0x02,
         TARG_ACCOUNT_1 = 0x04,
         TARG_ACCOUNT_2 = 0x08,
-        CASH_ACCOUNT_2 = 0x10,
-        OTHER_EXCHANGE = 0x20
+        OTHER_EXCHANGE = 0x10
     };
 
     void coordinatorModifyExchange(const myExchangeData &originData, const myExchangeData &targetData, int &changeIdx);

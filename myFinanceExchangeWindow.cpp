@@ -43,7 +43,7 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     grpIncomeType->setId(ui->radioSalary, 0);       //radioSalary的Id设为0
     grpIncomeType->setId(ui->radioOtherIncome, 1);  //radioOtherIncome的Id设为1
     ui->radioSalary->setChecked(true);
-    ui->lineEditIncomeType->setReadOnly(true);
+    ui->lineEditIncomeType->setDisabled(true);
 
     ui->lineEditExpendCode->setText(QString::fromLocal8Bit("类别"));
     ui->lineEditExpendName->setText(QString::fromLocal8Bit("名称"));
@@ -56,6 +56,8 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     initial(static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode());
 
     commisionRate = 0.0f;
+    remainMoney = 0.0f;
+    totalMoney = 0.0f;
     updateExchangeFee();
 
     ui->checkBoxRollback->setChecked(isRollback);
@@ -74,6 +76,8 @@ myFinanceExchangeWindow::~myFinanceExchangeWindow()
 }
 
 void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
+    this->rootNode = &rootNode;
+
     ui->moneyAccount->clear();
     // 交易：资产变化
     for (int i = 0; i < rootNode.getAccountCount(); i++) {
@@ -153,8 +157,7 @@ void myFinanceExchangeWindow::updateBuySell() {
     data.buySell = grpBuySell->checkedId() == BUY ? static_cast<bool>(BUY) : static_cast<bool>(SELL);
     buySellFlag = data.buySell == SELL ? 1.0f : -1.0f;
 
-    data.amount = ui->spinBoxAmount->text().toInt();
-	data.amount *= -buySellFlag;
+    data.amount = -buySellFlag*qAbs(data.amount);
     data.money = -static_cast<float>(data.amount) * data.price - data.fee;
 
     ui->moneySpinBox->setValue(data.money);
@@ -168,12 +171,12 @@ void myFinanceExchangeWindow::updateBuySell() {
              << "data.money "  << data.money  << ",";
 }
 
-
 void myFinanceExchangeWindow::on_tabWidget_currentChanged(int index)
 {
     dataSource = index;
     qDebug() << dataSource;
     updataData();
+    updateExchangeFee();
 }
 
 void myFinanceExchangeWindow::on_moneyTransferSpinBox_valueChanged(double value)
@@ -188,7 +191,7 @@ void myFinanceExchangeWindow::on_moneyTransferSpinBox_valueChanged(double value)
 void myFinanceExchangeWindow::updataData() {
     if (0 == dataSource) {
         data.account1 = ui->moneyAccount->itemText(ui->moneyAccount->currentIndex());
-        data.money  = ui->moneySpinBox->text().toDouble();
+        data.money  = ui->moneySpinBox->value();
 
         data.account2 = data.account1;
         data.code   = ui->codeLineEdit->text();
@@ -199,39 +202,39 @@ void myFinanceExchangeWindow::updataData() {
         }
         data.price  = ui->spinBoxPrice->text().toDouble();
         data.name   = ui->lineEditName->text();
-        data.fee    = ui->exchangeFeeSpinBox->text().toDouble();
-
-    } else if (1 == dataSource) {
+} else if (1 == dataSource) {
         data.account1 = ui->moneyAccountOut->itemText(ui->moneyAccountOut->currentIndex());
-        data.money    = -ui->moneyTransferSpinBox->text().toDouble();
+        data.money    = -ui->moneyTransferSpinBox->value();
 
         data.account2 = ui->moneyAccountIn->itemText(ui->moneyAccountIn->currentIndex());
         data.code     = MY_CASH;
         data.name     = QString::fromLocal8Bit("现有资金");
         data.amount   = 1;
-        data.price    = ui->moneyTransferSpinBox->text().toDouble();
-        data.fee      = 0.0f;
+        data.price    = ui->moneyTransferSpinBox->value();
     } else if (2 == dataSource) {
         data.account2 = ui->moneyAccountIncome->itemText(ui->moneyAccountIncome->currentIndex());
         data.code     = MY_CASH;
-        data.name     = QString::fromLocal8Bit("现有资金");
+        if (grpIncomeType->checkedId() == 0) {
+            data.name = QString::fromLocal8Bit("工资收入");
+        } else if (grpIncomeType->checkedId() == 1) {
+            data.name = ui->lineEditIncomeType->text();
+        } else {}
         data.amount   = 1;
-        data.price    = ui->spinBoxIncome->text().toDouble();
+        data.price    = ui->spinBoxIncome->value();
 
         data.account1 = OTHER_ACCOUNT;
         data.money    = -data.price;
-        data.fee      = 0.0f;
     } else if (3 == dataSource) {
         data.account1 = ui->moneyAccountExpend->itemText(ui->moneyAccountExpend->currentIndex());
-        data.money    = -ui->spinBoxExpend->text().toDouble();
+        data.money    = -ui->spinBoxExpend->value();
 
         data.account2 = OTHER_ACCOUNT;
         data.code     = ui->lineEditExpendCode->text();
         data.name     = ui->lineEditExpendName->text();
         data.amount   = 1;
-        data.price    = ui->moneyTransferSpinBox->text().toDouble();
-        data.fee      = 0.0f;
+        data.price    = ui->moneyTransferSpinBox->value();
     } else {}
+    data.fee    = ui->exchangeFeeSpinBox->value();
     updateExchangeType();   //负责data.type部分的更新和显示
 
     qDebug() << "data.time "     << data.time << ","
@@ -353,7 +356,7 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
     int count = stockCode->codeName.count();
     qDebug() << QString::fromLocal8Bit("名称EditLine") << str << "(" << count << ")";
 
-    QMap<QString,QString>::iterator it = stockCode->codeName.begin();
+    QMap<QString,QString>::const_iterator it = stockCode->codeName.begin();
     for (; it != stockCode->codeName.end(); ++it) {
         if (it.value() == str) {
             data.code = it.key();
@@ -390,23 +393,29 @@ void myFinanceExchangeWindow::on_feeRateSpinBox_valueChanged(double feeRate)
 void myFinanceExchangeWindow::updateExchangeFee() {
     double fee = 0.0f;
     double amount = qAbs(static_cast<double>(data.amount));
+
     double fee1 = 0.0f; //佣金
-    fee1 = data.price * amount * commisionRate;
-    if (fee1 < 5.0f) {
-        fee1 = 5.0f;
-    } else {}
-
     double fee2 = 0.0f; //过户费
-    if (SH == grpMarket->checkedId()) {
-        fee2 = data.price * amount * 0.02f*0.001f;  //0.02‰
-    } else {}
-
     double fee3 = 0.0f; //印花税
-    if (SELL == grpBuySell->checkedId()) {
-        fee3 = data.price * amount * 0.001f;
-    } else {}
 
+    if (ui->tabWidget->currentIndex() == 0) {
+        if (OTHER != grpMarket->checkedId()) {
+            fee1 = data.price * amount * commisionRate;
+            if (fee1 < 5.0f) {
+                fee1 = 5.0f;
+            } else {}
+        }
+
+        if (SH == grpMarket->checkedId()) {
+            fee2 = data.price * amount * 0.02f*0.001f;  //0.02‰
+        } else {}
+
+        if (SELL == grpBuySell->checkedId()) {
+            fee3 = data.price * amount * 0.001f;
+        } else {}
+    }
     fee = fee1 + fee2 + fee3;
+    data.fee = fee;
     ui->exchangeFeeSpinBox->setValue(fee);
 }
 
@@ -423,6 +432,7 @@ void myFinanceExchangeWindow::updateExchangeType() {
     } else if (1 == dataSource) {
         data.type = QString::fromLocal8Bit("转帐");
     } else if (2 == dataSource) {
+        data.type = QString::fromLocal8Bit("收入");
         updateIncomeType();
     } else if (3 == dataSource) {
         data.type = QString::fromLocal8Bit("支出");
@@ -439,17 +449,16 @@ void myFinanceExchangeWindow::on_radioOtherIncome_clicked() {
     qDebug() << "radioOtherIncome clicked";
     updateExchangeType();
 }
-void myFinanceExchangeWindow::on_lineEditIncomeType_textChanged(const QString &arg1) {
-    Q_UNUSED(arg1);
-    updateExchangeType();
+void myFinanceExchangeWindow::on_lineEditIncomeType_textChanged(const QString &str) {
+    data.name = str;
 }
 void myFinanceExchangeWindow::updateIncomeType() {
     if (grpIncomeType->checkedId() == 0) {
-        data.type = QString::fromLocal8Bit("工资收入");
-        ui->lineEditIncomeType->setReadOnly(true);
+        data.name = QString::fromLocal8Bit("工资收入");
+        ui->lineEditIncomeType->setDisabled(true);
     } else if (grpIncomeType->checkedId() == 1) {
-        ui->lineEditIncomeType->setReadOnly(false);
-        data.type = ui->lineEditIncomeType->text();
+        ui->lineEditIncomeType->setEnabled(true);
+        data.name = ui->lineEditIncomeType->text();
     } else {}
 }
 
@@ -466,34 +475,43 @@ void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rol
         double fee = static_cast<double>(data.amount)*data.price + data.money;
         ui->exchangeFeeSpinBox->setValue(fee);
     }
-    data = exchangeData;
     if (rollbackShow) {
         showRollback();
     }
 
     if (data.type.contains(QString::fromLocal8Bit("转帐"))) {
+        ui->tabWidget->setCurrentIndex(1);
+
         int indexOut = ui->moneyAccountOut->findText(data.account1);
         ui->moneyAccountOut->setCurrentIndex(indexOut);
         int indexIn = ui->moneyAccountIn->findText(data.account2);
         ui->moneyAccountIn->setCurrentIndex(indexIn);
 
         ui->moneyTransferSpinBox->setValue(data.price);
-
-        ui->tabWidget->setCurrentIndex(1);
     } else if (data.type.contains(QString::fromLocal8Bit("证券"))) {
+        ui->tabWidget->setCurrentIndex(0);
+
         int index = ui->moneyAccount->findText(data.account2);
         ui->moneyAccount->setCurrentIndex(index);
         ui->lineEditName->setText(data.name);
         ui->codeLineEdit->setText(data.code);
         ui->spinBoxPrice->setValue(data.price);
-        data = exchangeData;
         ui->spinBoxAmount->setValue(data.amount);
-        data = exchangeData;
-
-        ui->tabWidget->setCurrentIndex(0);
+    } else if (data.type.contains(QString::fromLocal8Bit("收入"))) {
+    } else if (data.type.contains(QString::fromLocal8Bit("支出"))) {
     } else {}
 }
 
 void myFinanceExchangeWindow::on_checkBoxRollback_clicked() {
     isRollback = (Qt::Checked == ui->checkBoxRollback->checkState());
+}
+void myFinanceExchangeWindow::on_moneySpinBox_valueChanged(double value) {
+    data.money = value;
+    remainMoney = totalMoney - data.money;
+    ui->moneySpinBoxRemain->setValue(remainMoney);
+}
+void myFinanceExchangeWindow::on_moneyAccount_currentIndexChanged(int index) {
+    myAssetNode *accountNode = rootNode->getAccountNode(index);
+    totalMoney = accountNode->nodeData.value<myAssetAccount>().value;
+    ui->moneySpinBoxTotal->setValue(totalMoney);
 }
