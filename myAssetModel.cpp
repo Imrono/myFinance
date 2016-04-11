@@ -235,8 +235,8 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
 }
 
 /////////////////////////////////////////////////////////////////////
-bool myAssetModel::doExchange(const myExchangeData &data, bool isMoneyChange, bool isAssetChange, bool reflash) {
-    bool ans = myAssetNode::doExchange(data, root, isMoneyChange, isAssetChange);
+bool myAssetModel::doExchange(const myExchangeData &data, bool reflash) {
+    bool ans = myAssetNode::doExchange(data, root);
     if (reflash) {
         ans = doReflashAssetData() && ans;
         qDebugNodeData();

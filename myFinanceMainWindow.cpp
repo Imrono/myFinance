@@ -402,13 +402,8 @@ void myFinanceMainWindow::modifyExchange_clicked() {
         int type = myExchangeListModel::NO_DO_EXCHANGE;
         exchangeModel->coordinatorModifyExchange(originExchangeData, targetExchangeData, type);
         if (exWin.getIsRollback()) {
-            bool isMoneyChange = false, isAssetChange = false;
-            isMoneyChange = type&myExchangeListModel::ROLLBACK_ACCOUNT_1;
-            isAssetChange = type&myExchangeListModel::ROLLBACK_ACCOUNT_2;
-            ans = assetModel->doExchange(-originExchangeData, isMoneyChange, isAssetChange, false) && ans;
-            isMoneyChange = type&myExchangeListModel::TARG_ACCOUNT_1;
-            isAssetChange = type&myExchangeListModel::TARG_ACCOUNT_2;
-            ans = assetModel->doExchange(targetExchangeData, isMoneyChange, isAssetChange, true) && ans;
+            ans = assetModel->doExchange(-originExchangeData) && ans;
+            ans = assetModel->doExchange(targetExchangeData) && ans;
         }
         // 2. DO EXCHANGE EXCHANGE_DATA
         if (false == ans) {

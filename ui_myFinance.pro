@@ -8,7 +8,6 @@ QT       += core gui sql network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = ui_myFinance
 TEMPLATE = app
 
 
@@ -46,7 +45,15 @@ FORMS    += myFinanceMainWindow.ui \
     myInsertModifyAccount.ui \
     myInsertModifyAsset.ui \
     myModifyExchange.ui
-CONFIG += console
+
+CONFIG(debug, debug|release) {
+    CONFIG += console
+    TARGET = myFinance_d
+} else {
+    CONFIG +=
+    TARGET = myFinance
+}
+#CONFIG += console
 
 DISTFILES +=
 

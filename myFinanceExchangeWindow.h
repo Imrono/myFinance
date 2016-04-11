@@ -69,6 +69,10 @@ private slots:
 
     void on_moneyAccount_currentIndexChanged(int index);
 
+    void on_moneyAccountOut_currentIndexChanged(int index);
+
+    void on_moneyAccountIn_currentIndexChanged(int index);
+
 private:
     Ui::myFinanceExchangeWindow *ui;
     QButtonGroup *grpBuySell;
@@ -81,6 +85,10 @@ private:
     double commisionRate;
     float remainMoney;
     float totalMoney;
+    float remainMoneyOut;
+    float totalMoneyOut;
+    float remainMoneyIn;
+    float totalMoneyIn;
 
     bool isRollback;
 
@@ -94,6 +102,8 @@ private:
     void updateExchangeFee();
     void updateExchangeType();
     void updateIncomeType();
+
+    float getTotalMoney(int index);
 };
 
 #endif // MYFINANCEEXCHANGEWINDOW_H

@@ -11,7 +11,10 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     QDialog(parent), grpBuySell(nullptr),
     ui(new Ui::myFinanceExchangeWindow),
     stockCode(myStockCodeName::getInstance()),
-    isRollback(false)
+    isRollback(false), commisionRate(0.0f),
+    remainMoney(0.0f), totalMoney(0.0f),
+    remainMoneyOut(0.0f), totalMoneyOut(0.0f),
+    remainMoneyIn(0.0f), totalMoneyIn(0.0f)
 {
     ui->setupUi(this);
 
@@ -55,9 +58,6 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
 
     initial(static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode());
 
-    commisionRate = 0.0f;
-    remainMoney = 0.0f;
-    totalMoney = 0.0f;
     updateExchangeFee();
 
     ui->checkBoxRollback->setChecked(isRollback);
@@ -82,8 +82,14 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
     // 交易：资产变化
     for (int i = 0; i < rootNode.getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode.getAccountNode(i);
-        QIcon   icon = QString("resource//icon//%1").arg(accountNode->nodeData.value<myAssetAccount>().logo);
-        QString code = accountNode->nodeData.value<myAssetAccount>().code;
+        const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
+        QIcon   icon = QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo);
+        QString code;
+        if (accountData.name.contains(QString::fromLocal8Bit("银行"))) {
+            code = "**** **** " + accountData.code.right(4);
+        } else {
+            code = accountData.code;
+        }
         ui->moneyAccount->addItem(icon, code);
     }
     // 转帐：资金变化
@@ -93,8 +99,14 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
             myAssetNode *holdNode = accountNode->children.at(j);
             QString assetCode = holdNode->nodeData.value<myAssetHold>().assetCode;
             if (assetCode.contains("cash")) {
-                QIcon   icon = QString("resource//icon//%1").arg(accountNode->nodeData.value<myAssetAccount>().logo);
-                QString code = accountNode->nodeData.value<myAssetAccount>().code;
+                const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
+                QIcon   icon = QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo);
+                QString code;
+                if (accountData.name.contains(QString::fromLocal8Bit("银行"))) {
+                    code = "**** **** " + accountData.code.right(4);
+                } else {
+                    code = accountData.code;
+                }
                 ui->moneyAccountOut->addItem(icon, code);
                 ui->moneyAccountIn->addItem(icon, code);
                 break;
@@ -111,8 +123,14 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
             myAssetNode *holdNode = accountNode->children.at(j);
             QString assetCode = holdNode->nodeData.value<myAssetHold>().assetCode;
             if (assetCode.contains("cash")) {
-                QIcon   icon = QString("resource//icon//%1").arg(accountNode->nodeData.value<myAssetAccount>().logo);
-                QString code = accountNode->nodeData.value<myAssetAccount>().code;
+                const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
+                QIcon   icon = QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo);
+                QString code;
+                if (accountData.name.contains(QString::fromLocal8Bit("银行"))) {
+                    code = "**** **** " + accountData.code.right(4);
+                } else {
+                    code = accountData.code;
+                }
                 ui->moneyAccountIncome->addItem(icon, code);
                 ui->moneyAccountExpend->addItem(icon, code);
                 break;
@@ -177,12 +195,6 @@ void myFinanceExchangeWindow::on_tabWidget_currentChanged(int index)
     qDebug() << dataSource;
     updataData();
     updateExchangeFee();
-}
-
-void myFinanceExchangeWindow::on_moneyTransferSpinBox_valueChanged(double value)
-{
-    data.price = value;
-    data.money = -data.price;
 }
 
 /// 1. 构造时调用
@@ -507,11 +519,44 @@ void myFinanceExchangeWindow::on_checkBoxRollback_clicked() {
 }
 void myFinanceExchangeWindow::on_moneySpinBox_valueChanged(double value) {
     data.money = value;
-    remainMoney = totalMoney - data.money;
+    remainMoney = totalMoney + data.money;
     ui->moneySpinBoxRemain->setValue(remainMoney);
 }
 void myFinanceExchangeWindow::on_moneyAccount_currentIndexChanged(int index) {
-    myAssetNode *accountNode = rootNode->getAccountNode(index);
-    totalMoney = accountNode->nodeData.value<myAssetAccount>().value;
+    totalMoney = getTotalMoney(index);
     ui->moneySpinBoxTotal->setValue(totalMoney);
+}
+
+void myFinanceExchangeWindow::on_moneyAccountOut_currentIndexChanged(int index) {
+    totalMoneyOut = getTotalMoney(index);
+    ui->moneySpinBoxTotalOut->setValue(totalMoneyOut);
+}
+
+void myFinanceExchangeWindow::on_moneyAccountIn_currentIndexChanged(int index) {
+    totalMoneyIn = getTotalMoney(index);
+    ui->moneySpinBoxTotalIn->setValue(totalMoneyIn);
+}
+float myFinanceExchangeWindow::getTotalMoney(int index) {
+    float tmpTotalMoney = 0.0f;
+    myAssetNode *accountNode = rootNode->getAccountNode(index);
+    int numAsset = accountNode->children.size();
+    for (int i = 0; i < numAsset; i++) {
+        myAssetNode *asset = accountNode->children.at(i);
+        const myAssetHold &assetHold = (asset->nodeData).value<myAssetHold>();
+        if (assetHold.assetCode == MY_CASH) {
+            qDebug() << assetHold.accountCode << " " << assetHold.assetCode << " " << assetHold.price;
+            tmpTotalMoney = assetHold.price;
+            break;
+        }
+    }
+    return tmpTotalMoney;
+}
+void myFinanceExchangeWindow::on_moneyTransferSpinBox_valueChanged(double value) {
+    data.price = value;
+    data.money = -data.price;
+
+    remainMoneyOut = totalMoneyOut + data.money;
+    ui->moneySpinBoxRemainOut->setValue(remainMoneyOut);
+    remainMoneyIn = totalMoneyIn - data.money;
+    ui->moneySpinBoxRemainIn->setValue(remainMoneyIn);
 }
