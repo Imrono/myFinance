@@ -44,7 +44,7 @@ struct myExchangeData {
     float     price;
     int       amount;
     bool      buySell;
-    float     fee;
+    float     fee;      //正数，使用时要减去
 };
 
 struct myAssetAccount;

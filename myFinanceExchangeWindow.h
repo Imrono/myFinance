@@ -18,7 +18,7 @@ class myFinanceExchangeWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit myFinanceExchangeWindow(QWidget *parent = 0);
+    explicit myFinanceExchangeWindow(QWidget *parent = 0, bool isModifyExchange = false);
     ~myFinanceExchangeWindow();
 
     myExchangeData const &getExchangeData() { return data;}
@@ -90,6 +90,7 @@ private:
     float remainMoneyIn;
     float totalMoneyIn;
 
+    bool isModifyExchange;
     bool isRollback;
 
     const myStockCodeName *stockCode; //用于从code到name的推导

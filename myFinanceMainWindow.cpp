@@ -391,7 +391,7 @@ void myFinanceMainWindow::modifyExchange_clicked() {
     QString info = QString::fromLocal8Bit("更改资产变化");
     int line = ui->listView->currentIndex().row();
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myFinanceExchangeWindow exWin(this);
+    myFinanceExchangeWindow exWin(this, true);
     exWin.setWindowTitle(info);
     exWin.setUI(originExchangeData, true);
     if(exWin.exec() == QDialog::Accepted) {

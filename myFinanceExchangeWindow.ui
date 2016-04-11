@@ -117,7 +117,7 @@
     <enum>QTabWidget::North</enum>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tabStock">
     <attribute name="title">
@@ -1125,7 +1125,6 @@
   <zorder>buttonBox</zorder>
   <zorder>tabWidget</zorder>
   <zorder>checkBoxRollback</zorder>
-  <zorder>gridLayoutWidget_2</zorder>
  </widget>
  <resources/>
  <connections>

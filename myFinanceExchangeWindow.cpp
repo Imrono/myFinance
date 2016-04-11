@@ -7,8 +7,8 @@
 
 #include <QtDebug>
 
-myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
-    QDialog(parent), grpBuySell(nullptr),
+myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, bool isModifyExchange) :
+    QDialog(parent), grpBuySell(nullptr), isModifyExchange(isModifyExchange),
     ui(new Ui::myFinanceExchangeWindow),
     stockCode(myStockCodeName::getInstance()),
     isRollback(false), commisionRate(0.0f),
@@ -17,6 +17,7 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     remainMoneyIn(0.0f), totalMoneyIn(0.0f)
 {
     ui->setupUi(this);
+    ui->timeDateTimeEdit->setDateTime(QDateTime::currentDateTime());
 
     grpBuySell = new QButtonGroup(this);
     grpBuySell->addButton(ui->radioBuy);
@@ -147,9 +148,8 @@ void myFinanceExchangeWindow::on_buttonBox_accepted()
     updataData();
 }
 
-void myFinanceExchangeWindow::on_spinBoxAmount_valueChanged(int value)
-{
-    data.amount = value;
+void myFinanceExchangeWindow::on_spinBoxAmount_valueChanged(int value) {
+    data.amount = -buySellFlag*qAbs(value);
     updateBuySell();
 }
 void myFinanceExchangeWindow::on_spinBoxPrice_valueChanged(double value) {
@@ -157,34 +157,37 @@ void myFinanceExchangeWindow::on_spinBoxPrice_valueChanged(double value) {
     updateBuySell();
 }
 void myFinanceExchangeWindow::on_radioBuy_clicked() {
-    qDebug() << "radioBuy clicked";
+    qDebug() << "#radioBuy_clicked#";
     updateBuySell();
     updateExchangeType();
 }
 void myFinanceExchangeWindow::on_radioSell_clicked() {
-    qDebug() << "radioSell clicked";
+    qDebug() << "#radioSell_clicked#";
     updateBuySell();
     updateExchangeType();
 }
 void myFinanceExchangeWindow::on_exchangeFeeSpinBox_valueChanged(double value) {
-    qDebug() << "exchangeFeeSpinBox valueChanged";
     data.fee = value;
-    updateBuySell();
+    if (0 == dataSource) {
+        data.money = buySellFlag * static_cast<float>(data.amount) * data.price - data.fee;
+        ui->moneySpinBox->setValue(data.money);
+    }
+    qDebug() << "#exchangeFeeSpinBox_valueChanged# fee:" << value
+             << " data.money:" << data.money << " data.amount:" << data.amount << " data.price:" << data.price;
 }
 void myFinanceExchangeWindow::updateBuySell() {
     data.buySell = grpBuySell->checkedId() == BUY ? static_cast<bool>(BUY) : static_cast<bool>(SELL);
-    buySellFlag = data.buySell == SELL ? 1.0f : -1.0f;
+    buySellFlag = grpBuySell->checkedId() == SELL ? 1.0f : -1.0f;
 
-    data.amount = -buySellFlag*qAbs(data.amount);
-    data.money = -static_cast<float>(data.amount) * data.price - data.fee;
-
-    ui->moneySpinBox->setValue(data.money);
-
+    // market, price, amount, fee 决定 money
+    // market, price*amount, buy/sell 决定 fee
     if (grpMarket->checkedId() != OTHER) {
         updateExchangeFee();
     }
+    data.money = buySellFlag*static_cast<float>(data.amount) * data.price - data.fee;
+    ui->moneySpinBox->setValue(data.money);
 
-    qDebug() << "data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
+    qDebug() << "#updateBuySell# data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
              << "data.amount " << data.amount << ","
              << "data.money "  << data.money  << ",";
 }
@@ -261,15 +264,15 @@ void myFinanceExchangeWindow::updataData() {
 }
 
 void myFinanceExchangeWindow::on_radioSH_clicked() {
-    qDebug() << "radioSH clicked";
+    qDebug() << "#radioSH_clicked#";
     updateMarketInfo();
 }
 void myFinanceExchangeWindow::on_radioSZ_clicked() {
-    qDebug() << "radioSZ clicked";
+    qDebug() << "#radioSZ_clicked#";
     updateMarketInfo();
 }
 void myFinanceExchangeWindow::on_radioOther_clicked() {
-    qDebug() << "radioOther clicked";
+    qDebug() << "#radioOther_clicked#";
     updateMarketInfo();
 }
 
@@ -484,23 +487,14 @@ void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rol
     if (qAbs(data.fee) > MONEY_EPS) {
         ui->exchangeFeeSpinBox->setValue(data.fee);
     } else {
-        double fee = static_cast<double>(data.amount)*data.price + data.money;
+        double fee = -(static_cast<double>(data.amount)*data.price + data.money);
         ui->exchangeFeeSpinBox->setValue(fee);
     }
     if (rollbackShow) {
         showRollback();
     }
 
-    if (data.type.contains(QString::fromLocal8Bit("转帐"))) {
-        ui->tabWidget->setCurrentIndex(1);
-
-        int indexOut = ui->moneyAccountOut->findText(data.account1);
-        ui->moneyAccountOut->setCurrentIndex(indexOut);
-        int indexIn = ui->moneyAccountIn->findText(data.account2);
-        ui->moneyAccountIn->setCurrentIndex(indexIn);
-
-        ui->moneyTransferSpinBox->setValue(data.price);
-    } else if (data.type.contains(QString::fromLocal8Bit("证券"))) {
+    if (data.type.contains(QString::fromLocal8Bit("证券"))) {
         ui->tabWidget->setCurrentIndex(0);
 
         int index = ui->moneyAccount->findText(data.account2);
@@ -509,32 +503,67 @@ void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rol
         ui->codeLineEdit->setText(data.code);
         ui->spinBoxPrice->setValue(data.price);
         ui->spinBoxAmount->setValue(data.amount);
+    }  else if (data.type.contains(QString::fromLocal8Bit("转帐"))) {
+        ui->tabWidget->setCurrentIndex(1);
+
+        int indexOut = ui->moneyAccountOut->findText(data.account1);
+        ui->moneyAccountOut->setCurrentIndex(indexOut);
+        int indexIn = ui->moneyAccountIn->findText(data.account2);
+        ui->moneyAccountIn->setCurrentIndex(indexIn);
+
+        ui->moneyTransferSpinBox->setValue(data.price);
     } else if (data.type.contains(QString::fromLocal8Bit("收入"))) {
+        ui->tabWidget->setCurrentIndex(2);
     } else if (data.type.contains(QString::fromLocal8Bit("支出"))) {
+        ui->tabWidget->setCurrentIndex(3);
     } else {}
 }
 
+/////////////////////////////////////////////////////////////////////////////
 void myFinanceExchangeWindow::on_checkBoxRollback_clicked() {
     isRollback = (Qt::Checked == ui->checkBoxRollback->checkState());
+    qDebug() << "checkBoxRollback_clicked: isRollback:" << isRollback;
 }
 void myFinanceExchangeWindow::on_moneySpinBox_valueChanged(double value) {
     data.money = value;
     remainMoney = totalMoney + data.money;
     ui->moneySpinBoxRemain->setValue(remainMoney);
+    qDebug() << "#moneySpinBox_valueChanged# remainMoney:" << remainMoney << " data.money:" << data.money << " totalMoney:" << totalMoney;
 }
 void myFinanceExchangeWindow::on_moneyAccount_currentIndexChanged(int index) {
     totalMoney = getTotalMoney(index);
+    if (isModifyExchange) {
+        totalMoney -= data.money;
+    }
     ui->moneySpinBoxTotal->setValue(totalMoney);
+    remainMoney = totalMoney + data.money;
+    ui->moneySpinBoxRemain->setValue(remainMoney);
+    qDebug() << "#moneyAccount_currentIndexChanged# isModifyExchange:" << isModifyExchange
+             << " totalMoney:" << totalMoney << " remainMoney:" << remainMoney;
 }
 
+/// tab2
 void myFinanceExchangeWindow::on_moneyAccountOut_currentIndexChanged(int index) {
     totalMoneyOut = getTotalMoney(index);
+    if (isModifyExchange) {
+        totalMoneyOut -= data.money;
+    }
     ui->moneySpinBoxTotalOut->setValue(totalMoneyOut);
+    remainMoneyOut = totalMoneyOut + data.money;
+    ui->moneySpinBoxRemainOut->setValue(remainMoneyOut);
+    qDebug() << "#moneyAccountOut_currentIndexChanged# isModifyExchange:" << isModifyExchange
+             << " totalMoneyOut:" << totalMoneyOut << " remainMoneyOut:" << remainMoneyOut;
 }
-
 void myFinanceExchangeWindow::on_moneyAccountIn_currentIndexChanged(int index) {
     totalMoneyIn = getTotalMoney(index);
+    if (isModifyExchange) {
+        totalMoneyIn -= data.money;
+    }
     ui->moneySpinBoxTotalIn->setValue(totalMoneyIn);
+    remainMoneyIn = totalMoneyIn - data.money;
+    ui->moneySpinBoxRemainIn->setValue(remainMoneyIn);
+    qDebug() << "#moneyAccountIn_currentIndexChanged# isModifyExchange:" << isModifyExchange
+             << " totalMoneyIn:" << totalMoneyIn << " remainMoneyIn:" << remainMoneyIn;
 }
 float myFinanceExchangeWindow::getTotalMoney(int index) {
     float tmpTotalMoney = 0.0f;
