@@ -1,5 +1,6 @@
 #ifndef MYASSETNODE_H
 #define MYASSETNODE_H
+#include "myGlobal.h"
 
 #include <QList>
 #include <QString>

@@ -80,7 +80,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             case myAssetNode::nodeAccount: {
                 myAssetAccount account = node->nodeData.value<myAssetAccount>();
                 QString code;
-                if (account.name.contains(QString::fromLocal8Bit("银行"))) {
+                if (account.name.contains(STR("银行"))) {
                     code = "**** **** " + account.code.right(4);
                 } else {
                     code = account.code;
@@ -200,13 +200,13 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
 QVariant myAssetModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         if (section == 0) {
-            return QString::fromLocal8Bit("资产名称");
+            return STR("资产名称");
         } else if (section == 1) {
-            return QString::fromLocal8Bit("持有数量");
+            return STR("持有数量");
         } else if (section == 2) {
-            return QString::fromLocal8Bit("现价");
+            return STR("现价");
         } else if (section == 3) {
-            return QString::fromLocal8Bit("总值");
+            return STR("总值");
         }
     }
     return QVariant();
@@ -295,7 +295,7 @@ float myAssetModel::doGetSecurityAsset() {
         for (int i = 0; i < root.getAccountCount(); i++) {
             myAssetNode *tmpAccount = root.getAccountNode(i);
             for (int j = 0; j < tmpAccount->children.count(); j++) {
-                if (tmpAccount->nodeData.value<myAssetAccount>().type == QString::fromLocal8Bit("券商")) {
+                if (tmpAccount->nodeData.value<myAssetAccount>().type == STR("券商")) {
                     const myAssetHold &holds = tmpAccount->children.at(j)->nodeData.value<myAssetHold>();
                     if (holds.assetCode == "cash" ) {
                         securityAsset += holds.price;

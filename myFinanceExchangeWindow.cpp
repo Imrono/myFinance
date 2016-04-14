@@ -1,4 +1,4 @@
-#include "myFinanceExchangeWindow.h"
+ï»¿#include "myFinanceExchangeWindow.h"
 #include "ui_myFinanceExchangeWindow.h"
 
 #include <QtCore/QMap>
@@ -22,20 +22,20 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, bool isModifyE
     grpBuySell = new QButtonGroup(this);
     grpBuySell->addButton(ui->radioBuy);
     grpBuySell->addButton(ui->radioSell);
-    grpBuySell->setExclusive(true);         //ÉèÎª»¥³â
-    grpBuySell->setId(ui->radioBuy,  BUY);  //radioBuyµÄIdÉèÎª0
-    grpBuySell->setId(ui->radioSell, SELL); //radioBuyµÄIdÉèÎª1
+    grpBuySell->setExclusive(true);         //è®¾ä¸ºäº’æ–¥
+    grpBuySell->setId(ui->radioBuy,  BUY);  //radioBuyçš„Idè®¾ä¸º0
+    grpBuySell->setId(ui->radioSell, SELL); //radioBuyçš„Idè®¾ä¸º1
     ui->radioBuy->setChecked(true);
-    // updateExchangeType(); ÏÂÃæÓĞ¸üĞÂ
+    // updateExchangeType(); ä¸‹é¢æœ‰æ›´æ–°
 
     grpMarket = new QButtonGroup(this);
     grpMarket->addButton(ui->radioSH);
     grpMarket->addButton(ui->radioSZ);
     grpMarket->addButton(ui->radioOther);
-    grpMarket->setExclusive(true);           //ÉèÎª»¥³â
-    grpMarket->setId(ui->radioSH, SH);       //radioBuyµÄIdÉèÎª0
-    grpMarket->setId(ui->radioSZ, SZ);       //radioBuyµÄIdÉèÎª1
-    grpMarket->setId(ui->radioOther, OTHER); //radioBuyµÄIdÉèÎª2
+    grpMarket->setExclusive(true);           //è®¾ä¸ºäº’æ–¥
+    grpMarket->setId(ui->radioSH, SH);       //radioBuyçš„Idè®¾ä¸º0
+    grpMarket->setId(ui->radioSZ, SZ);       //radioBuyçš„Idè®¾ä¸º1
+    grpMarket->setId(ui->radioOther, OTHER); //radioBuyçš„Idè®¾ä¸º2
     //ui->radioSH->setChecked(true);
     ui->radioOther->setChecked(true);
     updateMarketInfo();
@@ -43,14 +43,14 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, bool isModifyE
     grpIncomeType = new QButtonGroup(this);
     grpIncomeType->addButton(ui->radioSalary);
     grpIncomeType->addButton(ui->radioOtherIncome);
-    grpIncomeType->setExclusive(true);              //ÉèÎª»¥³â
-    grpIncomeType->setId(ui->radioSalary, 0);       //radioSalaryµÄIdÉèÎª0
-    grpIncomeType->setId(ui->radioOtherIncome, 1);  //radioOtherIncomeµÄIdÉèÎª1
+    grpIncomeType->setExclusive(true);              //è®¾ä¸ºäº’æ–¥
+    grpIncomeType->setId(ui->radioSalary, 0);       //radioSalaryçš„Idè®¾ä¸º0
+    grpIncomeType->setId(ui->radioOtherIncome, 1);  //radioOtherIncomeçš„Idè®¾ä¸º1
     ui->radioSalary->setChecked(true);
     ui->lineEditIncomeType->setDisabled(true);
 
-    ui->lineEditExpendCode->setText(QString::fromLocal8Bit("Àà±ğ"));
-    ui->lineEditExpendName->setText(QString::fromLocal8Bit("Ãû³Æ"));
+    ui->lineEditExpendCode->setText(STR("ç±»åˆ«"));
+    ui->lineEditExpendName->setText(STR("åç§°"));
 
     dataSource = 0;
     ui->tabWidget->setCurrentIndex(dataSource);
@@ -80,20 +80,20 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
     this->rootNode = &rootNode;
 
     ui->moneyAccount->clear();
-    // ½»Ò×£º×Ê²ú±ä»¯
+    // äº¤æ˜“ï¼šèµ„äº§å˜åŒ–
     for (int i = 0; i < rootNode.getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode.getAccountNode(i);
         const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
         QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
         QString code;
-        if (accountData.name.contains(QString::fromLocal8Bit("ÒøĞĞ"))) {
+        if (accountData.name.contains(STR("é“¶è¡Œ"))) {
             code = "**** **** " + accountData.code.right(4);
         } else {
             code = accountData.code;
         }
         ui->moneyAccount->addItem(icon, code);
     }
-    // ×ªÕÊ£º×Ê½ğ±ä»¯
+    // è½¬å¸ï¼šèµ„é‡‘å˜åŒ–
     for (int i = 0; i < rootNode.getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode.getAccountNode(i);
         for (int j = 0; j < accountNode->children.count(); j++) {
@@ -103,7 +103,7 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
                 const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
                 QIcon   icon =QIcon( QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
-                if (accountData.name.contains(QString::fromLocal8Bit("ÒøĞĞ"))) {
+                if (accountData.name.contains(STR("é“¶è¡Œ"))) {
                     code = "**** **** " + accountData.code.right(4);
                 } else {
                     code = accountData.code;
@@ -114,10 +114,10 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
             }
         }
     }
-    // ÊÕÈë£¬Ö§³ö
+    // æ”¶å…¥ï¼Œæ”¯å‡º
     for (int i = 0; i < rootNode.getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode.getAccountNode(i);
-        if (accountNode->nodeData.value<myAssetAccount>().type.contains(QString::fromLocal8Bit("È¯ÉÌ"))) {
+        if (accountNode->nodeData.value<myAssetAccount>().type.contains(STR("åˆ¸å•†"))) {
                 continue;
         }
         for (int j = 0; j < accountNode->children.count(); j++) {
@@ -127,7 +127,7 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
                 const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
                 QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
-                if (accountData.name.contains(QString::fromLocal8Bit("ÒøĞĞ"))) {
+                if (accountData.name.contains(STR("é“¶è¡Œ"))) {
                     code = "**** **** " + accountData.code.right(4);
                 } else {
                     code = accountData.code;
@@ -142,7 +142,7 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
 
 void myFinanceExchangeWindow::on_buttonBox_accepted()
 {
-    qDebug() << QString::fromLocal8Bit("×Ê²ú±ä»¯ accepted");
+    qDebug() << STR("èµ„äº§å˜åŒ– accepted");
     data.time     = ui->timeDateTimeEdit->dateTime();
     data.type     = ui->typeLineEdit->text();
     updataData();
@@ -179,8 +179,8 @@ void myFinanceExchangeWindow::updateBuySell() {
     data.buySell = grpBuySell->checkedId() == BUY ? static_cast<bool>(BUY) : static_cast<bool>(SELL);
     buySellFlag = grpBuySell->checkedId() == SELL ? 1.0f : -1.0f;
 
-    // market, price, amount, fee ¾ö¶¨ money
-    // market, price*amount, buy/sell ¾ö¶¨ fee
+    // market, price, amount, fee å†³å®š money
+    // market, price*amount, buy/sell å†³å®š fee
     if (grpMarket->checkedId() != OTHER) {
         updateExchangeFee();
     }
@@ -200,8 +200,8 @@ void myFinanceExchangeWindow::on_tabWidget_currentChanged(int index)
     updateExchangeFee();
 }
 
-/// 1. ¹¹ÔìÊ±µ÷ÓÃ
-/// 2. tab¸Ä±äºóµ÷ÓÃ
+/// 1. æ„é€ æ—¶è°ƒç”¨
+/// 2. tabæ”¹å˜åè°ƒç”¨
 /// 3. accepted
 void myFinanceExchangeWindow::updataData() {
     if (0 == dataSource) {
@@ -223,14 +223,14 @@ void myFinanceExchangeWindow::updataData() {
 
         data.account2 = ui->moneyAccountIn->itemText(ui->moneyAccountIn->currentIndex());
         data.code     = MY_CASH;
-        data.name     = QString::fromLocal8Bit("ÏÖÓĞ×Ê½ğ");
+        data.name     = STR("ç°æœ‰èµ„é‡‘");
         data.amount   = 1;
         data.price    = ui->moneyTransferSpinBox->value();
     } else if (2 == dataSource) {
         data.account2 = ui->moneyAccountIncome->itemText(ui->moneyAccountIncome->currentIndex());
         data.code     = MY_CASH;
         if (grpIncomeType->checkedId() == 0) {
-            data.name = QString::fromLocal8Bit("¹¤×ÊÊÕÈë");
+            data.name = STR("å·¥èµ„æ”¶å…¥");
         } else if (grpIncomeType->checkedId() == 1) {
             data.name = ui->lineEditIncomeType->text();
         } else {}
@@ -250,7 +250,7 @@ void myFinanceExchangeWindow::updataData() {
         data.price    = ui->moneyTransferSpinBox->value();
     } else {}
     data.fee    = ui->exchangeFeeSpinBox->value();
-    updateExchangeType();   //¸ºÔğdata.type²¿·ÖµÄ¸üĞÂºÍÏÔÊ¾
+    updateExchangeType();   //è´Ÿè´£data.typeéƒ¨åˆ†çš„æ›´æ–°å’Œæ˜¾ç¤º
 
     qDebug() << "data.time "     << data.time << ","
              << "data.type "     << data.type << ","
@@ -314,7 +314,7 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
 {
     data.code = str;
 
-    // ÉÏº££¬ÉîÛÚÍ¨¹ı¹ÉÆ±´úÂë×Ô¶¯ÅĞ¶Ï
+    // ä¸Šæµ·ï¼Œæ·±åœ³é€šè¿‡è‚¡ç¥¨ä»£ç è‡ªåŠ¨åˆ¤æ–­
     int pointIndex = data.code.indexOf(QString("."));
     int len = data.code.size();
     if (len - pointIndex > 2 &&
@@ -346,18 +346,18 @@ void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
         data.amount = 1;
         ui->spinBoxAmount->setValue(data.amount);
         ui->spinBoxAmount->setDisabled(true);
-        ui->labelPrice->setText(QString::fromLocal8Bit("×Ê½ğ£º"));
+        ui->labelPrice->setText(STR("èµ„é‡‘ï¼š"));
     } else {
         if (!ui->spinBoxAmount->isEnabled()) {
             ui->spinBoxAmount->setEnabled(true);
-            ui->labelPrice->setText(QString::fromLocal8Bit("µ¥¼Û£º"));
+            ui->labelPrice->setText(STR("å•ä»·ï¼š"));
         }
     }
 }
 void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
 {
     int count = stockCode->codeName.count();
-    qDebug() << QString::fromLocal8Bit("´úºÅEditLine") << ui->codeLineEdit->text() << "(" << count << ")";
+    qDebug() << STR("ä»£å·EditLine") << ui->codeLineEdit->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
             data.name = stockCode->findNameFromCode(data.code);
@@ -369,7 +369,7 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
 {
     QString str = ui->lineEditName->text();
     int count = stockCode->codeName.count();
-    qDebug() << QString::fromLocal8Bit("Ãû³ÆEditLine") << str << "(" << count << ")";
+    qDebug() << STR("åç§°EditLine") << str << "(" << count << ")";
 
     QMap<QString,QString>::const_iterator it = stockCode->codeName.begin();
     for (; it != stockCode->codeName.end(); ++it) {
@@ -401,7 +401,7 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
 
 void myFinanceExchangeWindow::on_feeRateSpinBox_valueChanged(double feeRate)
 {
-    qDebug() << QString::fromLocal8Bit("Ó¶½ğ") << feeRate;
+    qDebug() << STR("ä½£é‡‘") << feeRate;
     commisionRate = feeRate * 0.001f;
     updateExchangeFee();
 }
@@ -409,9 +409,9 @@ void myFinanceExchangeWindow::updateExchangeFee() {
     double fee = 0.0f;
     double amount = qAbs(static_cast<double>(data.amount));
 
-    double fee1 = 0.0f; //Ó¶½ğ
-    double fee2 = 0.0f; //¹ı»§·Ñ
-    double fee3 = 0.0f; //Ó¡»¨Ë°
+    double fee1 = 0.0f; //ä½£é‡‘
+    double fee2 = 0.0f; //è¿‡æˆ·è´¹
+    double fee3 = 0.0f; //å°èŠ±ç¨
 
     if (ui->tabWidget->currentIndex() == 0) {
         if (OTHER != grpMarket->checkedId()) {
@@ -422,7 +422,7 @@ void myFinanceExchangeWindow::updateExchangeFee() {
         }
 
         if (SH == grpMarket->checkedId()) {
-            fee2 = data.price * amount * 0.02f*0.001f;  //0.02¡ë
+            fee2 = data.price * amount * 0.02f*0.001f;  //0.02â€°
         } else {}
 
         if (SELL == grpBuySell->checkedId()) {
@@ -435,22 +435,22 @@ void myFinanceExchangeWindow::updateExchangeFee() {
 }
 
 /// 1. updataData
-/// 2. radioBuy/Sell±ä»¯Ê±
+/// 2. radioBuy/Sellå˜åŒ–æ—¶
 /// 3. lineEditIncomeType or radioSalary/Other Changed
 void myFinanceExchangeWindow::updateExchangeType() {
     if (0 == dataSource) {
         if (grpBuySell->checkedId() == BUY) {
-            data.type = QString::fromLocal8Bit("Ö¤È¯ÂòÈë");
+            data.type = STR("è¯åˆ¸ä¹°å…¥");
         } else {
-            data.type = QString::fromLocal8Bit("Ö¤È¯Âô³ö");
+            data.type = STR("è¯åˆ¸å–å‡º");
         }
     } else if (1 == dataSource) {
-        data.type = QString::fromLocal8Bit("×ªÕÊ");
+        data.type = STR("è½¬å¸");
     } else if (2 == dataSource) {
-        data.type = QString::fromLocal8Bit("ÊÕÈë");
+        data.type = STR("æ”¶å…¥");
         updateIncomeType();
     } else if (3 == dataSource) {
-        data.type = QString::fromLocal8Bit("Ö§³ö");
+        data.type = STR("æ”¯å‡º");
     } else {}
 
     ui->typeLineEdit->setText(data.type);
@@ -469,7 +469,7 @@ void myFinanceExchangeWindow::on_lineEditIncomeType_textChanged(const QString &s
 }
 void myFinanceExchangeWindow::updateIncomeType() {
     if (grpIncomeType->checkedId() == 0) {
-        data.name = QString::fromLocal8Bit("¹¤×ÊÊÕÈë");
+        data.name = STR("å·¥èµ„æ”¶å…¥");
         ui->lineEditIncomeType->setDisabled(true);
     } else if (grpIncomeType->checkedId() == 1) {
         ui->lineEditIncomeType->setEnabled(true);
@@ -494,7 +494,7 @@ void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rol
         showRollback();
     }
 
-    if (data.type.contains(QString::fromLocal8Bit("Ö¤È¯"))) {
+    if (data.type.contains(STR("è¯åˆ¸"))) {
         ui->tabWidget->setCurrentIndex(0);
 
         int index = ui->moneyAccount->findText(data.account2);
@@ -503,7 +503,7 @@ void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rol
         ui->codeLineEdit->setText(data.code);
         ui->spinBoxPrice->setValue(data.price);
         ui->spinBoxAmount->setValue(data.amount);
-    }  else if (data.type.contains(QString::fromLocal8Bit("×ªÕÊ"))) {
+    }  else if (data.type.contains(STR("è½¬å¸"))) {
         ui->tabWidget->setCurrentIndex(1);
 
         int indexOut = ui->moneyAccountOut->findText(data.account1);
@@ -512,9 +512,9 @@ void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rol
         ui->moneyAccountIn->setCurrentIndex(indexIn);
 
         ui->moneyTransferSpinBox->setValue(data.price);
-    } else if (data.type.contains(QString::fromLocal8Bit("ÊÕÈë"))) {
+    } else if (data.type.contains(STR("æ”¶å…¥"))) {
         ui->tabWidget->setCurrentIndex(2);
-    } else if (data.type.contains(QString::fromLocal8Bit("Ö§³ö"))) {
+    } else if (data.type.contains(STR("æ”¯å‡º"))) {
         ui->tabWidget->setCurrentIndex(3);
     } else {}
 }

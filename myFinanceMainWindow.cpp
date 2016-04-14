@@ -1,4 +1,4 @@
-#include "myFinanceMainWindow.h"
+Ôªø#include "myFinanceMainWindow.h"
 #include "ui_myFinanceMainWindow.h"
 
 #include <QDebug>
@@ -36,9 +36,9 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     connect(stockCode ,SIGNAL(codeDataReady()), this, SLOT(codeDataReady()));
 
     ui->statusBar->addWidget(&statusLabel);
-    if (!stockCode->getIsDataReady()) { //’˝‘⁄∏¸–¬
+    if (!stockCode->getIsDataReady()) { //Ê≠£Âú®Êõ¥Êñ∞
         ui->reflash->setEnabled(false);
-        statusLabel.setText(QString::fromLocal8Bit("’˝‘⁄∂¡»°π…∆±¥˙¬Î"));
+        statusLabel.setText(STR("Ê≠£Âú®ËØªÂèñËÇ°Á•®‰ª£Á†Å"));
     } else {
         ui->reflash->setEnabled(true);
         statusLabel.setText("ready");
@@ -62,9 +62,9 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     /// listView
     editExchange = new QMenu(this);
     modifyExchange = new QAction(ui->listView);
-    modifyExchange->setText(QString::fromLocal8Bit("∏¸∏ƒΩª“◊"));
+    modifyExchange->setText(STR("Êõ¥Êîπ‰∫§Êòì"));
     deleteExchange = new QAction(ui->listView);
-    deleteExchange->setText(QString::fromLocal8Bit("≥∑œ˚Ωª“◊"));
+    deleteExchange->setText(STR("Êí§Ê∂à‰∫§Êòì"));
     editExchange->addAction(modifyExchange);
     editExchange->addAction(deleteExchange);
 
@@ -142,7 +142,7 @@ void myFinanceMainWindow::priceDataReflashed() {
     float securityAsset = assetModel->doGetSecurityAsset();
     strAsset = QString::number(securityAsset, 'f', 2);
     ui->lineEditSecurity->setText(strAsset);
-    qDebug() << QString::fromLocal8Bit("º€∏Ò∏¸–¬ finished");
+    qDebug() << STR("‰ª∑Ê†ºÊõ¥Êñ∞ finished");
 }
 void myFinanceMainWindow::codeDataReady() {
     if (stockCode->getIsDataReady()) {
@@ -153,7 +153,7 @@ void myFinanceMainWindow::codeDataReady() {
 
 void myFinanceMainWindow::on_exchange_clicked()
 {
-    qDebug() << QString::fromLocal8Bit("◊ ≤˙±‰ªØ clicked");
+    qDebug() << STR("ËµÑ‰∫ßÂèòÂåñ clicked");
     myFinanceExchangeWindow exWin(this);
     if(exWin.exec() == QDialog::Accepted) {
         myExchangeData data = exWin.getExchangeData();
@@ -161,13 +161,13 @@ void myFinanceMainWindow::on_exchange_clicked()
         if (assetModel->checkExchange(data, abnormalInfo)) {
             assetModel->doExchange(data);
             exchangeModel->doExchange(data);
-            qDebug() << QString::fromLocal8Bit("◊ ≤˙±‰ªØ Accepted assetModel->doExchange finished");
+            qDebug() << STR("ËµÑ‰∫ßÂèòÂåñ Accepted assetModel->doExchange finished");
         } else {
-            QMessageBox::information(NULL, QString::fromLocal8Bit("Ã· æ"), abnormalInfo);
-            qDebug() << QString::fromLocal8Bit("◊ ≤˙±‰ªØ Accepted assetModel->checkExchange failure");
+            QMessageBox::information(NULL, STR("ÊèêÁ§∫"), abnormalInfo);
+            qDebug() << STR("ËµÑ‰∫ßÂèòÂåñ Accepted assetModel->checkExchange failure");
         }
     } else {
-        qDebug() << QString::fromLocal8Bit("◊ ≤˙±‰ªØ Canceled");
+        qDebug() << STR("ËµÑ‰∫ßÂèòÂåñ Canceled");
     }
 
     ui->treeView->expandAll();
@@ -175,38 +175,38 @@ void myFinanceMainWindow::on_exchange_clicked()
 
 void myFinanceMainWindow::on_new_account_clicked()
 {
-    qDebug() << QString::fromLocal8Bit("–¬Ω®’ ªß clicked");
+    qDebug() << STR("Êñ∞Âª∫Â∏êÊà∑ clicked");
     myInsertModifyAccount dial(this);
     if(dial.exec() == QDialog::Accepted) {
         if(!assetModel->doInsertAccount(dial.getData())) {
             ui->treeView->expandAll();
-            QMessageBox::warning(this, QString::fromLocal8Bit("–¬Ω®’ ªß¥ÌŒÛ"),
-                                 QString::fromLocal8Bit("–¬Ω®’ ªß¥ÌŒÛ"),
+            QMessageBox::warning(this, STR("Êñ∞Âª∫Â∏êÊà∑ÈîôËØØ"),
+                                 STR("Êñ∞Âª∫Â∏êÊà∑ÈîôËØØ"),
                                  QMessageBox::Ok, QMessageBox::Ok);
         }
     } else {
-        qDebug() << QString::fromLocal8Bit("ÃÌº”’ ªß Canceled");
+        qDebug() << STR("Ê∑ªÂä†Â∏êÊà∑ Canceled");
     }
     ui->treeView->expandAll();
 }
 
 void myFinanceMainWindow::on_reflash_clicked()
 {
-    statusLabel.setText(QString::fromLocal8Bit("’˝‘⁄∂¡»°π…∆±¥˙¬Î"));
+    statusLabel.setText(STR("Ê≠£Âú®ËØªÂèñËÇ°Á•®‰ª£Á†Å"));
     ui->reflash->setEnabled(false);
-    qDebug() << QString::fromLocal8Bit("À¢–¬ clicked");
+    qDebug() << STR("Âà∑Êñ∞ clicked");
     assetModel->doReflashAssetData();
     stockCode->getStockCode();
     ui->treeView->expandAll();
-    qDebug() << QString::fromLocal8Bit("À¢–¬ clicked finished");
+    qDebug() << STR("Âà∑Êñ∞ clicked finished");
 }
 
 void myFinanceMainWindow::on_updatePrice_clicked()
 {
-    qDebug() << QString::fromLocal8Bit("∏¸–¬º€∏Ò clicked");
+    qDebug() << STR("Êõ¥Êñ∞‰ª∑Ê†º clicked");
     assetModel->doUpdatePrice();
     ui->treeView->expandAll();
-    qDebug() << QString::fromLocal8Bit("∏¸–¬º€∏Ò clicked assetModel->doUpdatePrice requested");
+    qDebug() << STR("Êõ¥Êñ∞‰ª∑Ê†º clicked assetModel->doUpdatePrice requested");
 }
 
 void myFinanceMainWindow::treeViewContextMenu(const QPoint& pt) {
@@ -214,16 +214,16 @@ void myFinanceMainWindow::treeViewContextMenu(const QPoint& pt) {
     myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
     editAsset->clear();
     if (myAssetNode::nodeAccount == node->type) {
-        insertAsset->setText(QString::fromLocal8Bit("ÃÌº”◊ ≤˙"));
+        insertAsset->setText(STR("Ê∑ªÂä†ËµÑ‰∫ß"));
         editAsset->addAction(insertAsset);
-        modifyAsset->setText(QString::fromLocal8Bit("∏¸–¬’ ªß"));
+        modifyAsset->setText(STR("Êõ¥Êñ∞Â∏êÊà∑"));
         editAsset->addAction(modifyAsset);
-        deleteAsset->setText(QString::fromLocal8Bit("…æ≥˝’ ªß"));
+        deleteAsset->setText(STR("Âà†Èô§Â∏êÊà∑"));
         editAsset->addAction(deleteAsset);
     } else if (myAssetNode::nodeHolds == node->type) {
-        modifyAsset->setText(QString::fromLocal8Bit("∏¸–¬◊ ≤˙"));
+        modifyAsset->setText(STR("Êõ¥Êñ∞ËµÑ‰∫ß"));
         editAsset->addAction(modifyAsset);
-        deleteAsset->setText(QString::fromLocal8Bit("…æ≥˝◊ ≤˙"));
+        deleteAsset->setText(STR("Âà†Èô§ËµÑ‰∫ß"));
         editAsset->addAction(deleteAsset);
     } else if (myAssetNode::nodeRoot == node->type) {
     } else {}
@@ -250,9 +250,9 @@ void myFinanceMainWindow::treeViewContextMenu(const QPoint& pt) {
     } else {}
 
     editAsset->addSeparator();
-    upAsset->setText(QString::fromLocal8Bit("…œ“∆"));
+    upAsset->setText(STR("‰∏äÁßª"));
     editAsset->addAction(upAsset);
-    downAsset->setText(QString::fromLocal8Bit("œ¬“∆"));
+    downAsset->setText(STR("‰∏ãÁßª"));
     editAsset->addAction(downAsset);
     if (!(upDownType & myFinanceMainWindow::HAS_UP)) {
         upAsset->setDisabled(true);
@@ -286,7 +286,7 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
     if (myAssetNode::nodeAccount == node->type) {
         /// INSERT ASSET
         if (POP_INSERT == type) {
-            info = QString::fromLocal8Bit("ÃÌº”◊ ≤˙");
+            info = STR("Ê∑ªÂä†ËµÑ‰∫ß");
             myAssetAccount nodeData = node->nodeData.value<myAssetAccount>();
             myInsertModifyAsset dial(nodeData.code, nodeData.name, this);
             dial.setWindowTitle(info);
@@ -298,7 +298,7 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
             }
         /// MODIFY ACCOUNT
         } else if (POP_MODIFY == type) {
-            info = QString::fromLocal8Bit("∏¸–¬’ ªß");
+            info = STR("Êõ¥Êñ∞Â∏êÊà∑");
             myAssetAccount nodeData = node->nodeData.value<myAssetAccount>();
             myAccountData originAccountData(nodeData);
             myInsertModifyAccount dial(this);
@@ -318,7 +318,7 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
             }
         /// DELETE ACCOUNT
         } else if (POP_DELETE == type) {
-            info = QString::fromLocal8Bit("…æ≥˝’ ªß");
+            info = STR("Âà†Èô§Â∏êÊà∑");
             if(QMessageBox::Ok == QMessageBox::warning(this, info, info + "->\n" +
                                   node->nodeData.value<myAssetAccount>().code + "\n" + node->nodeData.value<myAssetAccount>().name,
                                   QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok)) {
@@ -330,7 +330,7 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
     } else if (myAssetNode::nodeHolds == node->type) {
         /// MODIFY ASSET
         if (POP_MODIFY == type) {
-            info = QString::fromLocal8Bit("∏¸–¬◊ ≤˙");
+            info = STR("Êõ¥Êñ∞ËµÑ‰∫ß");
             myAssetHold nodeData = node->nodeData.value<myAssetHold>();
             myAssetData originAssetData(nodeData);
             myAssetNode *accountNode = assetModel->getRootNode().getAccountNode(nodeData.accountCode);
@@ -352,7 +352,7 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
             }
         /// DELETE ASSET
         } else if (POP_DELETE == type) {
-            info = QString::fromLocal8Bit("…æ≥˝◊ ≤˙");
+            info = STR("Âà†Èô§ËµÑ‰∫ß");
             if(QMessageBox::Ok == QMessageBox::warning(this, info, info + "->\n" +
                                   node->nodeData.value<myAssetHold>().assetCode + "\n" + node->nodeData.value<myAssetHold>().name,
                                   QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok)) {
@@ -388,7 +388,7 @@ void myFinanceMainWindow::listViewContextMenu(const QPoint& pt) {
 }
 void myFinanceMainWindow::modifyExchange_clicked() {
     bool ans = true;
-    QString info = QString::fromLocal8Bit("∏¸∏ƒ◊ ≤˙±‰ªØ");
+    QString info = STR("Êõ¥ÊîπËµÑ‰∫ßÂèòÂåñ");
     int line = ui->listView->currentIndex().row();
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
     myFinanceExchangeWindow exWin(this, true);
@@ -420,7 +420,7 @@ void myFinanceMainWindow::modifyExchange_clicked() {
 }
 void myFinanceMainWindow::deleteExchange_clicked() {
     bool ans = true;
-    QString info = QString::fromLocal8Bit("≥∑œ˚◊ ≤˙±‰ªØ");
+    QString info = STR("Êí§Ê∂àËµÑ‰∫ßÂèòÂåñ");
     int line = ui->listView->currentIndex().row();
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
     myModifyExchange dial(this);

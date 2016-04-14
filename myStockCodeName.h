@@ -1,5 +1,6 @@
 #ifndef MYSTOCKCODENAME_H
 #define MYSTOCKCODENAME_H
+#include "myGlobal.h"
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>

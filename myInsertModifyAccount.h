@@ -1,5 +1,6 @@
 #ifndef MYINSERTACCOUNT_H
 #define MYINSERTACCOUNT_H
+#include "myGlobal.h"
 
 #include <QDialog>
 

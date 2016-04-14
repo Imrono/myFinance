@@ -1,5 +1,6 @@
 #ifndef MYASSETMODEL_H
 #define MYASSETMODEL_H
+#include "myGlobal.h"
 
 #include <QtSql/QSqlDatabase>
 #include <QAbstractItemModel>

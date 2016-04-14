@@ -54,8 +54,8 @@ bool myAssetNode::doExchange(myExchangeData data, const myRootAccountAsset &root
     QString execWord;
 
     // 1 MONEY CHANGE
-    filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='cash'").arg(data.account1);
-    execWord = QString::fromLocal8Bit("select 单位成本 from 资产 WHERE %1").arg(filter);
+    filter   = STR("资产帐户代号='%1' AND 代号='cash'").arg(data.account1);
+    execWord = STR("select 单位成本 from 资产 WHERE %1").arg(filter);
     if(query.exec(execWord)) {
         if (1 == query.size()) {
             query.next();
@@ -63,7 +63,7 @@ bool myAssetNode::doExchange(myExchangeData data, const myRootAccountAsset &root
             float money = moneyOrigin + data.money;
             QString strMoney = QString::number(money, 'f', 3);
             qDebug() << moneyOrigin << "  " << data.money << "  " << money;
-            execWord = QString::fromLocal8Bit("UPDATE 资产 SET 单位成本=%1"
+            execWord = STR("UPDATE 资产 SET 单位成本=%1"
                                               " WHERE %2").arg(strMoney).arg(filter);
             qDebug() << execWord;
             if(!query.exec(execWord)) {
@@ -81,8 +81,8 @@ bool myAssetNode::doExchange(myExchangeData data, const myRootAccountAsset &root
     query.clear();
 
     // 2 ASSET CHANGE
-    filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'").arg(data.account2).arg(data.code);
-    execWord = QString::fromLocal8Bit("select 数量, 单位成本 from 资产"
+    filter   = STR("资产帐户代号='%1' AND 代号='%2'").arg(data.account2).arg(data.code);
+    execWord = STR("select 数量, 单位成本 from 资产"
                                       " WHERE %1").arg(filter);
     qDebug() << execWord;
     if(query.exec(execWord)) {
@@ -104,11 +104,11 @@ bool myAssetNode::doExchange(myExchangeData data, const myRootAccountAsset &root
                 avgCost = priceOrigin + data.price - data.fee;
             }
             if (amount != 0) {  //即使为0，"cash"不会被删除
-                execWord = QString::fromLocal8Bit("UPDATE 资产 SET 数量=%1, 单位成本=%2, 名称=%3"
+                execWord = STR("UPDATE 资产 SET 数量=%1, 单位成本=%2, 名称=%3"
                                                   " WHERE %5").arg(amount).arg(avgCost).arg(data.name)
                                                               .arg(filter);
             } else {
-                execWord = QString::fromLocal8Bit("delete from 资产"
+                execWord = STR("delete from 资产"
                                                   " WHERE %1").arg(filter);
             }
             qDebug() << execWord;
@@ -125,7 +125,7 @@ bool myAssetNode::doExchange(myExchangeData data, const myRootAccountAsset &root
                 amount = 1;
                 avgCost = priceOrigin + data.price - data.fee;
             }
-            execWord = QString::fromLocal8Bit("INSERT INTO 资产 "
+            execWord = STR("INSERT INTO 资产 "
                                               "VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
                     .arg(data.code).arg(data.name).arg(data.account2).arg(amount).arg(avgCost)
                     .arg(data.type).arg(rootNode.getAccountNode(data.account2)->children.count());
@@ -151,19 +151,19 @@ bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInf
 
     if (qAbs(data.money + data.fee) < MONEY_EPS) {
         abnormalCode = MONEY_ZERO;
-        abnormalInfo = QString::fromLocal8Bit("%1's No money exchange").arg(data.account1);
+        abnormalInfo = STR("%1's No money exchange").arg(data.account1);
         return false;
     } else if (data.price < MONEY_EPS) {
         abnormalCode = PRICE_ZERO;
-        abnormalInfo = QString::fromLocal8Bit("%1's exchange price 0.0").arg(data.account2);
+        abnormalInfo = STR("%1's exchange price 0.0").arg(data.account2);
         return false;
     } else {}
 
     QSqlQuery query;
     // check "资产"表*2
     // 1 MONEY CHECK
-    QString filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='cash'").arg(data.account1);
-    QString execWord = QString::fromLocal8Bit("select 单位成本 from 资产"
+    QString filter   = STR("资产帐户代号='%1' AND 代号='cash'").arg(data.account1);
+    QString execWord = STR("select 单位成本 from 资产"
                                               " WHERE %1").arg(filter);
     if(query.exec(execWord)) {
         if (1 == query.size()) {
@@ -173,18 +173,18 @@ bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInf
             qDebug() << moneyOrigin << "  " << data.money << "  " << money;
             if (money < 0.0f) {
                 abnormalCode = LACK_MONEY_1;
-                abnormalInfo = QString::fromLocal8Bit("%1's 现在资金 %2 需要资金 %3")
+                abnormalInfo = STR("%1's 现在资金 %2 需要资金 %3")
                         .arg(data.account1).arg(moneyOrigin).arg(data.money);
                 return false;
             }
         } else if (0 == query.size()) {
             abnormalCode = NO_MONEY_ATTRIBUTE;
-            abnormalInfo = QString::fromLocal8Bit("数据库中 %1 没有cash属性").arg(data.account1);
+            abnormalInfo = STR("数据库中 %1 没有cash属性").arg(data.account1);
             return false;
         } else {
             qDebug() << "select money error:" << execWord;
             abnormalCode = UN_UNIQUE_1;
-            abnormalInfo = QString::fromLocal8Bit("数据库中 %1's cash 查找结果不唯一").arg(data.account1);
+            abnormalInfo = STR("数据库中 %1's cash 查找结果不唯一").arg(data.account1);
             return false;
         }
     } else {
@@ -195,8 +195,8 @@ bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInf
     query.clear();
 
     // 2 ASSET CHECK
-    filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'").arg(data.account2).arg(data.code);
-    execWord = QString::fromLocal8Bit("select 数量, 单位成本 from 资产"
+    filter   = STR("资产帐户代号='%1' AND 代号='%2'").arg(data.account2).arg(data.code);
+    execWord = STR("select 数量, 单位成本 from 资产"
                                       " WHERE %1").arg(filter);
     qDebug() << execWord;
     if(query.exec(execWord)) {
@@ -208,7 +208,7 @@ bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInf
                 float price = priceOrigin + data.price;
                 if (price < 0.0f) {
                     abnormalCode = LACK_MONEY_2;
-                    abnormalInfo = QString::fromLocal8Bit("%1's 现在资金 %2 需要资金 %3")
+                    abnormalInfo = STR("%1's 现在资金 %2 需要资金 %3")
                             .arg(data.account2).arg(priceOrigin).arg(data.price);
                     return false;
                 }
@@ -216,7 +216,7 @@ bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInf
                 int amount = amountOrigin + data.amount;
                 if (amount < 0) {
                     abnormalCode = LACK_STOCK;
-                    abnormalInfo = QString::fromLocal8Bit("%1's 现在股票(%2) %3 需要股票 %4")
+                    abnormalInfo = STR("%1's 现在股票(%2) %3 需要股票 %4")
                             .arg(data.account2).arg(data.name).arg(amountOrigin).arg(data.amount);
                     return false;
                 }
@@ -224,25 +224,25 @@ bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInf
         } else if (0 == query.size()) {
             if (data.amount < 0) {
                 abnormalCode = LACK_STOCK;
-                abnormalInfo = QString::fromLocal8Bit("%1's 现在股票(%2) 0 需要股票 %3")
+                abnormalInfo = STR("%1's 现在股票(%2) 0 需要股票 %3")
                         .arg(data.account2).arg(data.name).arg(data.amount);
                 return false;
             } else {}
         } else {
             abnormalCode = UN_UNIQUE_2;
-            abnormalInfo = QString::fromLocal8Bit("数据库中 %1's %2 查找结果不唯一")
+            abnormalInfo = STR("数据库中 %1's %2 查找结果不唯一")
                     .arg(data.account2).arg(data.name);
             return false;
         }
     } else {
         qDebug() << query.lastError().text();
         abnormalCode = SQL_ERROR;
-        abnormalInfo = QString::fromLocal8Bit("SQL ERROR");
+        abnormalInfo = STR("SQL ERROR");
         return false;
     }
     query.clear();
     abnormalCode = NORMAL;
-    abnormalInfo = QString::fromLocal8Bit("EXCHANGE CHECK OK");
+    abnormalInfo = STR("EXCHANGE CHECK OK");
     return true;
 }
 
@@ -264,7 +264,7 @@ bool myRootAccountAsset::initial() {
     QSqlQuery query;
     int numRows = 0;
     ///读“资产帐户”表
-    if(query.exec(QString::fromLocal8Bit("select * from 资产帐户"))) {
+    if(query.exec(STR("select * from 资产帐户"))) {
         if(myFinanceDatabase::db.driver()->hasFeature(QSqlDriver::QuerySize)){
             numRows = query.size(); // 如果支持结果影响的行数，那么直接记录下来
         } else {
@@ -280,17 +280,17 @@ bool myRootAccountAsset::initial() {
             tmpAccount.type = query.value(2).toString();
             tmpAccount.note = query.value(3).toString();
             tmpAccount.pos  = query.value(4).toInt();
-            if (tmpAccount.name.contains(QString::fromLocal8Bit("工商银行"))) {
+            if (tmpAccount.name.contains(STR("工商银行"))) {
                 tmpAccount.logo = "gsyh.png";
-            } else if (tmpAccount.name.contains(QString::fromLocal8Bit("招商银行"))) {
+            } else if (tmpAccount.name.contains(STR("招商银行"))) {
                 tmpAccount.logo = "zsyh.png";
-            } else if (tmpAccount.name == QString::fromLocal8Bit("中国银行")) {
+            } else if (tmpAccount.name == STR("中国银行")) {
                 tmpAccount.logo = "zgyh.png";
-            } else if (tmpAccount.name == QString::fromLocal8Bit("华泰证券")) {
+            } else if (tmpAccount.name == STR("华泰证券")) {
                 tmpAccount.logo = "htzq.png";
-            } else if (tmpAccount.name == QString::fromLocal8Bit("国泰君安")) {
+            } else if (tmpAccount.name == STR("国泰君安")) {
                 tmpAccount.logo = "gtja.png";
-            } else if (tmpAccount.name == QString::fromLocal8Bit("支付宝")) {
+            } else if (tmpAccount.name == STR("支付宝")) {
                 tmpAccount.logo = "zfb.png";
             } else {
                 tmpAccount.logo = "nologo";
@@ -314,7 +314,7 @@ bool myRootAccountAsset::initial() {
     query.finish();
     numRows = 0;
     ///读“资产”表
-    if(query.exec(QString::fromLocal8Bit("select * from 资产"))) {
+    if(query.exec(STR("select * from 资产"))) {
         if(myFinanceDatabase::db.driver()->hasFeature(QSqlDriver::QuerySize)){
             numRows = query.size(); // 如果支持结果影响的行数，那么直接记录下来
         } else {
@@ -422,15 +422,15 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
         if (POP_INSERT == type) {
             myAssetData assetData = data.value<myAssetData>();
 
-            filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'")
+            filter   = STR("资产帐户代号='%1' AND 代号='%2'")
                             .arg(assetData.accountCode).arg(assetData.assetCode);
-            execWord = QString::fromLocal8Bit("select * from 资产 WHERE %1").arg(filter);
+            execWord = STR("select * from 资产 WHERE %1").arg(filter);
             qDebug() << execWord;
             if(query.exec(execWord)) {
                 if (0 == query.size()) {
                     myAssetNode *tmpAccount = getAccountNode(assetData.accountCode);
                     QString strPrice = QString::number(assetData.price, 'f', 3);
-                    execWord = QString::fromLocal8Bit("INSERT INTO 资产 "
+                    execWord = STR("INSERT INTO 资产 "
                                                       "VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
                             .arg(assetData.assetCode).arg(assetData.assetName).arg(assetData.accountCode)
                             .arg(assetData.amount).arg(strPrice).arg(assetData.type).arg(tmpAccount->children.count());
@@ -454,12 +454,12 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
         } else if (POP_MODIFY == type) {
             myAccountData accountData = data.value<myAccountData>();
 
-            filter   = QString::fromLocal8Bit("代号='%1'").arg(accountData.originCode);
-            execWord = QString::fromLocal8Bit("select * from 资产帐户 WHERE %1").arg(filter);
+            filter   = STR("代号='%1'").arg(accountData.originCode);
+            execWord = STR("select * from 资产帐户 WHERE %1").arg(filter);
             qDebug() << execWord;
             if(query.exec(execWord)) {
                 if (1 == query.size()) {
-                    execWord = QString::fromLocal8Bit("UPDATE 资产帐户 "
+                    execWord = STR("UPDATE 资产帐户 "
                                                       "SET 代号='%1', 名称='%2', 类别='%3', 备注='%4' "
                                                       "WHERE %5")
                             .arg(accountData.Code).arg(accountData.Name).arg(accountData.Type).arg(accountData.Note)
@@ -484,15 +484,15 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
                 }
             }
             // delete account
-            filter   = QString::fromLocal8Bit("代号='%1'").arg(accountCode);
-            execWord = QString::fromLocal8Bit("select * from 资产帐户 WHERE %1").arg(filter);
+            filter   = STR("代号='%1'").arg(accountCode);
+            execWord = STR("select * from 资产帐户 WHERE %1").arg(filter);
             qDebug() << execWord;
             if(query.exec(execWord)) {
                 if (1 == query.size()) {
                     query.next();
                     int pos  = query.value(4).toInt();
 
-                    execWord = QString::fromLocal8Bit("delete from 资产帐户 WHERE %1").arg(filter);
+                    execWord = STR("delete from 资产帐户 WHERE %1").arg(filter);
                     qDebug() << execWord;
                     if(query.exec(execWord)) {
                         int toRemove = -1;
@@ -517,14 +517,14 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
         if (POP_MODIFY == type) {
             myAssetData assetData = data.value<myAssetData>();
 
-            filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'")
+            filter   = STR("资产帐户代号='%1' AND 代号='%2'")
                             .arg(assetData.originAccountCode).arg(assetData.originAssetCode);
-            execWord = QString::fromLocal8Bit("select * from 资产 WHERE %1").arg(filter);
+            execWord = STR("select * from 资产 WHERE %1").arg(filter);
             qDebug() << execWord;
             if(query.exec(execWord)) {
                 if (1 == query.size()) {
                     QString strPrice = QString::number(assetData.price, 'f', 3);
-                    execWord = QString::fromLocal8Bit("UPDATE 资产 "
+                    execWord = STR("UPDATE 资产 "
                                                       "SET 代号='%1', 名称='%2', 资产帐户代号='%3', 数量=%4, 单位成本=%5, 类别='%6' "
                                                       "WHERE %7")
                             .arg(assetData.assetCode).arg(assetData.assetName).arg(assetData.accountCode)
@@ -549,15 +549,15 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
 }
 bool myRootAccountAsset::deleteOneAsset(const QString &accountCode, const QString &assetCode) {
     QSqlQuery query;
-    QString filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'").arg(accountCode).arg(assetCode);
-    QString execWord = QString::fromLocal8Bit("select * from 资产 WHERE %1").arg(filter);
+    QString filter   = STR("资产帐户代号='%1' AND 代号='%2'").arg(accountCode).arg(assetCode);
+    QString execWord = STR("select * from 资产 WHERE %1").arg(filter);
     qDebug() << execWord;
     if(query.exec(execWord)) {
         if (1 == query.size()) {
             query.next();
             int pos = query.value(6).toInt();
 
-            execWord = QString::fromLocal8Bit("delete from 资产 WHERE %1").arg(filter);
+            execWord = STR("delete from 资产 WHERE %1").arg(filter);
             qDebug() << execWord;
             if(query.exec(execWord)) {
                 myAssetNode *tmpAccount = getAccountNode(accountCode);
@@ -581,12 +581,12 @@ bool myRootAccountAsset::deleteOneAsset(const QString &accountCode, const QStrin
 bool myRootAccountAsset::doInsertAccount(myAccountData data) {
     QSqlQuery query;
     QString execWord, filter;
-    filter   = QString::fromLocal8Bit("代号='%1'").arg(data.Code);
-    execWord = QString::fromLocal8Bit("select * from 资产帐户 WHERE %1").arg(filter);
+    filter   = STR("代号='%1'").arg(data.Code);
+    execWord = STR("select * from 资产帐户 WHERE %1").arg(filter);
     qDebug() << execWord;
     if(query.exec(execWord)) {
         if (0 == query.size()) {
-            execWord = QString::fromLocal8Bit("INSERT INTO 资产帐户 "
+            execWord = STR("INSERT INTO 资产帐户 "
                                               "VALUES ('%1', '%2', '%3', '%4', %5)")
                     .arg(data.Code).arg(data.Name).arg(data.Type).arg(data.Note).arg(rootNode.children.count());
             qDebug() << execWord;
@@ -610,12 +610,12 @@ bool myRootAccountAsset::doInsertAccount(myAccountData data) {
 /// POSITION
 bool myRootAccountAsset::setAccountPosition(const QString &accountCode, int pos) {
     QSqlQuery query;
-    QString filter   = QString::fromLocal8Bit("代号='%1'").arg(accountCode);
-    QString execWord = QString::fromLocal8Bit("select * from 资产帐户 WHERE %1").arg(filter);
+    QString filter   = STR("代号='%1'").arg(accountCode);
+    QString execWord = STR("select * from 资产帐户 WHERE %1").arg(filter);
     qDebug() << execWord;
     if(query.exec(execWord)) {
         if (1 == query.size()) {
-            execWord = QString::fromLocal8Bit("UPDATE 资产帐户 SET pos='%1' WHERE %2")
+            execWord = STR("UPDATE 资产帐户 SET pos='%1' WHERE %2")
                     .arg(pos).arg(filter);
             qDebug() << execWord;
             if(query.exec(execWord)) {
@@ -635,13 +635,13 @@ bool myRootAccountAsset::setAccountPosition(const QString &accountCode, int pos)
 }
 bool myRootAccountAsset::setAssetPosition(const QString &accountCode, const QString &assetCode, int pos) {
     QSqlQuery query;
-    QString filter   = QString::fromLocal8Bit("资产帐户代号='%1' AND 代号='%2'")
+    QString filter   = STR("资产帐户代号='%1' AND 代号='%2'")
                     .arg(accountCode).arg(assetCode);
-    QString execWord = QString::fromLocal8Bit("select * from 资产 WHERE %1").arg(filter);
+    QString execWord = STR("select * from 资产 WHERE %1").arg(filter);
     qDebug() << execWord;
     if(query.exec(execWord)) {
         if (1 == query.size()) {
-            execWord = QString::fromLocal8Bit("UPDATE 资产 "
+            execWord = STR("UPDATE 资产 "
                                               "SET pos='%1' WHERE %2")
                     .arg(pos).arg(filter);
             qDebug() << execWord;

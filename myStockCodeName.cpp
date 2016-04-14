@@ -54,7 +54,7 @@ void myStockCodeName::replyFinished(QNetworkReply* data) {
     switch(requestType) {
     case REQUEST_CODE: {
         QByteArray codeDataArray = data->readAll();
-        QString codeData = QString::fromLocal8Bit(codeDataArray);
+        QString codeData = STR(codeDataArray);
         QFile file(CodeDataFile);
         if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {
             qDebug() << "无法创建文件";
@@ -108,7 +108,7 @@ void myStockCodeName::analyzeStockCode(QString fileName) {
 
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << QString::fromLocal8Bit("无法创建文件");
+        qDebug() << STR("无法创建文件");
         return;
     }
     QTextStream stream(&file);

@@ -41,7 +41,7 @@ void myStockPrice::replyFinished(QNetworkReply* data) {
     stockPriceRt.clear();
 
     while (!stockPrice.isNull()) {
-        QString priceData = QString::fromLocal8Bit(stockPrice);
+        QString priceData = STR(stockPrice);
         qDebug() << priceData;
         sinaRealTimeData sinaData;
         QStringList parts = priceData.split(",");

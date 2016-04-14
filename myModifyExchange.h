@@ -1,5 +1,6 @@
 #ifndef MYMODIFYEXCHANGE_H
 #define MYMODIFYEXCHANGE_H
+#include "myGlobal.h"
 
 #include <QDialog>
 

@@ -1,4 +1,4 @@
-#include "assetChangeDelegate.h"
+﻿#include "assetChangeDelegate.h"
 #include "myAssetModel.h"
 
 assetChangeDelegate::assetChangeDelegate(QObject *parent)

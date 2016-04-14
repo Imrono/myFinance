@@ -1,5 +1,6 @@
 #ifndef MYEXCHANGELISTMODEL_H
 #define MYEXCHANGELISTMODEL_H
+#include "myGlobal.h"
 
 #include <QStringListModel>
 #include "myDatabaseDatatype.h"

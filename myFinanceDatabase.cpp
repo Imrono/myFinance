@@ -1,4 +1,4 @@
-#include "myFinanceDatabase.h"
+﻿#include "myFinanceDatabase.h"
 #include <QtSql/QSqlError>
 
 #include <QDebug>

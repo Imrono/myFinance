@@ -1,4 +1,4 @@
-#include "myInsertModifyAsset.h"
+ï»¿#include "myInsertModifyAsset.h"
 #include "ui_myInsertModifyAsset.h"
 
 #include "myFinanceMainWindow.h"
@@ -20,10 +20,10 @@ myInsertModifyAsset::myInsertModifyAsset(QString accountCode, QString accountNam
     grpMarket->addButton(ui->radioSH);
     grpMarket->addButton(ui->radioSZ);
     grpMarket->addButton(ui->radioOther);
-    grpMarket->setExclusive(true);           //ÉèÎª»¥³â
-    grpMarket->setId(ui->radioSH, SH);       //radioBuyµÄIdÉèÎª0
-    grpMarket->setId(ui->radioSZ, SZ);       //radioBuyµÄIdÉèÎª1
-    grpMarket->setId(ui->radioOther, OTHER); //radioBuyµÄIdÉèÎª2
+    grpMarket->setExclusive(true);           //è®¾ä¸ºäº’æ–¥
+    grpMarket->setId(ui->radioSH, SH);       //radioBuyçš„Idè®¾ä¸º0
+    grpMarket->setId(ui->radioSZ, SZ);       //radioBuyçš„Idè®¾ä¸º1
+    grpMarket->setId(ui->radioOther, OTHER); //radioBuyçš„Idè®¾ä¸º2
     ui->radioSH->setChecked(true);
 }
 
@@ -97,7 +97,7 @@ void myInsertModifyAsset::on_lineEditAssetCode_textChanged(const QString &str)
 {
     data.assetCode = str;
 
-    // ÉÏº££¬ÉîÛÚÍ¨¹ý¹ÉÆ±´úÂë×Ô¶¯ÅÐ¶Ï
+    // ä¸Šæµ·ï¼Œæ·±åœ³é€šè¿‡è‚¡ç¥¨ä»£ç è‡ªåŠ¨åˆ¤æ–­
     int pointIndex = data.assetCode.indexOf(QString("."));
     int len = data.assetCode.size();
     if (len - pointIndex > 2 &&
@@ -122,11 +122,11 @@ void myInsertModifyAsset::on_lineEditAssetCode_textChanged(const QString &str)
         data.amount = 1;
         ui->spinBoxAmount->setValue(data.amount);
         ui->spinBoxAmount->setDisabled(true);
-        ui->labelPrice->setText(QString::fromLocal8Bit("×Ê½ð£º"));
+        ui->labelPrice->setText(STR("èµ„é‡‘ï¼š"));
     } else {
         if (!ui->spinBoxAmount->isEnabled()) {
             ui->spinBoxAmount->setEnabled(true);
-            ui->labelPrice->setText(QString::fromLocal8Bit("µ¥¼Û£º"));
+            ui->labelPrice->setText(STR("å•ä»·ï¼š"));
         }
     }
 }
@@ -134,7 +134,7 @@ void myInsertModifyAsset::on_lineEditAssetCode_textChanged(const QString &str)
 void myInsertModifyAsset::on_lineEditAssetCode_editingFinished()
 {
     int count = stockCode->codeName.count();
-    qDebug() << QString::fromLocal8Bit("´úºÅEditLine") << ui->lineEditAssetCode->text() << "(" << count << ")";
+    qDebug() << STR("ä»£å·EditLine") << ui->lineEditAssetCode->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
             data.assetName = stockCode->findNameFromCode(data.assetCode);
@@ -147,7 +147,7 @@ void myInsertModifyAsset::on_lineEditAssetName_editingFinished()
 {
     QString str = ui->lineEditAssetName->text();
     int count = stockCode->codeName.count();
-    qDebug() << QString::fromLocal8Bit("Ãû³ÆEditLine") << str << "(" << count << ")";
+    qDebug() << STR("åç§°EditLine") << str << "(" << count << ")";
 
     QMap<QString,QString>::iterator it = stockCode->codeName.begin();
     for (; it != stockCode->codeName.end(); ++it) {

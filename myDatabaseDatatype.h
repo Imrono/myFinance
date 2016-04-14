@@ -1,5 +1,6 @@
 #ifndef MYDATABASEDATATYPE
 #define MYDATABASEDATATYPE
+#include "myGlobal.h"
 
 #include <QDateTime>
 #include <QString>

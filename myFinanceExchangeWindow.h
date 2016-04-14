@@ -1,5 +1,6 @@
 #ifndef MYFINANCEEXCHANGEWINDOW_H
 #define MYFINANCEEXCHANGEWINDOW_H
+#include "myGlobal.h"
 
 #include <QDialog>
 #include <QWidget>

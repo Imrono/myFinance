@@ -1,5 +1,6 @@
 #ifndef MYSTOCKPRICE_H
 #define MYSTOCKPRICE_H
+#include "myGlobal.h"
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>

@@ -24,7 +24,7 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
     QSqlQuery query;
     QString execWord;
     if (isDelete) {
-        execWord = QString::fromLocal8Bit("DELETE FROM 资产变化 WHERE id=%1").arg(exchangeData.id);
+        execWord = STR("DELETE FROM 资产变化 WHERE id=%1").arg(exchangeData.id);
         qDebug() << execWord;
         if(!query.exec(execWord)) {
             qDebug() << query.lastError().text();
@@ -34,11 +34,11 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
         QString exchangeTime = exchangeData.time.toString(("yyyy-MM-dd hh:mm:ss"));
         QString exchangeType = exchangeData.type;
         // 1 update database, "资产变化"表 CHANGE
-        execWord = QString::fromLocal8Bit("SELECT * FROM 资产变化 WHERE id=%1").arg(exchangeData.id);
+        execWord = STR("SELECT * FROM 资产变化 WHERE id=%1").arg(exchangeData.id);
         qDebug() << execWord;
         if(query.exec(execWord)) {
             if (1 == query.size()) {        //UPDATE
-                execWord = QString::fromLocal8Bit("UPDATE 资产变化 "
+                execWord = STR("UPDATE 资产变化 "
                                                   "SET 时间='%1', 变化类别='%2', 资产帐户代号1='%3', 变化资金=%4, "
                                                   "资产帐户代号2='%5', 代号='%6', 名称='%7', 单价=%8, 数量=%9 "
                                                   "WHERE id=%10")
@@ -59,7 +59,7 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
                     }
                 }
             } else if (0 == query.size()) { //INSERT
-                execWord = QString::fromLocal8Bit("INSERT INTO 资产变化 "
+                execWord = STR("INSERT INTO 资产变化 "
                                                   "VALUES (null, '%1', '%2', '%3', %4, '%5', '%6', '%7', %8, %9)")
                         .arg(exchangeTime).arg(exchangeType).arg(exchangeData.account1).arg(exchangeData.money)
                         .arg(exchangeData.account2).arg(exchangeData.code).arg(exchangeData.name).arg(exchangeData.price).arg(exchangeData.amount);
@@ -88,13 +88,13 @@ QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exc
             qDebug() << "[转帐]" << exchangeData.account1 << " " << exchangeData.money
                      << "!="    << exchangeData.account2 << " " << exchangeData.price;
         QString strMoney = QString::number(exchangeData.money, 'f', 2);
-        exchangeStr = QString::fromLocal8Bit("[%1]%2->%3(￥%4)")
+        exchangeStr = STR("[%1]%2->%3(￥%4)")
                 .arg(exchangeData.type)
                 .arg(exchangeData.account1).arg(exchangeData.account2).arg(strMoney);
     } else {
         QString strMoney = QString::number(exchangeData.money, 'f', 2);
         QString strPrice = QString::number(exchangeData.price, 'f', 2);
-        exchangeStr = QString::fromLocal8Bit("[%1]%2(￥%3) - %4@%5(%6*%7)")
+        exchangeStr = STR("[%1]%2(￥%3) - %4@%5(%6*%7)")
                 .arg(exchangeData.type)
                 .arg(exchangeData.account1).arg(strMoney)
                 .arg(exchangeData.name).arg(exchangeData.account2)
@@ -114,7 +114,7 @@ bool myExchangeListModel::initial() {
     QSqlQuery query;
     int numRows = 0;
     ///读“资产帐户”表
-    if(query.exec(QString::fromLocal8Bit("select * from 资产变化"))) {
+    if(query.exec(STR("select * from 资产变化"))) {
         if(myFinanceDatabase::db.driver()->hasFeature(QSqlDriver::QuerySize)){
             numRows = query.size();
         } else {

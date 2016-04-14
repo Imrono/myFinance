@@ -1,5 +1,6 @@
 #ifndef ASSETCHANGEDELEGATE_H
 #define ASSETCHANGEDELEGATE_H
+#include "myGlobal.h"
 
 #include <QObject>
 #include <QItemDelegate>

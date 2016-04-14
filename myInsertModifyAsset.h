@@ -1,5 +1,6 @@
 #ifndef MYINSERTASSET_H
 #define MYINSERTASSET_H
+#include "myGlobal.h"
 
 #include <QDialog>
 #include <QButtonGroup>

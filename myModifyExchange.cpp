@@ -1,4 +1,4 @@
-#include "myModifyExchange.h"
+Ôªø#include "myModifyExchange.h"
 #include "ui_myModifyExchange.h"
 
 myModifyExchange::myModifyExchange(QWidget *parent) :
@@ -48,11 +48,11 @@ void myModifyExchange::on_lineEditCode_textChanged(const QString &str) {
         data.amount = 1;
         ui->spinBoxAmount->setValue(data.amount);
         ui->spinBoxAmount->setDisabled(true);
-        ui->labelPrice->setText(QString::fromLocal8Bit("Ω∂Ó"));
+        ui->labelPrice->setText(STR("ÈáëÈ¢ù"));
     } else {
         if (!ui->spinBoxAmount->isEnabled()) {
             ui->spinBoxAmount->setEnabled(true);
-            ui->labelPrice->setText(QString::fromLocal8Bit("µ•º€"));
+            ui->labelPrice->setText(STR("Âçï‰ª∑"));
         }
     }
 }

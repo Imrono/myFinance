@@ -1,5 +1,6 @@
 #ifndef MYFINANCEDATABASE_H
 #define MYFINANCEDATABASE_H
+#include "myGlobal.h"
 
 #include <QtSql/QSqlDatabase>
 

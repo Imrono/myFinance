@@ -1,5 +1,6 @@
 #ifndef MYFINANCEMAINWINDOW_H
 #define MYFINANCEMAINWINDOW_H
+#include "myGlobal.h"
 
 #include <QMainWindow>
 #include <QtWidgets/QTreeView>
