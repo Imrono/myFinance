@@ -3,6 +3,7 @@
 
 #ifdef Q_OS_LINUX
 #   define  STR(x)  QString(x)
+#   define nullptr NULL
 #else
 #   define  STR(x)  QString::fromLocal8Bit(x)
 #endif
