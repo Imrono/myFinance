@@ -302,7 +302,10 @@ void myFinanceExchangeWindow::updateMarketInfo() {
     ui->codeLineEdit->setText(data.code);
 
     updateExchangeFee();
-
+    if (stockCode->getIsInitialed()) {
+        data.name = stockCode->findNameFromCode(data.code);
+        ui->lineEditName->setText(data.name);
+    }
     qDebug() << "updateMarketInfo()" << ","
              << "data.code"  << data.code << ","
              << (grpMarket->checkedId() == SH ? "radioSH" :

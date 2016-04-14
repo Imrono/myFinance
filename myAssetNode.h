@@ -90,7 +90,7 @@ public:
 
     void addChild(myAssetNode *childNode);
 
-    static bool doExchange(const myExchangeData data, const myRootAccountAsset &rootNode);
+    static bool doExchange(const myExchangeData data, myRootAccountAsset &rootNode);
     static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
 
     nodeType type;
@@ -122,6 +122,8 @@ public:
     bool setAccountPosition(const QString &accountCode, int pos);
     bool setAssetPosition(const QString &accountCode, const QString &assetCode, int pos);
 
+    void sortPositionAsset(myAssetNode *accountNode);
+
 private:
     myAssetNode rootNode;
 
@@ -129,7 +131,6 @@ private:
 
     void doSortPosition();
     void sortPositionAccount();
-    void sortPositionAsset(myAssetNode *accountNode);
 };
 
 #endif // MYASSETNODE_H
