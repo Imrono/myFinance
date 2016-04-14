@@ -3,7 +3,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QByteArray>
 #include <QtCore/QFileInfo>
-
+#include <QTextCodec>
 #include <QRegExp>
 
 #include <QtDebug>
@@ -54,7 +54,8 @@ void myStockCodeName::replyFinished(QNetworkReply* data) {
     switch(requestType) {
     case REQUEST_CODE: {
         QByteArray codeDataArray = data->readAll();
-        QString codeData = STR(codeDataArray);
+        QTextCodec *tc = QTextCodec::codecForName("GBK");
+        QString codeData = tc->toUnicode(codeDataArray);
         QFile file(CodeDataFile);
         if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {
             qDebug() << "无法创建文件";

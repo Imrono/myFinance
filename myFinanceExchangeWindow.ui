@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>590</width>
-    <height>301</height>
+    <width>687</width>
+    <height>337</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>390</x>
-     <y>265</y>
+     <x>410</x>
+     <y>300</y>
      <width>161</width>
      <height>32</height>
     </rect>
@@ -37,8 +37,8 @@
     <rect>
      <x>270</x>
      <y>9</y>
-     <width>238</width>
-     <height>74</height>
+     <width>287</width>
+     <height>95</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
@@ -109,15 +109,15 @@
     <rect>
      <x>10</x>
      <y>80</y>
-     <width>571</width>
-     <height>181</height>
+     <width>671</width>
+     <height>211</height>
     </rect>
    </property>
    <property name="tabPosition">
     <enum>QTabWidget::North</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tabStock">
     <attribute name="title">
@@ -211,8 +211,8 @@
       <rect>
        <x>10</x>
        <y>70</y>
-       <width>551</width>
-       <height>81</height>
+       <width>655</width>
+       <height>97</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
@@ -554,8 +554,8 @@
       <rect>
        <x>236</x>
        <y>83</y>
-       <width>194</width>
-       <height>22</height>
+       <width>218</width>
+       <height>29</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayoutAccount_2" columnstretch="1,0,0">
@@ -605,8 +605,8 @@
       <rect>
        <x>201</x>
        <y>47</y>
-       <width>357</width>
-       <height>24</height>
+       <width>431</width>
+       <height>31</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -713,8 +713,8 @@
       <rect>
        <x>201</x>
        <y>117</y>
-       <width>357</width>
-       <height>24</height>
+       <width>431</width>
+       <height>31</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -826,8 +826,8 @@
       <rect>
        <x>270</x>
        <y>30</y>
-       <width>211</width>
-       <height>80</height>
+       <width>212</width>
+       <height>93</height>
       </rect>
      </property>
      <layout class="QFormLayout" name="formLayout_2">
@@ -965,10 +965,10 @@
     <widget class="QWidget" name="formLayoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>280</x>
-       <y>10</y>
-       <width>191</width>
-       <height>151</height>
+       <x>300</x>
+       <y>8</y>
+       <width>273</width>
+       <height>166</height>
       </rect>
      </property>
      <layout class="QFormLayout" name="formLayout_3">
@@ -1017,92 +1017,84 @@
       <item row="2" column="1">
        <widget class="QLineEdit" name="lineEditExpendCode"/>
       </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="gridLayoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>288</x>
-       <y>87</y>
-       <width>180</width>
-       <height>71</height>
-      </rect>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <item row="1" column="0">
-       <widget class="QRadioButton" name="radioButton_3">
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
+      <item row="3" column="1">
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="spacing">
+         <number>0</number>
         </property>
-        <property name="text">
-         <string>RadioButton</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QRadioButton" name="radioButton_2">
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>RadioButton</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="radioButton">
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>RadioButton</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QRadioButton" name="radioButton_4">
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>RadioButton</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QRadioButton" name="radioButton_5">
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>RadioButton</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QRadioButton" name="radioButton_6">
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>RadioButton</string>
-        </property>
-       </widget>
+        <item row="1" column="0">
+         <widget class="QRadioButton" name="radioButton_3">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>RadioButton</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QRadioButton" name="radioButton_2">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>RadioButton</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="radioButton">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>RadioButton</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QRadioButton" name="radioButton_4">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>RadioButton</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QRadioButton" name="radioButton_5">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>RadioButton</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QRadioButton" name="radioButton_6">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>RadioButton</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -1112,8 +1104,8 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>270</y>
-     <width>71</width>
+     <y>300</y>
+     <width>91</width>
      <height>16</height>
     </rect>
    </property>
