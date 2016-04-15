@@ -379,8 +379,8 @@ bool myAssetModel::doUpDown(bool isUp, myAssetNode *node) {
         root.setAccountPosition(node->parent->children.at(pos)->nodeData.value<myAssetAccount>().code, pos);
         ans = true;
     } else if (myAssetNode::nodeHolds == node->type) {
-        myAssetHold &hold1 = node->nodeData.value<myAssetHold>();
-        myAssetHold &hold2 = node->parent->children.at(pos)->nodeData.value<myAssetHold>();
+        const myAssetHold &hold1 = node->nodeData.value<myAssetHold>();
+        const myAssetHold &hold2 = node->parent->children.at(pos)->nodeData.value<myAssetHold>();
         root.setAssetPosition(hold1.accountCode, hold1.assetCode, pos2);
         root.setAssetPosition(hold2.accountCode, hold2.assetCode, pos);
         ans = true;

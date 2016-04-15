@@ -8,6 +8,7 @@
 #define MY_CASH            "cash"
 #define OTHER_ACCOUNT   "myOtherAccount"
 #define OTHER_ASSET     "myOtherAsset"
+#define nullptr NULL
 
 #define MONEY_EPS  0.0001f
 enum BuyAndSell {

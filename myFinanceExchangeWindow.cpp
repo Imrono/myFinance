@@ -84,7 +84,7 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
     for (int i = 0; i < rootNode.getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode.getAccountNode(i);
         const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
-        QIcon   icon = QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo);
+        QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
         QString code;
         if (accountData.name.contains(QString::fromLocal8Bit("银行"))) {
             code = "**** **** " + accountData.code.right(4);
@@ -101,7 +101,7 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
             QString assetCode = holdNode->nodeData.value<myAssetHold>().assetCode;
             if (assetCode.contains("cash")) {
                 const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
-                QIcon   icon = QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo);
+                QIcon   icon =QIcon( QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
                 if (accountData.name.contains(QString::fromLocal8Bit("银行"))) {
                     code = "**** **** " + accountData.code.right(4);
@@ -125,7 +125,7 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
             QString assetCode = holdNode->nodeData.value<myAssetHold>().assetCode;
             if (assetCode.contains("cash")) {
                 const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
-                QIcon   icon = QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo);
+                QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
                 if (accountData.name.contains(QString::fromLocal8Bit("银行"))) {
                     code = "**** **** " + accountData.code.right(4);

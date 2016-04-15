@@ -1,4 +1,5 @@
 #include "myStockCodeName.h"
+#include "myDatabaseDatatype.h"
 #include <QtCore/QFile>
 #include <QtCore/QByteArray>
 #include <QtCore/QFileInfo>

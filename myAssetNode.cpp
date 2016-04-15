@@ -620,7 +620,7 @@ bool myRootAccountAsset::setAccountPosition(const QString &accountCode, int pos)
             qDebug() << execWord;
             if(query.exec(execWord)) {
                 for (int i = 0; i < rootNode.children.count(); i++) {
-                    myAssetAccount &tmpAccount = rootNode.children.at(i)->nodeData.value<myAssetAccount>();
+                    myAssetAccount tmpAccount = rootNode.children.at(i)->nodeData.value<myAssetAccount>();
                     if (tmpAccount.name == accountCode) {
                         tmpAccount.pos = pos;
                         break;
@@ -648,7 +648,7 @@ bool myRootAccountAsset::setAssetPosition(const QString &accountCode, const QStr
             if(query.exec(execWord)) {
                 myAssetNode *tmpAccount = getAccountNode(accountCode);
                 for (int i = 0; i < tmpAccount->children.count(); i++) {
-                    myAssetHold &tmpHold = tmpAccount->children.at(i)->nodeData.value<myAssetHold>();
+                    myAssetHold tmpHold = tmpAccount->children.at(i)->nodeData.value<myAssetHold>();
                     if (tmpHold.name == assetCode) {
                         tmpHold.pos = pos;
                         break;
@@ -681,7 +681,7 @@ void myRootAccountAsset::sortPositionAccount() {
         left.append(i);
     }
     for (int i = 0; i < numOfAccount; i++) {
-        myAssetAccount &tmpHold = (rootNode.children.at(i)->nodeData).value<myAssetAccount>();
+        const myAssetAccount &tmpHold = (rootNode.children.at(i)->nodeData).value<myAssetAccount>();
         posList.append(tmpHold.pos);
         for (int j = 0; j < left.count(); j++) {
             if (tmpHold.pos == left.at(j)) {
@@ -692,7 +692,7 @@ void myRootAccountAsset::sortPositionAccount() {
     }
 
     for (int i = 0; i < numOfAccount; i++) {
-        myAssetAccount &tmpAccount = (rootNode.children.at(i)->nodeData).value<myAssetAccount>();
+        myAssetAccount tmpAccount = (rootNode.children.at(i)->nodeData).value<myAssetAccount>();
         if (tmpAccount.pos < 0 || tmpAccount.pos > numOfAccount - 1 || posList.count(tmpAccount.pos)>1 ) {
             int tmpPos = tmpAccount.pos;
             tmpAccount.pos = left.back();
@@ -733,7 +733,7 @@ void myRootAccountAsset::sortPositionAsset(myAssetNode *accountNode) {
         left.append(i);
     }
     for (int i = 0; i < numOfAsset; i++) {
-        myAssetHold &tmpHold = (accountNode->children.at(i)->nodeData).value<myAssetHold>();
+        const myAssetHold &tmpHold = (accountNode->children.at(i)->nodeData).value<myAssetHold>();
         posList.append(tmpHold.pos);
         for (int j = 0; j < left.count(); j++) {
             if (tmpHold.pos == left.at(j)) {
@@ -744,7 +744,7 @@ void myRootAccountAsset::sortPositionAsset(myAssetNode *accountNode) {
     }
 
     for (int i = 0; i < numOfAsset; i++) {
-        myAssetHold &tmpHold = (accountNode->children.at(i)->nodeData).value<myAssetHold>();
+        myAssetHold tmpHold = (accountNode->children.at(i)->nodeData).value<myAssetHold>();
         if (tmpHold.pos < 0 || tmpHold.pos > numOfAsset - 1 || posList.count(tmpHold.pos)>1 ) {
             int tmpPos = tmpHold.pos;
             tmpHold.pos = left.back();
