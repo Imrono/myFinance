@@ -159,7 +159,7 @@ void myFinanceMainWindow::on_exchange_clicked()
         myExchangeData data = exWin.getExchangeData();
         QString abnormalInfo;
         if (assetModel->checkExchange(data, abnormalInfo)) {
-            assetModel->doExchange(data);
+            assetModel->doExchange(data, true);
             exchangeModel->doExchange(data);
             qDebug() << STR("资产变化 Accepted assetModel->doExchange finished");
         } else {

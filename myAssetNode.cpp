@@ -111,22 +111,6 @@ bool myAssetNode::doExchange(myExchangeData data, myRootAccountAsset &rootNode) 
             if(!query.exec(execWord)) {
                 qDebug() << query.lastError().text();
                 return false;
-            } else {
-                myAssetNode *tmpAccount = rootNode.getAccountNode(data.account2);
-                int toRemove = -1;
-                int pos;
-                for (int i = 0; i < tmpAccount->children.count(); i++) {
-                    const myAssetHold &tmpHold = tmpAccount->children.at(i)->nodeData.value<myAssetHold>();
-                    if (tmpHold.assetCode == data.code) {
-                        toRemove = i;
-                        pos = tmpHold.pos;
-                    } else if (tmpHold.pos > pos) {
-                        if (!rootNode.setAssetPosition(data.account2, tmpHold.assetCode, tmpHold.pos-1)) {
-                            return false;
-                        }
-                    }
-                }
-                tmpAccount->children.removeAt(toRemove);
             }
         } else if (0 == query.size()) {
             // INSERT
@@ -658,6 +642,7 @@ bool myRootAccountAsset::setAssetPosition(const QString &accountCode, const QStr
                     myAssetHold tmpHold = tmpAccount->children.at(i)->nodeData.value<myAssetHold>();
                     if (tmpHold.name == assetCode) {
                         tmpHold.pos = pos;
+                        tmpAccount->children.at(i)->nodeData.setValue(tmpHold);
                         break;
                     }
                 }
@@ -763,15 +748,18 @@ void myRootAccountAsset::sortPositionAsset(myAssetNode *accountNode) {
                 }
                 posList.append(tmpHold.pos);
                 left.pop_back();
+                (accountNode->children.at(i)->nodeData).setValue(tmpHold);
             } else {} //sql error
         } else {}
     }
 
     // 按排好的顺序更新accountNode的children
+    numOfAsset = accountNode->children.count();
     QList<myAssetNode *> tmpChild;
     for (int i = 0; i < numOfAsset; i++) {
         for (int j = 0; j < numOfAsset; j++) {
-            if (i == (accountNode->children.at(j)->nodeData).value<myAssetHold>().pos) {
+            myAssetHold tmpHold = (accountNode->children.at(j)->nodeData).value<myAssetHold>();
+            if (i == tmpHold.pos) {
                 tmpChild.append(accountNode->children.at(j));
                 break;
             }
