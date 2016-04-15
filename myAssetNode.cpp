@@ -442,8 +442,7 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
                 if (0 == query.size()) {
                     myAssetNode *tmpAccount = getAccountNode(assetData.accountCode);
                     QString strPrice = QString::number(assetData.price, 'f', 3);
-                    execWord = STR("INSERT INTO 资产 "
-                                                      "VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
+                    execWord = STR("INSERT INTO 资产 VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
                             .arg(assetData.assetCode).arg(assetData.assetName).arg(assetData.accountCode)
                             .arg(assetData.amount).arg(strPrice).arg(assetData.type).arg(tmpAccount->children.count());
                     qDebug() << execWord;
@@ -471,9 +470,7 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
             qDebug() << execWord;
             if(query.exec(execWord)) {
                 if (1 == query.size()) {
-                    execWord = STR("UPDATE 资产帐户 "
-                                                      "SET 代号='%1', 名称='%2', 类别='%3', 备注='%4' "
-                                                      "WHERE %5")
+                    execWord = STR("UPDATE 资产帐户 SET 代号='%1', 名称='%2', 类别='%3', 备注='%4' WHERE %5")
                             .arg(accountData.Code).arg(accountData.Name).arg(accountData.Type).arg(accountData.Note)
                             .arg(filter);
                     qDebug() << execWord;

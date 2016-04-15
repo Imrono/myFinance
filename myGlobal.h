@@ -1,9 +1,9 @@
 #ifndef MYGLOBAL_H
 #define MYGLOBAL_H
 
-#ifdef Q_OS_LINUX
+#ifdef __linux__
 #   define  STR(x)  QString(x)
-#   define nullptr NULL
+#   define  nullptr NULL
 #else
 #   define  STR(x)  QString::fromLocal8Bit(x)
 #endif
