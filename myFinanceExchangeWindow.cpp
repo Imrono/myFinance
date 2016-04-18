@@ -8,13 +8,13 @@
 #include <QtDebug>
 
 myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, bool isModifyExchange) :
-    QDialog(parent), grpBuySell(nullptr), isModifyExchange(isModifyExchange),
-    ui(new Ui::myFinanceExchangeWindow),
-    stockCode(myStockCodeName::getInstance()),
-    isRollback(false), commisionRate(0.0f),
+    QDialog(parent), ui(new Ui::myFinanceExchangeWindow),
+    grpBuySell(nullptr), commisionRate(0.0f),
     remainMoney(0.0f), totalMoney(0.0f),
     remainMoneyOut(0.0f), totalMoneyOut(0.0f),
-    remainMoneyIn(0.0f), totalMoneyIn(0.0f)
+    remainMoneyIn(0.0f), totalMoneyIn(0.0f),
+    isModifyExchange(isModifyExchange),
+    isRollback(false), stockCode(myStockCodeName::getInstance())
 {
     ui->setupUi(this);
     ui->timeDateTimeEdit->setDateTime(QDateTime::currentDateTime());

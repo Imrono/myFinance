@@ -238,6 +238,7 @@ bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInf
     query.clear();
     abnormalCode = NORMAL;
     abnormalInfo = STR("EXCHANGE CHECK OK");
+    Q_UNUSED(abnormalCode);
     return true;
 }
 

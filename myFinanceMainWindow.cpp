@@ -10,9 +10,9 @@
 
 myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::myFinanceMainWindow), statusLabel(this),
-    stockCode(myStockCodeName::getInstance()),
-    assetModel(nullptr), exchangeModel(nullptr), editAsset(nullptr),
+    ui(new Ui::myFinanceMainWindow),
+    assetModel(nullptr), exchangeModel(nullptr),
+    stockCode(myStockCodeName::getInstance()), statusLabel(this), editAsset(nullptr),
     deleteAsset(nullptr), insertAsset(nullptr), modifyAsset(nullptr)
 {
     assetModel = new myAssetModel(this);
