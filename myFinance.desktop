@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=/home/kang/build-ui_myFinance-Desktop_Qt_5_5_1_GCC_32bit-Release/myFinance
+Name=myFinance
+GenericName=myFinance
+Icon=/home/kang/myFinance/resource/icon/myLogo.ico
+Terminal=false
+Categories=
