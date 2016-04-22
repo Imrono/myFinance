@@ -5,6 +5,10 @@
 #include <QDialog>
 #include <QWidget>
 #include <QButtonGroup>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
 
 #include "myDatabaseDatatype.h"
 #include "myAssetNode.h"
@@ -106,6 +110,14 @@ private:
     void updateIncomeType();
 
     float getTotalMoney(int index);
+
+    QComboBox      *uiAccount1;
+    QDoubleSpinBox *uiMoney;
+    QComboBox      *uiAccount2;
+    QLineEdit      *uiCode;
+    QSpinBox       *uiAmount;
+    QDoubleSpinBox *uiPrice;
+    QLineEdit      *uiName;
 };
 
 #endif // MYFINANCEEXCHANGEWINDOW_H

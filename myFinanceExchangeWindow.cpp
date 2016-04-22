@@ -14,7 +14,11 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, bool isModifyE
     remainMoneyOut(0.0f), totalMoneyOut(0.0f),
     remainMoneyIn(0.0f), totalMoneyIn(0.0f),
     isModifyExchange(isModifyExchange),
-    isRollback(false), stockCode(myStockCodeName::getInstance())
+    isRollback(false), stockCode(myStockCodeName::getInstance()),
+    uiAccount1(ui->moneyAccount), uiMoney(ui->moneySpinBox),
+    uiAccount2(nullptr), uiCode(ui->codeLineEdit),
+    uiAmount(ui->spinBoxAmount), uiPrice(ui->spinBoxPrice),
+    uiName(ui->lineEditName)
 {
     ui->setupUi(this);
     ui->timeDateTimeEdit->setDateTime(QDateTime::currentDateTime());
@@ -196,6 +200,53 @@ void myFinanceExchangeWindow::on_tabWidget_currentChanged(int index)
 {
     dataSource = index;
     qDebug() << dataSource;
+
+    switch (dataSource) {
+    case 0: {
+        uiAccount1 = ui->moneyAccount;
+        uiMoney = ui->moneySpinBox;
+        uiAccount2 = nullptr;
+        uiCode = ui->codeLineEdit;
+        uiAmount = ui->spinBoxAmount;
+        uiPrice = ui->spinBoxPrice;
+        uiName = ui->lineEditName;
+        break;
+    }
+    case 1: {
+        uiAccount1 = ui->moneyAccountOut;
+        uiMoney = ui->moneyTransferSpinBox;
+        uiAccount2 = ui->moneyAccountIn;
+        uiCode = nullptr;
+        uiAmount = nullptr;
+        uiPrice = ui->moneyTransferSpinBox;
+        uiName = nullptr;
+        break;
+    }
+    case 2: {
+        uiAccount1 = nullptr;
+        uiMoney = nullptr;
+        uiAccount2 = ui->moneyAccountIncome;
+        uiCode = nullptr;
+        uiAmount = nullptr;
+        uiPrice = ui->spinBoxIncome;
+        uiName = ui->lineEditIncomeType;
+        break;
+    }
+    case 3: {
+        uiAccount1 = ui->moneyAccountExpend;
+        uiMoney = ui->spinBoxExpend;
+        uiAccount2 = nullptr;
+        uiCode = ui->lineEditExpendCode;
+        uiAmount = nullptr;
+        uiPrice = ui->moneyTransferSpinBox;
+        uiName = ui->lineEditExpendName;
+        break;
+    }
+    default:
+        qDebug() << "error tabWidget_currentChanged";
+        break;
+    }
+
     updataData();
     updateExchangeFee();
 }
@@ -204,6 +255,7 @@ void myFinanceExchangeWindow::on_tabWidget_currentChanged(int index)
 /// 2. tab改变后调用
 /// 3. accepted
 void myFinanceExchangeWindow::updataData() {
+    data.fee    = ui->exchangeFeeSpinBox->value();
     if (0 == dataSource) {
         data.account1 = ui->moneyAccount->itemText(ui->moneyAccount->currentIndex());
         data.money  = ui->moneySpinBox->value();
@@ -217,9 +269,9 @@ void myFinanceExchangeWindow::updataData() {
         }
         data.price  = ui->spinBoxPrice->text().toDouble();
         data.name   = ui->lineEditName->text();
-} else if (1 == dataSource) {
+    } else if (1 == dataSource) {
         data.account1 = ui->moneyAccountOut->itemText(ui->moneyAccountOut->currentIndex());
-        data.money    = -ui->moneyTransferSpinBox->value();
+        data.money    = -ui->moneyTransferSpinBox->value() + data.fee;
 
         data.account2 = ui->moneyAccountIn->itemText(ui->moneyAccountIn->currentIndex());
         data.code     = MY_CASH;
@@ -249,7 +301,7 @@ void myFinanceExchangeWindow::updataData() {
         data.amount   = 1;
         data.price    = ui->moneyTransferSpinBox->value();
     } else {}
-    data.fee    = ui->exchangeFeeSpinBox->value();
+
     updateExchangeType();   //负责data.type部分的更新和显示
 
     qDebug() << "data.time "     << data.time << ","
