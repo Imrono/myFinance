@@ -254,7 +254,7 @@ myRootAccountAsset::~myRootAccountAsset() {
 bool myRootAccountAsset::initial() {
     if (!myFinanceDatabase::isConnected) {
         if (!myFinanceDatabase::connectDB())
-            return nullptr;
+            return false;
     }
 
     QSqlQuery query;
@@ -304,7 +304,7 @@ bool myRootAccountAsset::initial() {
         }
     } else { // 如果查询失败，用下面的方法得到具体数据库返回的原因
         qDebug() << "Fetch Account Data to MySql error: " << query.lastError().text();
-        return nullptr;
+        return false;
     }
 
     query.finish();
@@ -342,7 +342,7 @@ bool myRootAccountAsset::initial() {
         }
     } else { // 如果查询失败，用下面的方法得到具体数据库返回的原因
         qDebug() << "Fetch Asset Data to MySql error: " << query.lastError().text();
-        return nullptr;
+        return false;
     }
 
     query.finish();
