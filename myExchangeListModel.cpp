@@ -145,7 +145,7 @@ bool myExchangeListModel::initial() {
         qDebug() << "num of exchange data : " << i;
     } else { // 如果查询失败，用下面的方法得到具体数据库返回的原因
         qDebug() << "Fetch Account Data to MySql error: " << query.lastError().text();
-        return nullptr;
+        return false;
     }
     setStringList(list);
     return true;
