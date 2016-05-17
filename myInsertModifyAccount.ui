@@ -90,6 +90,12 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>lineEditCode</tabstop>
+  <tabstop>lineEditName</tabstop>
+  <tabstop>lineEditType</tabstop>
+  <tabstop>lineEditNote</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

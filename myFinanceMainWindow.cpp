@@ -390,6 +390,9 @@ void myFinanceMainWindow::modifyExchange_clicked() {
     bool ans = true;
     QString info = STR("更改资产变化");
     int line = ui->listView->currentIndex().row();
+    if (line < 0) {
+        return;
+    }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
     myFinanceExchangeWindow exWin(this, true);
     exWin.setWindowTitle(info);
@@ -422,6 +425,9 @@ void myFinanceMainWindow::deleteExchange_clicked() {
     bool ans = true;
     QString info = STR("撤消资产变化");
     int line = ui->listView->currentIndex().row();
+    if (line < 0) {
+        return;
+    }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
     myModifyExchange dial(this);
     dial.setWindowTitle(info);

@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     myFinanceDatabase::connectDB();
+    myFinanceDatabase::initialDB();
 
     myStockCodeName::initial();
 

@@ -46,7 +46,8 @@ public:
 
 private:
     QStringList list;
-    myExchangeData *data;
+    QList<myExchangeData> data;
+    //myExchangeData *data;
 
     QString updateStrFromExchangeData(const myExchangeData &exchangeData);
 };
