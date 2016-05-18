@@ -1118,6 +1118,49 @@
   <zorder>tabWidget</zorder>
   <zorder>checkBoxRollback</zorder>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>moneyAccount</tabstop>
+  <tabstop>codeLineEdit</tabstop>
+  <tabstop>lineEditName</tabstop>
+  <tabstop>spinBoxAmount</tabstop>
+  <tabstop>spinBoxPrice</tabstop>
+  <tabstop>radioBuy</tabstop>
+  <tabstop>radioSell</tabstop>
+  <tabstop>feeRateSpinBox</tabstop>
+  <tabstop>radioSH</tabstop>
+  <tabstop>radioSZ</tabstop>
+  <tabstop>radioOther</tabstop>
+  <tabstop>timeDateTimeEdit</tabstop>
+  <tabstop>typeLineEdit</tabstop>
+  <tabstop>exchangeFeeSpinBox</tabstop>
+  <tabstop>checkBoxRollback</tabstop>
+  <tabstop>moneySpinBoxTotal</tabstop>
+  <tabstop>moneySpinBox</tabstop>
+  <tabstop>moneySpinBoxRemain</tabstop>
+  <tabstop>moneyAccountOut</tabstop>
+  <tabstop>moneyAccountIn</tabstop>
+  <tabstop>moneySpinBoxTotalOut</tabstop>
+  <tabstop>moneySpinBoxRemainOut</tabstop>
+  <tabstop>moneyTransferSpinBox</tabstop>
+  <tabstop>moneySpinBoxTotalIn</tabstop>
+  <tabstop>moneySpinBoxRemainIn</tabstop>
+  <tabstop>moneyAccountIncome</tabstop>
+  <tabstop>radioSalary</tabstop>
+  <tabstop>radioOtherIncome</tabstop>
+  <tabstop>spinBoxIncome</tabstop>
+  <tabstop>lineEditIncomeType</tabstop>
+  <tabstop>moneyAccountExpend</tabstop>
+  <tabstop>spinBoxExpend</tabstop>
+  <tabstop>lineEditExpendName</tabstop>
+  <tabstop>lineEditExpendCode</tabstop>
+  <tabstop>radioButton</tabstop>
+  <tabstop>radioButton_3</tabstop>
+  <tabstop>radioButton_5</tabstop>
+  <tabstop>radioButton_6</tabstop>
+  <tabstop>radioButton_2</tabstop>
+  <tabstop>radioButton_4</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

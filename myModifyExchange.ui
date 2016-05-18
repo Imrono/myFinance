@@ -189,12 +189,12 @@
     <rect>
      <x>41</x>
      <y>197</y>
-     <width>101</width>
+     <width>71</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>是否重做</string>
+    <string>重做</string>
    </property>
   </widget>
  </widget>
