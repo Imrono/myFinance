@@ -101,16 +101,21 @@ public:
 
 };
 
+///
+/// \brief The myRootAccountAsset class
+/// 1. fetch/push data from/to the DataBase
+/// 2. sort the data
+///
 class myRootAccountAsset {
 public:
     myRootAccountAsset();
     ~myRootAccountAsset();
 
-    bool initial();
-    bool callback();
+    bool initial(bool isFetchAccount = true, bool isFetchAsset = true);
+    bool callback(bool isRemoveAccount = true, bool isRemoveAsset = true);
 
     myAssetNode *getRootNode() const { return const_cast<myAssetNode *>(&rootNode);}
-    myAssetNode *getAccountNode(QString accountCode) const;
+    myAssetNode *getAccountNode(const QString &accountCode) const;
     myAssetNode *getAccountNode(int i) const;
     int getAccountCount() const { return rootNode.children.count();}
 
@@ -122,15 +127,17 @@ public:
     bool setAccountPosition(const QString &accountCode, int pos);
     bool setAssetPosition(const QString &accountCode, const QString &assetCode, int pos);
 
-    void sortPositionAsset(myAssetNode *accountNode);
-
 private:
     myAssetNode rootNode;
 
+    bool fetchAccount();
+    bool fetchAsset();
+
     bool deleteOneAsset(const QString &accountCode, const QString &assetCode);
 
-    void doSortPosition();
+    void doSortPosition(bool isSortAccount = true, bool isSortAsset = true);
     void sortPositionAccount();
+    void sortPositionAsset(myAssetNode *accountNode);
 };
 
 #endif // MYASSETNODE_H

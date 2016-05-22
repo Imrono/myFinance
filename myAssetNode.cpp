@@ -257,14 +257,53 @@ myRootAccountAsset::~myRootAccountAsset() {
     callback();
 }
 
-bool myRootAccountAsset::initial() {
+bool myRootAccountAsset::initial(bool isFetchAccount, bool isFetchAsset) {
     if (!myFinanceDatabase::isConnected) {
         if (!myFinanceDatabase::connectDB())
             return false;
     }
 
-    QSqlQuery query;
     ///读“资产帐户”表
+    if (isFetchAccount) {
+        if (fetchAccount()) {
+            doSortPosition(true, false);
+        } else {
+            return false;
+        }
+    }
+    ///读“资产”表
+    if (isFetchAsset || isFetchAccount) {
+        if (fetchAsset()) {
+            doSortPosition(false, true);
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+bool myRootAccountAsset::callback(bool isRemoveAccount, bool isRemoveAsset) {
+    if (!isRemoveAccount && !isRemoveAsset) {
+        return true;
+    }
+    int assetAccountCount = rootNode.children.count();
+    for (int i = assetAccountCount-1; i >= 0; i--) {
+        int assetHoldCount = rootNode.children.at(i)->children.count();
+        for (int j = assetHoldCount-1; j >= 0; j--) {
+            delete rootNode.children.at(i)->children.at(j);
+        }
+        rootNode.children.at(i)->children.clear();
+
+        if (isRemoveAccount)
+            delete rootNode.children.at(i);
+    }
+    if (isRemoveAccount)
+        rootNode.children.clear();
+
+    return true;
+}
+///读“资产帐户”表
+bool myRootAccountAsset::fetchAccount() {
+    QSqlQuery query;
     if(query.exec(STR("select * from 资产帐户"))) {
         int i = 0;
         while(query.next()) { // 定位结果到下一条记录
@@ -304,9 +343,12 @@ bool myRootAccountAsset::initial() {
         qDebug() << "Fetch Account Data to MySql error: " << query.lastError().text();
         return false;
     }
-
-    query.finish();
-    ///读“资产”表
+    query.clear();
+    return true;
+}
+///读“资产”表
+bool myRootAccountAsset::fetchAsset() {
+    QSqlQuery query;
     if(query.exec(STR("select * from 资产"))) {
         int i = 0;
         while(query.next()) { // 定位结果到下一条记录
@@ -324,41 +366,24 @@ bool myRootAccountAsset::initial() {
             myAssetNode *hold = new myAssetNode(myAssetNode::nodeHolds, data);
 
             myAssetNode *account = getAccountNode(tmpHold.accountCode);
-            hold->parent = account;
-            account->addChild(hold);
-
-            i++;
-            qDebug() << "account:" << tmpHold.accountCode << " asset:" << tmpHold.assetCode;
+            if (nullptr == account) {
+                continue;
+            } else {
+                hold->parent = account;
+                account->addChild(hold);
+                i++;
+                qDebug() << "account:" << tmpHold.accountCode << " asset:" << tmpHold.assetCode;
+            }
         }
     } else { // 如果查询失败，用下面的方法得到具体数据库返回的原因
         qDebug() << "Fetch Asset Data to MySql error: " << query.lastError().text();
         return false;
     }
-
-    query.finish();
-    ///读“资产变化”表
-
-    doSortPosition();
-
-    return true;
-}
-bool myRootAccountAsset::callback() {
-    int assetAccountCount = rootNode.children.count();
-    for (int i = assetAccountCount-1; i >= 0; i--) {
-        int assetHoldCount = rootNode.children.at(i)->children.count();
-        for (int j = assetHoldCount-1; j >= 0; j--) {
-            delete rootNode.children.at(i)->children.at(j);
-        }
-        rootNode.children.at(i)->children.clear();
-
-        delete rootNode.children.at(i);
-    }
-    rootNode.children.clear();
-
+    query.clear();
     return true;
 }
 
-myAssetNode *myRootAccountAsset::getAccountNode(QString accountCode) const {
+myAssetNode *myRootAccountAsset::getAccountNode(const QString &accountCode) const {
     for ( int i = 0; i != rootNode.children.size(); ++i ) {
         if ((rootNode.children.at(i)->nodeData).value<myAssetAccount>().code == accountCode ) {
             return rootNode.children.at(i);
@@ -611,12 +636,10 @@ bool myRootAccountAsset::setAccountPosition(const QString &accountCode, int pos)
 }
 bool myRootAccountAsset::setAssetPosition(const QString &accountCode, const QString &assetCode, int pos) {
     QSqlQuery query;
-    QString filter   = STR("资产帐户代号='%1' AND 代号='%2'")
-                    .arg(accountCode).arg(assetCode);
+    QString filter   = STR("资产帐户代号='%1' AND 代号='%2'").arg(accountCode).arg(assetCode);
     QString execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
         if (1 == myFinanceDatabase::getQueryRows(execWord)) {
-        execWord = STR("UPDATE 资产 SET pos='%1' WHERE %2")
-                .arg(pos).arg(filter);
+        execWord = STR("UPDATE 资产 SET pos='%1' WHERE %2").arg(pos).arg(filter);
         qDebug() << execWord;
         if(query.exec(execWord)) {
             myAssetNode *tmpAccount = getAccountNode(accountCode);
@@ -636,14 +659,17 @@ bool myRootAccountAsset::setAssetPosition(const QString &accountCode, const QStr
     } else { return false;}
 }
 
-void myRootAccountAsset::doSortPosition() {
+void myRootAccountAsset::doSortPosition(bool isSortAccount, bool isSortAsset) {
     /// SORT ACCOUNT
-    sortPositionAccount();
-
+    if (isSortAccount) {
+        sortPositionAccount();
+    }
     /// SORT ASSET
-    int numOfAccount = rootNode.children.count();
-    for (int i = 0; i < numOfAccount; i++) {
-        sortPositionAsset(rootNode.children.at(i));
+    if (isSortAsset) {
+        int numOfAccount = rootNode.children.count();
+        for (int i = 0; i < numOfAccount; i++) {
+            sortPositionAsset(rootNode.children.at(i));
+        }
     }
 }
 void myRootAccountAsset::sortPositionAccount() {

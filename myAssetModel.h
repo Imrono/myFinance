@@ -31,7 +31,7 @@ public:
 
     bool doExchange(const myExchangeData &data, bool reflash = true);
     bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
-    bool doReflashAssetData();
+    bool doReflashData(bool isAccount = true, bool isAsset = true);
 
     void doUpdatePrice();
     float doGetTotalAsset();

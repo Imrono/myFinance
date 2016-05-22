@@ -195,7 +195,7 @@ void myFinanceMainWindow::on_reflash_clicked()
     statusLabel.setText(STR("正在读取股票代码"));
     ui->reflash->setEnabled(false);
     qDebug() << STR("刷新 clicked");
-    assetModel->doReflashAssetData();
+    assetModel->doReflashData();
     stockCode->getStockCode();
     ui->treeView->expandAll();
     qDebug() << STR("刷新 clicked finished");

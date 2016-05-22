@@ -238,7 +238,7 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
 bool myAssetModel::doExchange(const myExchangeData &data, bool reflash) {
     bool ans = myAssetNode::doExchange(data, root);
     if (reflash) {
-        ans = doReflashAssetData() && ans;
+        ans = doReflashData() && ans;
         qDebugNodeData();
     }
     return ans;
@@ -247,10 +247,10 @@ bool myAssetModel::checkExchange(const myExchangeData &data, QString &abnormalIn
     return myAssetNode::checkExchange(data, abnormalInfo);
 }
 
-bool myAssetModel::doReflashAssetData() {
+bool myAssetModel::doReflashData(bool isAccount, bool isAsset) {
     beginResetModel();
-    bool ans = root.callback();
-    ans = root.initial() && ans;
+    bool ans = root.callback(isAccount, isAsset);
+    ans = root.initial(isAccount, isAsset) && ans;
     endResetModel();
     return ans;
 }
@@ -339,17 +339,19 @@ void myAssetModel::qDebugNodeData()
 bool myAssetModel::doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data) {
     qDebug() << "myAssetModel";
     bool ans = root.doChangeAssetDirectly(node, type, data);
-    doReflashAssetData();
+    doReflashData(myAssetNode::nodeAccount == type, myAssetNode::nodeHolds == type);
     return ans;
 }
 bool myAssetModel::doInsertAccount(myAccountData data) {
-    bool ans = root.doInsertAccount(data);
-    doReflashAssetData();
+    beginResetModel();
+    bool ans = root.callback(true, false);
+    ans = root.doInsertAccount(data) && ans;
+    ans = root.initial(true, false) && ans;
+    endResetModel();
     return ans;
 }
 
 bool myAssetModel::doUpDown(bool isUp, myAssetNode *node) {
-    bool ans = false;
     int pos = -1;
     int pos2 = -1;
     if (myAssetNode::nodeAccount == node->type) {
@@ -374,17 +376,17 @@ bool myAssetModel::doUpDown(bool isUp, myAssetNode *node) {
         pos2 = pos+1;
     }
 
+    bool ans = true;
     if (myAssetNode::nodeAccount == node->type) {
         root.setAccountPosition(node->nodeData.value<myAssetAccount>().code, pos2);
         root.setAccountPosition(node->parent->children.at(pos)->nodeData.value<myAssetAccount>().code, pos);
-        ans = true;
     } else if (myAssetNode::nodeHolds == node->type) {
         const myAssetHold &hold1 = node->nodeData.value<myAssetHold>();
         const myAssetHold &hold2 = node->parent->children.at(pos)->nodeData.value<myAssetHold>();
         root.setAssetPosition(hold1.accountCode, hold1.assetCode, pos2);
         root.setAssetPosition(hold2.accountCode, hold2.assetCode, pos);
-        ans = true;
     } else { return false;}
-    doReflashAssetData();
+    doReflashData(myAssetNode::nodeAccount == node->type, myAssetNode::nodeHolds == node->type);
+
     return ans;
 }
