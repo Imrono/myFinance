@@ -153,7 +153,7 @@ void myFinanceExchangeWindow::on_buttonBox_accepted()
 }
 
 void myFinanceExchangeWindow::on_spinBoxAmount_valueChanged(int value) {
-    data.amount = -buySellFlag*qAbs(value);
+    data.amount = buySellFlag*qAbs(value);
     updateBuySell();
 }
 void myFinanceExchangeWindow::on_spinBoxPrice_valueChanged(double value) {
@@ -173,7 +173,7 @@ void myFinanceExchangeWindow::on_radioSell_clicked() {
 void myFinanceExchangeWindow::on_exchangeFeeSpinBox_valueChanged(double value) {
     data.fee = value;
     if (0 == dataSource) {
-        data.money = buySellFlag * static_cast<float>(data.amount) * data.price - data.fee;
+        data.money = static_cast<float>(data.amount) * data.price - data.fee;
         ui->moneySpinBox->setValue(data.money);
     }
     qDebug() << "#exchangeFeeSpinBox_valueChanged# fee:" << value
@@ -182,13 +182,14 @@ void myFinanceExchangeWindow::on_exchangeFeeSpinBox_valueChanged(double value) {
 void myFinanceExchangeWindow::updateBuySell() {
     data.buySell = grpBuySell->checkedId() == BUY ? static_cast<bool>(BUY) : static_cast<bool>(SELL);
     buySellFlag = grpBuySell->checkedId() == SELL ? 1.0f : -1.0f;
+    data.amount = buySellFlag*qAbs(data.amount);
 
     // market, price, amount, fee 决定 money
     // market, price*amount, buy/sell 决定 fee
     if (grpMarket->checkedId() != OTHER) {
         updateExchangeFee();
     }
-    data.money = buySellFlag*static_cast<float>(data.amount) * data.price - data.fee;
+    data.money = static_cast<float>(data.amount) * data.price - data.fee;
     ui->moneySpinBox->setValue(data.money);
 
     qDebug() << "#updateBuySell# data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
