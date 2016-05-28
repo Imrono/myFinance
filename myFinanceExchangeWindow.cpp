@@ -19,7 +19,7 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, bool isModifyE
     uiAccount1(ui->moneyAccount), uiMoney(ui->moneySpinBox),
     uiAccount2(nullptr), uiCode(ui->codeLineEdit),
     uiAmount(ui->spinBoxAmount), uiPrice(ui->spinBoxPrice),
-    uiName(ui->lineEditName)
+    uiName(ui->lineEditName), _myIncomeExpenses(this)
 {
     ui->setupUi(this);
     ui->timeDateTimeEdit->setDateTime(QDateTime::currentDateTime());
@@ -64,7 +64,6 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, bool isModifyE
 
     initial(static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode());
 
-    incomeExpensesUi.initIncomeExpensesType();
     initIncomeExpensesRadioButton();
 
     updateExchangeFee();
@@ -164,11 +163,7 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
     }
 }
 void myFinanceExchangeWindow::initIncomeExpensesRadioButton() {
-    QRadioButton *btn = nullptr;
-    const QList<incomeExpensesUi> myList = incomeExpensesUi.getIncomeType();
-    for (int i = 0; i < myList.count(); i++) {
-        btn = new QRadioButton(incomeExpensesUi.getIncomeType()[i].name, this);
-    }
+    _myIncomeExpenses.getIncomeExpensesLayouts(ui->gridIncome, ui->gridExpenses);
 }
 
 

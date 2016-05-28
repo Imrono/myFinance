@@ -918,6 +918,17 @@
       </item>
      </layout>
     </widget>
+    <widget class="QWidget" name="gridLayoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>510</x>
+       <y>20</y>
+       <width>160</width>
+       <height>80</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridIncome"/>
+    </widget>
    </widget>
    <widget class="QWidget" name="tabExpend">
     <attribute name="title">
@@ -1100,6 +1111,17 @@
        </layout>
       </item>
      </layout>
+    </widget>
+    <widget class="QWidget" name="gridLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>100</y>
+       <width>160</width>
+       <height>80</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridExpenses"/>
     </widget>
    </widget>
   </widget>

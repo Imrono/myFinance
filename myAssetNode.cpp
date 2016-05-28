@@ -593,7 +593,6 @@ bool myRootAccountAsset::doInsertAccount(myAccountData data) {
         execWord = STR("INSERT INTO 资产帐户 VALUES ('%1', '%2', '%3', '%4', %5)")
                 .arg(data.Code).arg(data.Name).arg(data.Type).arg(data.Note).arg(rootNode.children.count());
         qDebug() << execWord;
-        query.finish();
         if(query.exec(execWord)) {
             myAssetAccount tmpAccount(data);
             QVariant tmpData;

@@ -98,7 +98,8 @@ bool myFinanceDatabase::initialDB() {
                        "名称 varchar(16) PRIMARY KEY, "
                        "类别 varchar(16), "
                        "备注 varchar(32), "
-                       "pos int(4) DEFAULT -1);");
+                       "pos int(4) DEFAULT -1)"
+                       "收支 varchar(16);");
         qDebug() << execWord;
         if(!query.exec(execWord)) {
             return false;

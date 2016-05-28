@@ -128,7 +128,7 @@ private:
 
     ///tab2, tab3
     void initIncomeExpensesRadioButton();
-    myMoneyIncomeExpenses incomeExpensesUi;
+    myMoneyIncomeExpenses _myIncomeExpenses;
 };
 
 #endif // MYFINANCEEXCHANGEWINDOW_H
