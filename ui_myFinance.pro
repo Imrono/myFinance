@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     assetChangeDelegate.cpp \
     myDatabaseDatatype.cpp \
     myModifyExchange.cpp \
-    myGlobal.cpp
+    myGlobal.cpp \
+    myMoneyIncomeExpenses.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \
@@ -40,7 +41,8 @@ HEADERS  += myFinanceMainWindow.h \
     myInsertModifyAsset.h \
     assetChangeDelegate.h \
     myModifyExchange.h \
-    myGlobal.h
+    myGlobal.h \
+    myMoneyIncomeExpenses.h
 
 FORMS    += myFinanceMainWindow.ui \
     myFinanceExchangeWindow.ui \

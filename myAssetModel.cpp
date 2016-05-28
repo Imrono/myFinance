@@ -278,7 +278,10 @@ float myAssetModel::doGetTotalAsset() {
                 const myAssetHold &holds = tmpAccount->children.at(j)->nodeData.value<myAssetHold>();
                 if (holds.assetCode == "cash" ) {
                     totalValue += holds.price;
-                } else {
+                } else if (holds.type == STR("货币基金")) {
+                    totalValue += holds.price * holds.amount;
+                }
+                else {
                     float price = currentPrice(stockPrice.getStockPriceRt(), holds.assetCode);
                     totalValue += static_cast<float>(holds.amount) * price;
                 }

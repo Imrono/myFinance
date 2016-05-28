@@ -3,6 +3,7 @@
 
 #include <QtCore/QMap>
 #include <QtWidgets/QCheckBox>
+#include <QtWidgets/QRadioButton>
 #include "myFinanceMainWindow.h"
 
 #include <QtDebug>
@@ -63,6 +64,9 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, bool isModifyE
 
     initial(static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode());
 
+    incomeExpensesUi.initIncomeExpensesType();
+    initIncomeExpensesRadioButton();
+
     updateExchangeFee();
 
     ui->checkBoxRollback->setChecked(isRollback);
@@ -82,9 +86,11 @@ myFinanceExchangeWindow::~myFinanceExchangeWindow()
 
 void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
     this->rootNode = &rootNode;
-
+    int localCount = 0;
     ui->moneyAccount->clear();
     // 交易：资产变化
+    exchangeIdx2AccountIdx.clear();
+    localCount = 0;
     for (int i = 0; i < rootNode.getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode.getAccountNode(i);
         const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
@@ -95,9 +101,14 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
         } else {
             code = accountData.code;
         }
+        exchangeIdx2AccountIdx.insert(localCount, i);
         ui->moneyAccount->addItem(icon, code);
+        localCount++;
     }
     // 转帐：资金变化
+    inIdx2AccountIdx.clear();
+    outIdx2AccountIdx.clear();
+    localCount = 0;
     for (int i = 0; i < rootNode.getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode.getAccountNode(i);
         for (int j = 0; j < accountNode->children.count(); j++) {
@@ -112,13 +123,19 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
                 } else {
                     code = accountData.code;
                 }
+                inIdx2AccountIdx.insert(localCount, i);
+                outIdx2AccountIdx.insert(localCount, i);
                 ui->moneyAccountOut->addItem(icon, code);
                 ui->moneyAccountIn->addItem(icon, code);
+                localCount++;
                 break;
             }
         }
     }
     // 收入，支出
+    incomeIdx2AccountIdx.clear();
+    spendIdx2AccountIdx.clear();
+    localCount = 0;
     for (int i = 0; i < rootNode.getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode.getAccountNode(i);
         if (accountNode->nodeData.value<myAssetAccount>().type.contains(STR("券商"))) {
@@ -136,13 +153,24 @@ void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
                 } else {
                     code = accountData.code;
                 }
+                incomeIdx2AccountIdx.insert(localCount, i);
+                spendIdx2AccountIdx.insert(localCount, i);
                 ui->moneyAccountIncome->addItem(icon, code);
                 ui->moneyAccountExpend->addItem(icon, code);
+                localCount ++;
                 break;
             }
         }
     }
 }
+void myFinanceExchangeWindow::initIncomeExpensesRadioButton() {
+    QRadioButton *btn = nullptr;
+    const QList<incomeExpensesUi> myList = incomeExpensesUi.getIncomeType();
+    for (int i = 0; i < myList.count(); i++) {
+        btn = new QRadioButton(incomeExpensesUi.getIncomeType()[i].name, this);
+    }
+}
+
 
 void myFinanceExchangeWindow::on_buttonBox_accepted()
 {
@@ -455,12 +483,6 @@ void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
     updateMarketInfo();
 }
 
-void myFinanceExchangeWindow::on_feeRateSpinBox_valueChanged(double feeRate)
-{
-    qDebug() << STR("佣金") << feeRate;
-    commisionRate = feeRate * 0.001f;
-    updateExchangeFee();
-}
 void myFinanceExchangeWindow::updateExchangeFee() {
     double fee = 0.0f;
     double amount = qAbs(static_cast<double>(data.amount));
@@ -587,7 +609,8 @@ void myFinanceExchangeWindow::on_moneySpinBox_valueChanged(double value) {
     qDebug() << "#moneySpinBox_valueChanged# remainMoney:" << remainMoney << " data.money:" << data.money << " totalMoney:" << totalMoney;
 }
 void myFinanceExchangeWindow::on_moneyAccount_currentIndexChanged(int index) {
-    totalMoney = getTotalMoney(index);
+    int nodeIdx = exchangeIdx2AccountIdx.find(index).value();
+    totalMoney = getTotalMoney(nodeIdx);
     if (isModifyExchange) {
         totalMoney -= data.money;
     }
@@ -596,11 +619,18 @@ void myFinanceExchangeWindow::on_moneyAccount_currentIndexChanged(int index) {
     ui->moneySpinBoxRemain->setValue(remainMoney);
     qDebug() << "#moneyAccount_currentIndexChanged# isModifyExchange:" << isModifyExchange
              << " totalMoney:" << totalMoney << " remainMoney:" << remainMoney;
+
+    myAssetNode *accountNode = rootNode->getAccountNode(nodeIdx);
+    commisionRate = accountNode->nodeData.value<myAssetAccount>().note.toDouble();
+    ui->feeRateSpinBox->setValue(commisionRate*1000);
+    qDebug() << STR("佣金") << commisionRate;
+    updateExchangeFee();
 }
 
 /// tab2
 void myFinanceExchangeWindow::on_moneyAccountOut_currentIndexChanged(int index) {
-    totalMoneyOut = getTotalMoney(index);
+    int idx = outIdx2AccountIdx.find(index).value();
+    totalMoneyOut = getTotalMoney(idx);
     if (isModifyExchange) {
         totalMoneyOut -= data.money;
     }
@@ -611,7 +641,8 @@ void myFinanceExchangeWindow::on_moneyAccountOut_currentIndexChanged(int index) 
              << " totalMoneyOut:" << totalMoneyOut << " remainMoneyOut:" << remainMoneyOut;
 }
 void myFinanceExchangeWindow::on_moneyAccountIn_currentIndexChanged(int index) {
-    totalMoneyIn = getTotalMoney(index);
+    int idx = inIdx2AccountIdx.find(index).value();
+    totalMoneyIn = getTotalMoney(idx);
     if (isModifyExchange) {
         totalMoneyIn -= data.money;
     }

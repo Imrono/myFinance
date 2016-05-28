@@ -10,9 +10,12 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 
+#include <QMap>
+
 #include "myDatabaseDatatype.h"
 #include "myAssetNode.h"
 #include "myStockCodeName.h"
+#include "myMoneyIncomeExpenses.h"
 
 namespace Ui {
 class myFinanceExchangeWindow;
@@ -60,8 +63,6 @@ private slots:
 
     void on_nameLineEdit_editingFinished();
 
-    void on_feeRateSpinBox_valueChanged(double feeRate);
-
     void on_radioSalary_clicked();
 
     void on_radioOtherIncome_clicked();
@@ -98,6 +99,12 @@ private:
     bool isModifyExchange;
     bool isRollback;
 
+    QMap<int, int> exchangeIdx2AccountIdx;
+    QMap<int, int> inIdx2AccountIdx;
+    QMap<int, int> outIdx2AccountIdx;
+    QMap<int, int> incomeIdx2AccountIdx;
+    QMap<int, int> spendIdx2AccountIdx;
+
     const myStockCodeName *stockCode; //用于从code到name的推导
     const myRootAccountAsset *rootNode;
 
@@ -118,6 +125,10 @@ private:
     QSpinBox       *uiAmount;
     QDoubleSpinBox *uiPrice;
     QLineEdit      *uiName;
+
+    ///tab2, tab3
+    void initIncomeExpensesRadioButton();
+    myMoneyIncomeExpenses incomeExpensesUi;
 };
 
 #endif // MYFINANCEEXCHANGEWINDOW_H
