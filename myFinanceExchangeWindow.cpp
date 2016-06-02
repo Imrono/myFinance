@@ -4,557 +4,68 @@
 #include <QtCore/QMap>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QRadioButton>
+#include <QMessageBox>
 #include "myFinanceMainWindow.h"
 
 #include <QtDebug>
 
-myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, bool isModifyExchange) :
+myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     QDialog(parent), ui(new Ui::myFinanceExchangeWindow),
-    grpBuySell(nullptr), commisionRate(0.0f),
-    remainMoney(0.0f), totalMoney(0.0f),
-    remainMoneyOut(0.0f), totalMoneyOut(0.0f),
-    remainMoneyIn(0.0f), totalMoneyIn(0.0f),
-    isModifyExchange(isModifyExchange),
     isRollback(false), stockCode(myStockCodeName::getInstance()),
-    uiAccount1(ui->moneyAccount), uiMoney(ui->moneySpinBox),
-    uiAccount2(nullptr), uiCode(ui->codeLineEdit),
-    uiAmount(ui->spinBoxAmount), uiPrice(ui->spinBoxPrice),
-    uiName(ui->lineEditName), _myIncomeExpenses(this)
+    _currentTab(nullptr)
 {
     ui->setupUi(this);
+
     ui->timeDateTimeEdit->setDateTime(QDateTime::currentDateTime());
+    ui->typeLineEdit->setReadOnly(true);
 
-    grpBuySell = new QButtonGroup(this);
-    grpBuySell->addButton(ui->radioBuy);
-    grpBuySell->addButton(ui->radioSell);
-    grpBuySell->setExclusive(true);         //设为互斥
-    grpBuySell->setId(ui->radioBuy,  BUY);  //radioBuy的Id设为0
-    grpBuySell->setId(ui->radioSell, SELL); //radioBuy的Id设为1
-    ui->radioBuy->setChecked(true);
-    // updateExchangeType(); 下面有更新
+    rootNode = &static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode();
+    _myTabs[TAB_STOCK] = new myExchangeFormStock   (rootNode, STR("股票交易"), this);
+    _myTabs[TAB_TRANS] = new myExchangeFormTransfer(rootNode, STR("转帐"),     this);
+    _myTabs[TAB_INCOM] = new myExchangeFormIncome  (rootNode, STR("收入"),     this);
+    _myTabs[TAB_EXPES] = new myExchangeFormExpenses(rootNode, STR("支出"),     this);
 
-    grpMarket = new QButtonGroup(this);
-    grpMarket->addButton(ui->radioSH);
-    grpMarket->addButton(ui->radioSZ);
-    grpMarket->addButton(ui->radioOther);
-    grpMarket->setExclusive(true);           //设为互斥
-    grpMarket->setId(ui->radioSH, SH);       //radioBuy的Id设为0
-    grpMarket->setId(ui->radioSZ, SZ);       //radioBuy的Id设为1
-    grpMarket->setId(ui->radioOther, OTHER); //radioBuy的Id设为2
-    //ui->radioSH->setChecked(true);
-    ui->radioOther->setChecked(true);
-    updateMarketInfo();
-
-    grpIncomeType = new QButtonGroup(this);
-    grpIncomeType->addButton(ui->radioSalary);
-    grpIncomeType->addButton(ui->radioOtherIncome);
-    grpIncomeType->setExclusive(true);              //设为互斥
-    grpIncomeType->setId(ui->radioSalary, 0);       //radioSalary的Id设为0
-    grpIncomeType->setId(ui->radioOtherIncome, 1);  //radioOtherIncome的Id设为1
-    ui->radioSalary->setChecked(true);
-    ui->lineEditIncomeType->setDisabled(true);
-
-    ui->lineEditExpendCode->setText(STR("类别"));
-    ui->lineEditExpendName->setText(STR("名称"));
-
-    dataSource = 0;
+    dataSource = TAB_STOCK;
+    _currentTab = _myTabs[dataSource];
+    ui->tabWidget->addTab(_myTabs[TAB_STOCK], _myTabs[TAB_STOCK]->getTabText());
+    ui->tabWidget->addTab(_myTabs[TAB_TRANS], _myTabs[TAB_TRANS]->getTabText());
+    ui->tabWidget->addTab(_myTabs[TAB_INCOM], _myTabs[TAB_INCOM]->getTabText());
+    ui->tabWidget->addTab(_myTabs[TAB_EXPES], _myTabs[TAB_EXPES]->getTabText());
     ui->tabWidget->setCurrentIndex(dataSource);
-    updataData();
-    updateBuySell();
 
-    initial(static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode());
-
-    initIncomeExpensesRadioButton();
-
-    updateExchangeFee();
-
+    // ROLLBACK CHECKBOX
     ui->checkBoxRollback->setChecked(isRollback);
     ui->checkBoxRollback->hide();
 }
 
-myFinanceExchangeWindow::~myFinanceExchangeWindow()
-{
-    if (!grpIncomeType)
-        delete grpIncomeType;
-    if (!grpMarket)
-        delete grpMarket;
-    if (!grpBuySell)
-        delete grpBuySell;
+myFinanceExchangeWindow::~myFinanceExchangeWindow() {
     delete ui;
 }
 
-void myFinanceExchangeWindow::initial(const myRootAccountAsset &rootNode) {
-    this->rootNode = &rootNode;
-    int localCount = 0;
-    ui->moneyAccount->clear();
-    // 交易：资产变化
-    exchangeIdx2AccountIdx.clear();
-    localCount = 0;
-    for (int i = 0; i < rootNode.getAccountCount(); i++) {
-        myAssetNode *accountNode = rootNode.getAccountNode(i);
-        const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
-        QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
-        QString code;
-        if (accountData.name.contains(STR("银行"))) {
-            code = "**** **** " + accountData.code.right(4);
-        } else {
-            code = accountData.code;
-        }
-        exchangeIdx2AccountIdx.insert(localCount, i);
-        ui->moneyAccount->addItem(icon, code);
-        localCount++;
-    }
-    // 转帐：资金变化
-    inIdx2AccountIdx.clear();
-    outIdx2AccountIdx.clear();
-    localCount = 0;
-    for (int i = 0; i < rootNode.getAccountCount(); i++) {
-        myAssetNode *accountNode = rootNode.getAccountNode(i);
-        for (int j = 0; j < accountNode->children.count(); j++) {
-            myAssetNode *holdNode = accountNode->children.at(j);
-            QString assetCode = holdNode->nodeData.value<myAssetHold>().assetCode;
-            if (assetCode.contains("cash")) {
-                const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
-                QIcon   icon =QIcon( QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
-                QString code;
-                if (accountData.name.contains(STR("银行"))) {
-                    code = "**** **** " + accountData.code.right(4);
-                } else {
-                    code = accountData.code;
-                }
-                inIdx2AccountIdx.insert(localCount, i);
-                outIdx2AccountIdx.insert(localCount, i);
-                ui->moneyAccountOut->addItem(icon, code);
-                ui->moneyAccountIn->addItem(icon, code);
-                localCount++;
-                break;
-            }
-        }
-    }
-    // 收入，支出
-    incomeIdx2AccountIdx.clear();
-    spendIdx2AccountIdx.clear();
-    localCount = 0;
-    for (int i = 0; i < rootNode.getAccountCount(); i++) {
-        myAssetNode *accountNode = rootNode.getAccountNode(i);
-        if (accountNode->nodeData.value<myAssetAccount>().type.contains(STR("券商"))) {
-                continue;
-        }
-        for (int j = 0; j < accountNode->children.count(); j++) {
-            myAssetNode *holdNode = accountNode->children.at(j);
-            QString assetCode = holdNode->nodeData.value<myAssetHold>().assetCode;
-            if (assetCode.contains("cash")) {
-                const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
-                QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
-                QString code;
-                if (accountData.name.contains(STR("银行"))) {
-                    code = "**** **** " + accountData.code.right(4);
-                } else {
-                    code = accountData.code;
-                }
-                incomeIdx2AccountIdx.insert(localCount, i);
-                spendIdx2AccountIdx.insert(localCount, i);
-                ui->moneyAccountIncome->addItem(icon, code);
-                ui->moneyAccountExpend->addItem(icon, code);
-                localCount ++;
-                break;
-            }
-        }
-    }
-}
-void myFinanceExchangeWindow::initIncomeExpensesRadioButton() {
-    _myIncomeExpenses.getIncomeExpensesLayouts(ui->gridIncome, ui->gridExpenses);
-}
-
-
-void myFinanceExchangeWindow::on_buttonBox_accepted()
-{
-    qDebug() << STR("资产变化 accepted");
-    data.time     = ui->timeDateTimeEdit->dateTime();
-    data.type     = ui->typeLineEdit->text();
-    updataData();
-}
-
-void myFinanceExchangeWindow::on_spinBoxAmount_valueChanged(int value) {
-    data.amount = buySellFlag*qAbs(value);
-    updateBuySell();
-}
-void myFinanceExchangeWindow::on_spinBoxPrice_valueChanged(double value) {
-    data.price = value;
-    updateBuySell();
-}
-void myFinanceExchangeWindow::on_radioBuy_clicked() {
-    qDebug() << "#radioBuy_clicked#";
-    updateBuySell();
-    updateExchangeType();
-}
-void myFinanceExchangeWindow::on_radioSell_clicked() {
-    qDebug() << "#radioSell_clicked#";
-    updateBuySell();
-    updateExchangeType();
-}
 void myFinanceExchangeWindow::on_exchangeFeeSpinBox_valueChanged(double value) {
-    data.fee = value;
-    if (0 == dataSource) {
-        data.money = static_cast<float>(data.amount) * data.price - data.fee;
-        ui->moneySpinBox->setValue(data.money);
-    }
-    qDebug() << "#exchangeFeeSpinBox_valueChanged# fee:" << value
-             << " data.money:" << data.money << " data.amount:" << data.amount << " data.price:" << data.price;
-}
-void myFinanceExchangeWindow::updateBuySell() {
-    data.buySell = grpBuySell->checkedId() == BUY ? static_cast<bool>(BUY) : static_cast<bool>(SELL);
-    buySellFlag = grpBuySell->checkedId() == SELL ? 1.0f : -1.0f;
-    data.amount = buySellFlag*qAbs(data.amount);
-
-    // market, price, amount, fee 决定 money
-    // market, price*amount, buy/sell 决定 fee
-    if (grpMarket->checkedId() != OTHER) {
-        updateExchangeFee();
-    }
-    data.money = static_cast<float>(data.amount) * data.price - data.fee;
-    ui->moneySpinBox->setValue(data.money);
-
-    qDebug() << "#updateBuySell# data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
-             << "data.amount " << data.amount << ","
-             << "data.money "  << data.money  << ",";
+    qDebug() << "#exchangeFeeSpinBox_valueChanged# fee:" << value;
+    _currentTab->exchangeWindowFeeChanged(value);
 }
 
 void myFinanceExchangeWindow::on_tabWidget_currentChanged(int index)
 {
+    // 1. 检查之前tab中数据的一致性
+    if (!checkDataConsistence()) {
+        QMessageBox::warning(this, "checkDataConsistence", "checkDataConsistence Failed", QMessageBox::Discard, QMessageBox::Discard);
+    }
+    // 2. 更新新tab
     dataSource = index;
-    qDebug() << dataSource;
-
-    switch (dataSource) {
-    case 0: {
-        uiAccount1 = ui->moneyAccount;
-        uiMoney = ui->moneySpinBox;
-        uiAccount2 = nullptr;
-        uiCode = ui->codeLineEdit;
-        uiAmount = ui->spinBoxAmount;
-        uiPrice = ui->spinBoxPrice;
-        uiName = ui->lineEditName;
-        break;
-    }
-    case 1: {
-        uiAccount1 = ui->moneyAccountOut;
-        uiMoney = ui->moneyTransferSpinBox;
-        uiAccount2 = ui->moneyAccountIn;
-        uiCode = nullptr;
-        uiAmount = nullptr;
-        uiPrice = ui->moneyTransferSpinBox;
-        uiName = nullptr;
-        break;
-    }
-    case 2: {
-        uiAccount1 = nullptr;
-        uiMoney = nullptr;
-        uiAccount2 = ui->moneyAccountIncome;
-        uiCode = nullptr;
-        uiAmount = nullptr;
-        uiPrice = ui->spinBoxIncome;
-        uiName = ui->lineEditIncomeType;
-        break;
-    }
-    case 3: {
-        uiAccount1 = ui->moneyAccountExpend;
-        uiMoney = ui->spinBoxExpend;
-        uiAccount2 = nullptr;
-        uiCode = ui->lineEditExpendCode;
-        uiAmount = nullptr;
-        uiPrice = ui->moneyTransferSpinBox;
-        uiName = ui->lineEditExpendName;
-        break;
-    }
-    default:
-        qDebug() << "error tabWidget_currentChanged";
-        break;
-    }
-
-    updataData();
-    updateExchangeFee();
-}
-
-/// 1. 构造时调用
-/// 2. tab改变后调用
-/// 3. accepted
-void myFinanceExchangeWindow::updataData() {
-    data.fee    = ui->exchangeFeeSpinBox->value();
-    if (0 == dataSource) {
-        data.account1 = ui->moneyAccount->itemText(ui->moneyAccount->currentIndex());
-        data.money  = ui->moneySpinBox->value();
-
-        data.account2 = data.account1;
-        data.code   = ui->codeLineEdit->text();
-        if (data.code == "cash") {
-            data.amount = 1;
-        } else {
-            data.amount = ui->spinBoxAmount->text().toInt() * -buySellFlag;
-        }
-        data.price  = ui->spinBoxPrice->text().toDouble();
-        data.name   = ui->lineEditName->text();
-    } else if (1 == dataSource) {
-        data.account1 = ui->moneyAccountOut->itemText(ui->moneyAccountOut->currentIndex());
-        data.money    = -ui->moneyTransferSpinBox->value() + data.fee;
-
-        data.account2 = ui->moneyAccountIn->itemText(ui->moneyAccountIn->currentIndex());
-        data.code     = MY_CASH;
-        data.name     = STR("现有资金");
-        data.amount   = 1;
-        data.price    = ui->moneyTransferSpinBox->value();
-    } else if (2 == dataSource) {
-        data.account2 = ui->moneyAccountIncome->itemText(ui->moneyAccountIncome->currentIndex());
-        data.code     = MY_CASH;
-        if (grpIncomeType->checkedId() == 0) {
-            data.name = STR("工资收入");
-        } else if (grpIncomeType->checkedId() == 1) {
-            data.name = ui->lineEditIncomeType->text();
-        } else {}
-        data.amount   = 1;
-        data.price    = ui->spinBoxIncome->value();
-
-        data.account1 = OTHER_ACCOUNT;
-        data.money    = -data.price;
-    } else if (3 == dataSource) {
-        data.account1 = ui->moneyAccountExpend->itemText(ui->moneyAccountExpend->currentIndex());
-        data.money    = -ui->spinBoxExpend->value();
-
-        data.account2 = OTHER_ACCOUNT;
-        data.code     = ui->lineEditExpendCode->text();
-        data.name     = ui->lineEditExpendName->text();
-        data.amount   = 1;
-        data.price    = ui->moneyTransferSpinBox->value();
-    } else {}
-
-    updateExchangeType();   //负责data.type部分的更新和显示
-
-    qDebug() << "data.time "     << data.time << ","
-             << "data.type "     << data.type << ","
-             << "data.account1 " << data.account1 << ","
-             << "data.money "    << data.money;
-    qDebug() << "data.account2 " << data.account2 << ","
-             << "data.code "     << data.code << ","
-             << "data.name "     << data.name << ","
-             << "data.amount "   << data.amount << ","
-             << "data.price "    << data.price;
-}
-
-void myFinanceExchangeWindow::on_radioSH_clicked() {
-    qDebug() << "#radioSH_clicked#";
-    updateMarketInfo();
-}
-void myFinanceExchangeWindow::on_radioSZ_clicked() {
-    qDebug() << "#radioSZ_clicked#";
-    updateMarketInfo();
-}
-void myFinanceExchangeWindow::on_radioOther_clicked() {
-    qDebug() << "#radioOther_clicked#";
-    updateMarketInfo();
-}
-
-void myFinanceExchangeWindow::updateMarketInfo() {
-    QString market;
-    switch (grpMarket->checkedId()) {
-    case SH:
-        market = "sh.";
-        break;
-    case SZ:
-        market = "sz.";
-        break;
-    case OTHER:
-        market = "";
-        break;
-    default:
-        break;
-    }
-    int pointIndex = data.code.indexOf(QString("."));
-    data.code.remove(0, pointIndex+1);
-    data.code.insert(0, market);
-    if (data.code == "sh.sh") {
-        data.code = "sh.";
-    } else if (data.code == "sz.sz") {
-        data.code = "sz.";
-    } else {}
-    ui->codeLineEdit->setText(data.code);
-
-    updateExchangeFee();
-    if (stockCode->getIsInitialed()) {
-        data.name = stockCode->findNameFromCode(data.code);
-        ui->lineEditName->setText(data.name);
-    }
-    qDebug() << "updateMarketInfo()" << ","
-             << "data.code"  << data.code << ","
-             << (grpMarket->checkedId() == SH ? "radioSH" :
-                 grpMarket->checkedId() == SZ ? "radioSZ" :
-                 grpMarket->checkedId() == OTHER ? "radioOther" : "radioUnknown");
-}
-
-void myFinanceExchangeWindow::on_codeLineEdit_textChanged(const QString &str)
-{
-    data.code = str;
-
-    // 上海，深圳通过股票代码自动判断
-    int pointIndex = data.code.indexOf(QString("."));
-    int len = data.code.size();
-    if (len - pointIndex > 2 &&
-        (grpMarket->checkedId() == SH ||
-         grpMarket->checkedId() == SZ)) {
-        QString subStr = data.code.mid(pointIndex+1, 2);
-        if (subStr == "30" || subStr == "00") {
-            ui->radioSZ->setChecked(true);
-        } else if (subStr == "60") {
-            ui->radioSH->setChecked(true);
-        } else {
-            subStr = data.code.mid(pointIndex+1, 4);
-            if (subStr == "cash") {
-                ui->radioOther->setChecked(true);
-            } else {}
-        }
-    } else if (grpMarket->checkedId() == OTHER) {
-        QString subStr = data.code.left(3);
-        if (subStr == "sh.") {
-            ui->radioSH->setChecked(true);
-        } else if (subStr == "sz.") {
-            ui->radioSZ->setChecked(true);
-        } else {}
-    }
-
-    updateMarketInfo();
-
-    if (data.code == "cash") {
-        data.amount = 1;
-        ui->spinBoxAmount->setValue(data.amount);
-        ui->spinBoxAmount->setDisabled(true);
-        ui->labelPrice->setText(STR("资金："));
-    } else {
-        if (!ui->spinBoxAmount->isEnabled()) {
-            ui->spinBoxAmount->setEnabled(true);
-            ui->labelPrice->setText(STR("单价："));
-        }
-    }
-}
-void myFinanceExchangeWindow::on_codeLineEdit_editingFinished()
-{
-    int count = stockCode->codeName.count();
-    qDebug() << STR("代号EditLine") << ui->codeLineEdit->text() << "(" << count << ")";
-    if (OTHER != grpMarket->checkedId()) {
-        if (stockCode->getIsInitialed()) {
-            data.name = stockCode->findNameFromCode(data.code);
-            ui->lineEditName->setText(data.name);
-        }
-    }
-}
-void myFinanceExchangeWindow::on_nameLineEdit_editingFinished()
-{
-    QString str = ui->lineEditName->text();
-    int count = stockCode->codeName.count();
-    qDebug() << STR("名称EditLine") << str << "(" << count << ")";
-
-    QMap<QString,QString>::const_iterator it = stockCode->codeName.begin();
-    for (; it != stockCode->codeName.end(); ++it) {
-        if (it.value() == str) {
-            data.code = it.key();
-            QRegExp rx("([a-zA-Z]*)[.][0-9]*");
-            int pos = data.code.indexOf(rx);
-            if (pos >= 0) {
-                QString a = rx.cap(1);
-                if (a == "sh") {
-                    ui->radioSH->setChecked(true);
-                } else if (a == "sz") {
-                    ui->radioSZ->setChecked(true);
-                } else {
-                    ui->radioOther->setChecked(true);
-                }
-                updateMarketInfo();
-            }
-
-            ui->codeLineEdit->setText(data.code);
-            qDebug() << data.code << it.value();
-            return;
-        }
-    }
-
-    ui->radioOther->setChecked(true);
-    updateMarketInfo();
-}
-
-void myFinanceExchangeWindow::updateExchangeFee() {
-    double fee = 0.0f;
-    double amount = qAbs(static_cast<double>(data.amount));
-
-    double fee1 = 0.0f; //佣金
-    double fee2 = 0.0f; //过户费
-    double fee3 = 0.0f; //印花税
-
-    if (ui->tabWidget->currentIndex() == 0) {
-        if (OTHER != grpMarket->checkedId()) {
-            fee1 = data.price * amount * commisionRate;
-            if (fee1 < 5.0f) {
-                fee1 = 5.0f;
-            } else {}
-        }
-
-        if (SH == grpMarket->checkedId()) {
-            fee2 = data.price * amount * 0.02f*0.001f;  //0.02‰
-        } else {}
-
-        if (SELL == grpBuySell->checkedId()) {
-            fee3 = data.price * amount * 0.001f;
-        } else {}
-    }
-    fee = fee1 + fee2 + fee3;
-    data.fee = fee;
-    ui->exchangeFeeSpinBox->setValue(fee);
-}
-
-/// 1. updataData
-/// 2. radioBuy/Sell变化时
-/// 3. lineEditIncomeType or radioSalary/Other Changed
-void myFinanceExchangeWindow::updateExchangeType() {
-    if (0 == dataSource) {
-        if (grpBuySell->checkedId() == BUY) {
-            data.type = STR("证券买入");
-        } else {
-            data.type = STR("证券卖出");
-        }
-    } else if (1 == dataSource) {
-        data.type = STR("转帐");
-    } else if (2 == dataSource) {
-        data.type = STR("收入");
-        updateIncomeType();
-    } else if (3 == dataSource) {
-        data.type = STR("支出");
-    } else {}
-
-    ui->typeLineEdit->setText(data.type);
-}
-
-void myFinanceExchangeWindow::on_radioSalary_clicked() {
-    qDebug() << "radioSalary clicked";
-    updateExchangeType();
-}
-void myFinanceExchangeWindow::on_radioOtherIncome_clicked() {
-    qDebug() << "radioOtherIncome clicked";
-    updateExchangeType();
-}
-void myFinanceExchangeWindow::on_lineEditIncomeType_textChanged(const QString &str) {
-    data.name = str;
-}
-void myFinanceExchangeWindow::updateIncomeType() {
-    if (grpIncomeType->checkedId() == 0) {
-        data.name = STR("工资收入");
-        ui->lineEditIncomeType->setDisabled(true);
-    } else if (grpIncomeType->checkedId() == 1) {
-        ui->lineEditIncomeType->setEnabled(true);
-        data.name = ui->lineEditIncomeType->text();
-    } else {}
+    _currentTab = _myTabs[dataSource];
+    qDebug() << "## CURRENT TAB: " << dataSource << " ##";
+    // 3. 更新新tab中的公共数据
+    _currentTab->recoverTypeAndFee();
 }
 
 void myFinanceExchangeWindow::showRollback() {
     ui->checkBoxRollback->setVisible(true);
 }
 void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rollbackShow) {
-    data = exchangeData;
+    const myExchangeData data = exchangeData;
     ui->timeDateTimeEdit->setDateTime(data.time);
     ui->typeLineEdit->setText(data.type);
     if (qAbs(data.fee) > MONEY_EPS) {
@@ -568,28 +79,16 @@ void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rol
     }
 
     if (data.type.contains(STR("证券"))) {
-        ui->tabWidget->setCurrentIndex(0);
-
-        int index = ui->moneyAccount->findText(data.account2);
-        ui->moneyAccount->setCurrentIndex(index);
-        ui->lineEditName->setText(data.name);
-        ui->codeLineEdit->setText(data.code);
-        ui->spinBoxPrice->setValue(data.price);
-        ui->spinBoxAmount->setValue(data.amount);
+        ui->tabWidget->setCurrentIndex(TAB_STOCK);
     }  else if (data.type.contains(STR("转帐"))) {
-        ui->tabWidget->setCurrentIndex(1);
-
-        int indexOut = ui->moneyAccountOut->findText(data.account1);
-        ui->moneyAccountOut->setCurrentIndex(indexOut);
-        int indexIn = ui->moneyAccountIn->findText(data.account2);
-        ui->moneyAccountIn->setCurrentIndex(indexIn);
-
-        ui->moneyTransferSpinBox->setValue(data.price);
+        ui->tabWidget->setCurrentIndex(TAB_TRANS);
     } else if (data.type.contains(STR("收入"))) {
-        ui->tabWidget->setCurrentIndex(2);
+        ui->tabWidget->setCurrentIndex(TAB_INCOM);
     } else if (data.type.contains(STR("支出"))) {
-        ui->tabWidget->setCurrentIndex(3);
+        ui->tabWidget->setCurrentIndex(TAB_EXPES);
     } else {}
+
+    _currentTab->setUI(data);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -597,77 +96,27 @@ void myFinanceExchangeWindow::on_checkBoxRollback_clicked() {
     isRollback = (Qt::Checked == ui->checkBoxRollback->checkState());
     qDebug() << "checkBoxRollback_clicked: isRollback:" << isRollback;
 }
-void myFinanceExchangeWindow::on_moneySpinBox_valueChanged(double value) {
-    data.money = value;
-    remainMoney = totalMoney + data.money;
-    ui->moneySpinBoxRemain->setValue(remainMoney);
-    qDebug() << "#moneySpinBox_valueChanged# remainMoney:" << remainMoney << " data.money:" << data.money << " totalMoney:" << totalMoney;
-}
-void myFinanceExchangeWindow::on_moneyAccount_currentIndexChanged(int index) {
-    int nodeIdx = exchangeIdx2AccountIdx.find(index).value();
-    totalMoney = getTotalMoney(nodeIdx);
-    if (isModifyExchange) {
-        totalMoney -= data.money;
-    }
-    ui->moneySpinBoxTotal->setValue(totalMoney);
-    remainMoney = totalMoney + data.money;
-    ui->moneySpinBoxRemain->setValue(remainMoney);
-    qDebug() << "#moneyAccount_currentIndexChanged# isModifyExchange:" << isModifyExchange
-             << " totalMoney:" << totalMoney << " remainMoney:" << remainMoney;
 
-    myAssetNode *accountNode = rootNode->getAccountNode(nodeIdx);
-    commisionRate = accountNode->nodeData.value<myAssetAccount>().note.toDouble();
-    ui->feeRateSpinBox->setValue(commisionRate*1000);
-    qDebug() << STR("佣金") << commisionRate;
-    updateExchangeFee();
+void myFinanceExchangeWindow::setExchangeWindowUiType(const QString type) {
+    ui->typeLineEdit->setText(type);
+}
+void myFinanceExchangeWindow::setExchangeWindowUiFee(double fee) {
+    ui->exchangeFeeSpinBox->setValue(fee);
+}
+void myFinanceExchangeWindow::getCommonExchangeData(myExchangeData &tmpData) {
+    tmpData.time = ui->timeDateTimeEdit->dateTime();
+    tmpData.type = ui->typeLineEdit->text();
+    tmpData.fee  = ui->exchangeFeeSpinBox->value();
 }
 
-/// tab2
-void myFinanceExchangeWindow::on_moneyAccountOut_currentIndexChanged(int index) {
-    int idx = outIdx2AccountIdx.find(index).value();
-    totalMoneyOut = getTotalMoney(idx);
-    if (isModifyExchange) {
-        totalMoneyOut -= data.money;
+bool myFinanceExchangeWindow::checkDataConsistence() {
+    myExchangeData tmpData;
+    _currentTab->recordExchangeData(tmpData);
+    if (tmpData == _currentTab->getExchangeData()) {
+        qDebug() << "tab " << _currentTab->getTabText() << "Data Consistence OK";
+        return true;
+    } else {
+        qDebug() << "tab " << _currentTab->getTabText() << "Data Consistence NOK";
+        return false;
     }
-    ui->moneySpinBoxTotalOut->setValue(totalMoneyOut);
-    remainMoneyOut = totalMoneyOut + data.money;
-    ui->moneySpinBoxRemainOut->setValue(remainMoneyOut);
-    qDebug() << "#moneyAccountOut_currentIndexChanged# isModifyExchange:" << isModifyExchange
-             << " totalMoneyOut:" << totalMoneyOut << " remainMoneyOut:" << remainMoneyOut;
-}
-void myFinanceExchangeWindow::on_moneyAccountIn_currentIndexChanged(int index) {
-    int idx = inIdx2AccountIdx.find(index).value();
-    totalMoneyIn = getTotalMoney(idx);
-    if (isModifyExchange) {
-        totalMoneyIn -= data.money;
-    }
-    ui->moneySpinBoxTotalIn->setValue(totalMoneyIn);
-    remainMoneyIn = totalMoneyIn - data.money;
-    ui->moneySpinBoxRemainIn->setValue(remainMoneyIn);
-    qDebug() << "#moneyAccountIn_currentIndexChanged# isModifyExchange:" << isModifyExchange
-             << " totalMoneyIn:" << totalMoneyIn << " remainMoneyIn:" << remainMoneyIn;
-}
-float myFinanceExchangeWindow::getTotalMoney(int index) {
-    float tmpTotalMoney = 0.0f;
-    myAssetNode *accountNode = rootNode->getAccountNode(index);
-    int numAsset = accountNode->children.size();
-    for (int i = 0; i < numAsset; i++) {
-        myAssetNode *asset = accountNode->children.at(i);
-        const myAssetHold &assetHold = (asset->nodeData).value<myAssetHold>();
-        if (assetHold.assetCode == MY_CASH) {
-            qDebug() << assetHold.accountCode << " " << assetHold.assetCode << " " << assetHold.price;
-            tmpTotalMoney = assetHold.price;
-            break;
-        }
-    }
-    return tmpTotalMoney;
-}
-void myFinanceExchangeWindow::on_moneyTransferSpinBox_valueChanged(double value) {
-    data.price = value;
-    data.money = -data.price;
-
-    remainMoneyOut = totalMoneyOut + data.money;
-    ui->moneySpinBoxRemainOut->setValue(remainMoneyOut);
-    remainMoneyIn = totalMoneyIn - data.money;
-    ui->moneySpinBoxRemainIn->setValue(remainMoneyIn);
 }

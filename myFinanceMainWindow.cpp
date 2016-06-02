@@ -394,7 +394,7 @@ void myFinanceMainWindow::modifyExchange_clicked() {
         return;
     }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myFinanceExchangeWindow exWin(this, true);
+    myFinanceExchangeWindow exWin(this);
     exWin.setWindowTitle(info);
     exWin.setUI(originExchangeData, true);
     if(exWin.exec() == QDialog::Accepted) {

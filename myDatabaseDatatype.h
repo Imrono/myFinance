@@ -29,14 +29,21 @@ enum databaseExchangeType {
     numOfType = 4
 };
 
+struct myExchangeDetail {
+
+};
+
 struct myExchangeData {
     myExchangeData();
     myExchangeData operator -();
     myExchangeData &operator =(const myExchangeData &data);
+    bool &operator ==(const myExchangeData &data);
 
     int       id;
     QDateTime time;
     QString   type;
+    float     fee;      //ÕıÊı£¬Ê¹ÓÃÊ±Òª¼õÈ¥
+
     QString   account1;
     float     money;
     QString   account2;
@@ -44,8 +51,9 @@ struct myExchangeData {
     QString   name;
     float     price;
     int       amount;
-    bool      buySell;
-    float     fee;      //æ­£æ•°ï¼Œä½¿ç”¨æ—¶è¦å‡å»
+
+    // additional data
+    myExchangeDetail detail;
 };
 
 struct myAssetAccount;

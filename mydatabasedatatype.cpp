@@ -11,7 +11,6 @@ myExchangeData::myExchangeData() {
     name     = "";
     price    = 0.0f;
     amount   = 0;
-    buySell  = true;
     fee      = 0.0f;
 }
 myExchangeData myExchangeData::operator -() {
@@ -37,11 +36,27 @@ myExchangeData &myExchangeData::operator =(const myExchangeData &data) {
     name     = data.name;
     price    = data.price;
     amount   = data.amount;
-    buySell  = data.buySell;
     fee      = data.fee;
     return *this;
 }
 
+bool &myExchangeData::operator ==(const myExchangeData &data) {
+    bool ans = true;
+    ans = (time     == data.time)          && ans;
+    ans = (type     == data.type)          && ans;
+    ans = (account1 == data.account1)      && ans;
+    ans = ((money-data.money) < MONEY_EPS) && ans;
+    ans = (account2 == data.account2)      && ans;
+    ans = (code     == data.code)          && ans;
+    ans = (name     == data.name)          && ans;
+    ans = ((price-data.price) < MONEY_EPS) && ans;
+    ans = (amount   == data.amount)        && ans;
+    ans = ((fee-data.fee) < MONEY_EPS)     && ans;
+    return ans;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
 bool myAccountData::isSameAccountData(const myAccountData &data1, const myAccountData &data2) {
     return (   data1.Code == data2.Code
             && data1.Name == data2.Name

@@ -26,7 +26,12 @@ SOURCES += main.cpp\
     myDatabaseDatatype.cpp \
     myModifyExchange.cpp \
     myGlobal.cpp \
-    myMoneyIncomeExpenses.cpp
+    myMoneyIncomeExpenses.cpp \
+    myExchangeFormIncome.cpp \
+    myExchangeFormStock.cpp \
+    myExchangeFormExpenses.cpp \
+    myExchangeFormTransfer.cpp \
+    myExchangeFormTabBase.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \
@@ -42,13 +47,22 @@ HEADERS  += myFinanceMainWindow.h \
     assetChangeDelegate.h \
     myModifyExchange.h \
     myGlobal.h \
-    myMoneyIncomeExpenses.h
+    myMoneyIncomeExpenses.h \
+    myExchangeFormIncome.h \
+    myExchangeFormStock.h \
+    myExchangeFormExpenses.h \
+    myExchangeFormTransfer.h \
+    myExchangeFormTabBase.h
 
 FORMS    += myFinanceMainWindow.ui \
     myFinanceExchangeWindow.ui \
     myInsertModifyAccount.ui \
     myInsertModifyAsset.ui \
-    myModifyExchange.ui
+    myModifyExchange.ui \
+    myExchangeFormIncome.ui \
+    myExchangeFormStock.ui \
+    myExchangeFormExpenses.ui \
+    myExchangeFormTransfer.ui
 
 CONFIG(debug, debug|release) {
     CONFIG += console
