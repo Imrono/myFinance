@@ -210,8 +210,8 @@ void myFinanceMainWindow::on_updatePrice_clicked()
 }
 
 void myFinanceMainWindow::treeViewContextMenu(const QPoint& pt) {
-    Q_UNUSED(pt);
-    myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
+    QModelIndex index = ui->treeView->indexAt(pt);
+    myAssetNode *node = assetModel->nodeFromIndex(index);
     editAsset->clear();
     if (myAssetNode::nodeAccount == node->type) {
         insertAsset->setText(STR("添加资产"));
