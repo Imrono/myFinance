@@ -91,42 +91,6 @@ myFinanceMainWindow::~myFinanceMainWindow()
         delete exchangeModel;
         exchangeModel = nullptr;
     }
-    if (nullptr != deleteExchange) {
-        delete deleteExchange;
-        deleteExchange = nullptr;
-    }
-    if (nullptr != modifyExchange) {
-        delete modifyExchange;
-        modifyExchange = nullptr;
-    }
-    if (nullptr != editExchange) {
-        delete editExchange;
-        editExchange = nullptr;
-    }
-    if (nullptr != upAsset) {
-        delete upAsset;
-        upAsset = nullptr;
-    }
-    if (nullptr != downAsset) {
-        delete downAsset;
-        downAsset = nullptr;
-    }
-    if (nullptr != modifyAsset) {
-        delete modifyAsset;
-        modifyAsset = nullptr;
-    }
-    if (nullptr != insertAsset) {
-        delete insertAsset;
-        insertAsset = nullptr;
-    }
-    if (nullptr != deleteAsset) {
-        delete deleteAsset;
-        deleteAsset = nullptr;
-    }
-    if (nullptr != editAsset) {
-        delete editAsset;
-        editAsset = nullptr;
-    }
 }
 
 void myFinanceMainWindow::priceDataReflashed() {
@@ -382,7 +346,14 @@ void myFinanceMainWindow::doUpDown(bool isUp) {
 }
 
 void myFinanceMainWindow::listViewContextMenu(const QPoint& pt) {
-    Q_UNUSED(pt);
+    QModelIndex index = ui->listView->indexAt(pt);
+    if (!index.isValid()) {
+        modifyExchange->setDisabled(true);
+        deleteExchange->setDisabled(true);
+    } else {
+        modifyExchange->setEnabled(true);
+        deleteExchange->setEnabled(true);
+    }
 
     editExchange->exec(QCursor::pos());
 }

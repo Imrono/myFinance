@@ -13,13 +13,6 @@ public:
     myExchangeListModel();
     ~myExchangeListModel();
 
-    void test() {
-        //beginResetModel();
-        list.append("aaaa");
-        //endResetModel();
-        setStringList(list);
-    }
-
     bool doExchange(const myExchangeData &data, bool isDelete = false);
     bool initial();
 
@@ -44,10 +37,12 @@ public:
 
     void coordinatorModifyExchange(const myExchangeData &originData, const myExchangeData &targetData, int &changeIdx);
 
+    QVariant data(const QModelIndex &index, int role) const;
+    QString *stringFromIndex(const QModelIndex &index) const;
+
 private:
     QStringList list;
-    QList<myExchangeData> data;
-    //myExchangeData *data;
+    QList<myExchangeData> strData;
 
     QString updateStrFromExchangeData(const myExchangeData &exchangeData);
 };

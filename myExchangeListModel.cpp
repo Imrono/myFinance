@@ -46,9 +46,9 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
                 return false;
             } else {
                 for (int i = 0; i < list.count(); i++) {
-                    if (data[i].id == exchangeData.id) {
+                    if (strData[i].id == exchangeData.id) {
                         QString exchangeStr = updateStrFromExchangeData(exchangeData);
-                        data.replace(i, exchangeData);
+                        strData.replace(i, exchangeData);
                         list.replace(i, exchangeStr);
                     }
                 }
@@ -97,7 +97,7 @@ QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exc
 
 bool myExchangeListModel::initial() {
     list.clear();
-    data.clear();
+    strData.clear();
 
     QSqlQuery query;
     ///读“资产变化”表
@@ -119,7 +119,7 @@ bool myExchangeListModel::initial() {
             QString exchangeStr = updateStrFromExchangeData(tmpExchange);
             // 下标为i的list与data要保持对应的
             list.append(exchangeStr);
-            data.append(tmpExchange);
+            strData.append(tmpExchange);
             //data[i] = tmpExchange;
             i ++;
         }
@@ -133,7 +133,7 @@ bool myExchangeListModel::initial() {
 }
 
 myExchangeData myExchangeListModel::getDataFromRow(int row) {
-    return data[row];
+    return strData[row];
 }
 
 void myExchangeListModel::coordinatorModifyExchange(const myExchangeData &originData, const myExchangeData &targetData, int &changeIdx) {
@@ -159,5 +159,25 @@ void myExchangeListModel::coordinatorModifyExchange(const myExchangeData &origin
     if (   originData.time != targetData.time
         || originData.type != targetData.type) {
         changeIdx |= OTHER_EXCHANGE;
+    }
+}
+
+QVariant myExchangeListModel::data(const QModelIndex &index, int role) const {
+    if (Qt::DisplayRole == role) {
+        if (stringFromIndex(index)) {
+            return list[index.row()];
+        } else {
+            return QVariant();
+        }
+    } else {
+        return QVariant();
+    }
+    return QVariant();
+}
+QString *myExchangeListModel::stringFromIndex(const QModelIndex &index) const {
+    if (index.isValid()) {
+        return const_cast<QString *>(&list[index.row()]);
+    } else {
+        return nullptr;
     }
 }
