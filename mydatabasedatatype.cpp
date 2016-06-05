@@ -40,7 +40,7 @@ myExchangeData &myExchangeData::operator =(const myExchangeData &data) {
     return *this;
 }
 
-bool &myExchangeData::operator ==(const myExchangeData &data) {
+bool myExchangeData::operator ==(const myExchangeData &data) {
     bool ans = true;
     ans = (time     == data.time)          && ans;
     ans = (type     == data.type)          && ans;

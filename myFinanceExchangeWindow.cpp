@@ -9,10 +9,10 @@
 
 #include <QtDebug>
 
-myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
-    QDialog(parent), ui(new Ui::myFinanceExchangeWindow),
+myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, unsigned winType) :
+    QDialog(parent), ui(new Ui::myFinanceExchangeWindow), winType(winType),
     isRollback(false), stockCode(myStockCodeName::getInstance()),
-    _currentTab(nullptr)
+    _currentTab(nullptr), dataSource(-1)
 {
     ui->setupUi(this);
 
@@ -20,18 +20,23 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent) :
     ui->typeLineEdit->setReadOnly(true);
 
     rootNode = &static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode();
-    _myTabs[TAB_STOCK] = new myExchangeFormStock   (rootNode, STR("股票交易"), this);
-    _myTabs[TAB_TRANS] = new myExchangeFormTransfer(rootNode, STR("转帐"),     this);
-    _myTabs[TAB_INCOM] = new myExchangeFormIncome  (rootNode, STR("收入"),     this);
-    _myTabs[TAB_EXPES] = new myExchangeFormExpenses(rootNode, STR("支出"),     this);
 
-    dataSource = TAB_STOCK;
-    _currentTab = _myTabs[dataSource];
-    ui->tabWidget->addTab(_myTabs[TAB_STOCK], _myTabs[TAB_STOCK]->getTabText());
-    ui->tabWidget->addTab(_myTabs[TAB_TRANS], _myTabs[TAB_TRANS]->getTabText());
-    ui->tabWidget->addTab(_myTabs[TAB_INCOM], _myTabs[TAB_INCOM]->getTabText());
-    ui->tabWidget->addTab(_myTabs[TAB_EXPES], _myTabs[TAB_EXPES]->getTabText());
-    ui->tabWidget->setCurrentIndex(dataSource);
+    _myTabs[TAB_STOCK] = winType&TYPE_STOCK ? new myExchangeFormStock   (rootNode, STR("股票交易"), this) : nullptr;
+    _myTabs[TAB_TRANS] = winType&TYPE_TRANS ? new myExchangeFormTransfer(rootNode, STR("转帐"),     this) : nullptr;
+    _myTabs[TAB_INCOM] = winType&TYPE_INCOM ? new myExchangeFormIncome  (rootNode, STR("收入"),     this) : nullptr;
+    _myTabs[TAB_EXPES] = winType&TYPE_EXPES ? new myExchangeFormExpenses(rootNode, STR("支出"),     this) : nullptr;
+
+    for (int i = 0; i < MAX_TAB_COUNT; i++) {
+        unsigned tmpTab = 0x01 << i;
+        if (winType & tmpTab) {
+            if (-1 == dataSource) { //默认值是第一个
+                dataSource = i;
+                _currentTab = _myTabs[dataSource];
+                ui->tabWidget->setCurrentIndex(dataSource);
+            }
+            ui->tabWidget->addTab(_myTabs[i], _myTabs[i]->getTabText());
+        }
+    }
 
     // ROLLBACK CHECKBOX
     ui->checkBoxRollback->setChecked(isRollback);

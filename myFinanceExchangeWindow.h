@@ -31,7 +31,15 @@ class myFinanceExchangeWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit myFinanceExchangeWindow(QWidget *parent = 0);
+    enum EXCHANGE_WINDOW_TYPE {
+        TYPE_STOCK = 0x01,
+        TYPE_TRANS = 0x02,
+        TYPE_INCOM = 0x04,
+        TYPE_EXPES = 0x08,
+        TYPE_ALL   = 0xFF
+    };
+
+    explicit myFinanceExchangeWindow(QWidget *parent = 0, unsigned winType = TYPE_ALL);
     ~myFinanceExchangeWindow();
 
     myExchangeData const &getExchangeData() { return _currentTab->getExchangeData();}
@@ -55,11 +63,13 @@ private:
         TAB_STOCK = 0,
         TAB_TRANS = 1,
         TAB_INCOM = 2,
-        TAB_EXPES = 3
+        TAB_EXPES = 3,
+        MAX_TAB_COUNT = 4
     };
 
     Ui::myFinanceExchangeWindow *ui;
-    myExchangeFormTabBase *_myTabs[4];
+    unsigned winType;
+    myExchangeFormTabBase *_myTabs[MAX_TAB_COUNT];
     myExchangeFormTabBase *_currentTab;
 
     int dataSource;

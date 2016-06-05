@@ -37,7 +37,7 @@ struct myExchangeData {
     myExchangeData();
     myExchangeData operator -();
     myExchangeData &operator =(const myExchangeData &data);
-    bool &operator ==(const myExchangeData &data);
+    bool operator ==(const myExchangeData &data);
 
     int       id;
     QDateTime time;
