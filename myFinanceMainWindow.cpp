@@ -118,7 +118,7 @@ void myFinanceMainWindow::codeDataReady() {
 void myFinanceMainWindow::on_exchange_clicked()
 {
     qDebug() << STR("资产变化 clicked");
-    myFinanceExchangeWindow exWin(this);
+    myFinanceExchangeWindow exWin(this, myExchangeUI());
     if(exWin.exec() == QDialog::Accepted) {
         myExchangeData data = exWin.getExchangeData();
         QString abnormalInfo;
@@ -365,9 +365,10 @@ void myFinanceMainWindow::modifyExchange_clicked() {
         return;
     }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myFinanceExchangeWindow exWin(this, getTypeOfExchange(originExchangeData.type));
+    myExchangeUI tmpUI(originExchangeData);
+    myFinanceExchangeWindow exWin(this, tmpUI);
     exWin.setWindowTitle(info);
-    exWin.setUI(originExchangeData, true);
+    //exWin.setUI(originExchangeData, true);
     if(exWin.exec() == QDialog::Accepted) {
         qDebug() << info + "Accepted";
         // 1. DO EXCHANGE ASSET_DATA
@@ -400,7 +401,8 @@ void myFinanceMainWindow::deleteExchange_clicked() {
         return;
     }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myFinanceExchangeWindow dial(this, getTypeOfExchange(originExchangeData.type));
+    myExchangeUI tmpUI(originExchangeData);
+    myFinanceExchangeWindow dial(this, tmpUI);
     dial.setWindowTitle(info);
     dial.setUI(originExchangeData);
     //dial.setUI4Delete();
@@ -420,15 +422,3 @@ void myFinanceMainWindow::deleteExchange_clicked() {
     ui->treeView->expandAll();
 }
 
-unsigned myFinanceMainWindow::getTypeOfExchange(const QString &type) {
-    if (type.contains(STR("证券"))) {
-        return myFinanceExchangeWindow::TYPE_STOCK;
-    } else if (type == STR("转帐")) {
-        return myFinanceExchangeWindow::TYPE_TRANS;
-    } else if (type == STR("收入")) {
-        return myFinanceExchangeWindow::TYPE_INCOM;
-    } else if (type == STR("支出")) {
-        return myFinanceExchangeWindow::TYPE_EXPES;
-    } else { }
-    return myFinanceExchangeWindow::TYPE_NONE;
-}

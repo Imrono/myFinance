@@ -2,7 +2,7 @@
 #include "ui_myExchangeFormIncome.h"
 
 myExchangeFormIncome::myExchangeFormIncome(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent) :
-    myExchangeFormTabBase(rootNode, tabName, TAB_INCOM, parent),
+    myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_INCOM, parent),
     ui(new Ui::myExchangeFormIncome)
 {
     ui->setupUi(this);

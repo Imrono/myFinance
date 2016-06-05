@@ -32,7 +32,6 @@ enum databaseExchangeType {
 struct myExchangeDetail {
 
 };
-
 struct myExchangeData {
     myExchangeData();
     myExchangeData operator -();
@@ -42,7 +41,7 @@ struct myExchangeData {
     int       id;
     QDateTime time;
     QString   type;
-    float     fee;      //正数，使用时要减去
+    float     fee;      //??????????????
 
     QString   account1;
     float     money;
@@ -54,6 +53,50 @@ struct myExchangeData {
 
     // additional data
     myExchangeDetail detail;
+};
+class myExchangeUI {
+public:
+    enum TAB_TYPES {
+        TAB_NONE  = -1,
+        TAB_STOCK = 0,
+        TAB_TRANS = 1,
+        TAB_INCOM = 2,
+        TAB_EXPES = 3,
+        MAX_TAB_COUNT = 4
+    };
+
+    myExchangeUI() {
+        numOfTabs = MAX_TAB_COUNT;
+        tabType = TAB_NONE;
+    }
+    myExchangeUI(const myExchangeData &data) {
+        setTypeOfExchange(data);
+    }
+
+    int getNumOfTabs() const { return numOfTabs;}
+    int getTabType() const { return tabType;}
+    const myExchangeData &getExchangeData() const { return exchangeData;}
+
+private:
+    int numOfTabs;
+    int tabType;
+    myExchangeData exchangeData;
+
+    void setTypeOfExchange (const myExchangeData &data) {
+        exchangeData = data;
+        numOfTabs = 1;
+        if (data.type.contains(STR("证券"))) {
+            tabType = myExchangeUI::TAB_STOCK;
+        } else if (data.type == STR("转帐")) {
+            tabType = myExchangeUI::TAB_TRANS;
+        } else if (data.type == STR("收入")) {
+            tabType = myExchangeUI::TAB_INCOM;
+        } else if (data.type == STR("支出")) {
+            tabType = myExchangeUI::TAB_EXPES;
+        } else {
+            tabType = myExchangeUI::TAB_NONE;
+        }
+    }
 };
 
 struct myAssetAccount;

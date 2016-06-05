@@ -2,7 +2,7 @@
 #include "ui_myExchangeFormTransfer.h"
 
 myExchangeFormTransfer::myExchangeFormTransfer(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent) :
-    myExchangeFormTabBase(rootNode, tabName, TAB_TRANS, parent),
+    myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_TRANS, parent),
     ui(new Ui::myExchangeFormTransfer)
 {
     ui->setupUi(this);
@@ -99,20 +99,29 @@ void myExchangeFormTransfer::on_moneyTransferSpinBox_valueChanged(double value) 
 void myExchangeFormTransfer::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
-    tmpData.account1 = ui->moneyAccountOut->itemText(ui->moneyAccountOut->currentIndex());
+    tmpData.account1 = rootNode->getAccountNode(inIdx2AccountIdx[ui->moneyAccountOut->currentIndex()])->nodeData.value<myAssetAccount>().code;
     tmpData.money    = -ui->moneyTransferSpinBox->value() - data.fee;
 
-    tmpData.account2 = ui->moneyAccountIn->itemText(ui->moneyAccountIn->currentIndex());
+    tmpData.account2 = rootNode->getAccountNode(inIdx2AccountIdx[ui->moneyAccountIn->currentIndex()])->nodeData.value<myAssetAccount>().code;
     tmpData.code     = MY_CASH;
     tmpData.name     = data.name;
     tmpData.amount   = 1;
     tmpData.price    = ui->moneyTransferSpinBox->value();
 }
 void myExchangeFormTransfer::setUI(const myExchangeData &exchangeData) {
-    int indexOut = ui->moneyAccountOut->findText(exchangeData.account1);
-    ui->moneyAccountOut->setCurrentIndex(indexOut);
-    int indexIn = ui->moneyAccountIn->findText(exchangeData.account2);
-    ui->moneyAccountIn->setCurrentIndex(indexIn);
+    myAssetNode *accountNode1 = rootNode->getAccountNode(exchangeData.account1);
+    myAssetNode *accountNode2 = rootNode->getAccountNode(exchangeData.account2);
+    for (int i = 0; i < rootNode->getAccountCount(); i++) {
+        myAssetNode *accountNode = rootNode->getAccountNode(i);
+        if (accountNode1 == accountNode) {
+            int localIndex = outIdx2AccountIdx.find(i).value();
+            ui->moneyAccountOut->setCurrentIndex(localIndex);
+        }
+        if (accountNode2 == accountNode) {
+            int localIndex = inIdx2AccountIdx.find(i).value();
+            ui->moneyAccountIn->setCurrentIndex(localIndex);
+        }
+    }
     ui->moneyTransferSpinBox->setValue(exchangeData.price);
 
     myExchangeFormTabBase::setUI(exchangeData);

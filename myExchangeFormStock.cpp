@@ -2,7 +2,7 @@
 #include "ui_myExchangeFormStock.h"
 
 myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent) :
-    myExchangeFormTabBase(rootNode, tabName, TAB_STOCK, parent),
+    myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_STOCK, parent),
     stockCode(myStockCodeName::getInstance()),
     totalMoney(0.0f), remainMoney(0.0f),
     ui(new Ui::myExchangeFormStock)

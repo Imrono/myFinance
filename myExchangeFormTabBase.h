@@ -12,14 +12,6 @@ class myFinanceExchangeWindow;
 class myExchangeFormTabBase : public QWidget
 {
 public:
-    enum TAB_NUM {
-        TAB_STOCK = 0,
-        TAB_TRANS = 1,
-        TAB_INCOM = 2,
-        TAB_EXPES = 3,
-        MAX_TAB_COUNT = 4
-    };
-
     explicit myExchangeFormTabBase(const myRootAccountAsset *rootNode, QString tabName, int tabType, QWidget *parent = 0);
 
     const QString &getTabText() { return tabName;}
