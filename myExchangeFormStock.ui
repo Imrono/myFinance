@@ -95,7 +95,7 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buddy">
-         <cstring>lineEditName</cstring>
+         <cstring>nameLineEdit</cstring>
         </property>
        </widget>
       </item>
@@ -116,7 +116,7 @@
        <widget class="QLineEdit" name="codeLineEdit"/>
       </item>
       <item row="1" column="3">
-       <widget class="QLineEdit" name="lineEditName"/>
+       <widget class="QLineEdit" name="nameLineEdit"/>
       </item>
       <item row="0" column="1">
        <layout class="QHBoxLayout" name="hlMarket">
@@ -382,7 +382,7 @@
   <tabstop>radioBuy</tabstop>
   <tabstop>radioSell</tabstop>
   <tabstop>codeLineEdit</tabstop>
-  <tabstop>lineEditName</tabstop>
+  <tabstop>nameLineEdit</tabstop>
   <tabstop>spinBoxAmount</tabstop>
   <tabstop>spinBoxPrice</tabstop>
   <tabstop>moneySpinBoxTotal</tabstop>

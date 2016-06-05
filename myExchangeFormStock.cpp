@@ -72,12 +72,12 @@ void myExchangeFormStock::recordExchangeData(myExchangeData &tmpData) {
         tmpData.amount = ui->spinBoxAmount->text().toInt() * -buySellFlag;
     }
     tmpData.price  = ui->spinBoxPrice->text().toDouble();
-    tmpData.name   = ui->lineEditName->text();
+    tmpData.name   = ui->nameLineEdit->text();
 }
 void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
     int index = ui->moneyAccount->findText(exchangeData.account2);
     ui->moneyAccount->setCurrentIndex(exchangeIdx2AccountIdx.find(index).value());
-    ui->lineEditName->setText(exchangeData.name);
+    ui->nameLineEdit->setText(exchangeData.name);
     ui->codeLineEdit->setText(exchangeData.code);
     ui->spinBoxPrice->setValue(exchangeData.price);
     ui->spinBoxAmount->setValue(exchangeData.amount);
@@ -130,10 +130,11 @@ void myExchangeFormStock::updateMarketInfo() {
     updateExchangeFee();
     if (stockCode->getIsInitialed()) {
         data.name = stockCode->findNameFromCode(data.code);
-        ui->lineEditName->setText(data.name);
+        ui->nameLineEdit->setText(data.name);
     }
     qDebug() << "updateMarketInfo()" << ","
              << "data.code"  << data.code << ","
+             << "data.name"  << data.name << ","
              << (grpMarket->checkedId() == SH ? "radioSH" :
                  grpMarket->checkedId() == SZ ? "radioSZ" :
                  grpMarket->checkedId() == OTHER ? "radioOther" : "radioUnknown");
@@ -216,12 +217,12 @@ void myExchangeFormStock::on_codeLineEdit_editingFinished() {
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
             data.name = stockCode->findNameFromCode(data.code);
-            ui->lineEditName->setText(data.name);
+            ui->nameLineEdit->setText(data.name);
         }
     }
 }
 void myExchangeFormStock::on_nameLineEdit_editingFinished() {
-    QString str = ui->lineEditName->text();
+    QString str = ui->nameLineEdit->text();
     int count = stockCode->codeName.count();
     qDebug() << STR("Ãû³ÆEditLine") << str << "(" << count << ")";
 
