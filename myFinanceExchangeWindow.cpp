@@ -66,7 +66,7 @@ void myFinanceExchangeWindow::on_tabWidget_currentChanged(int index)
 {
     // 1. 检查之前tab中数据的一致性
     if (!checkDataConsistence()) {
-        QMessageBox::warning(this, "checkDataConsistence", _currentTab->getTabText()+"： checkDataConsistence Failed", QMessageBox::Discard, QMessageBox::Discard);
+        QMessageBox::warning(this, "checkDataConsistence", _currentTab->getTabText()+": checkDataConsistence Failed", QMessageBox::Discard, QMessageBox::Discard);
     }
     // 2. 更新新tab
     dataSource = index;
