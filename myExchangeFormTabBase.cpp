@@ -1,13 +1,15 @@
 #include "myExchangeFormTabBase.h"
 #include "myFinanceExchangeWindow.h"
 
-myExchangeFormTabBase::myExchangeFormTabBase(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent)
-    : parent(static_cast<myFinanceExchangeWindow *>(parent)), QWidget(parent),
+myExchangeFormTabBase::myExchangeFormTabBase(const myRootAccountAsset *rootNode, QString tabName, int tabType, QWidget *parent)
+    : parent(static_cast<myFinanceExchangeWindow *>(parent)), QWidget(parent), tabType(tabType),
       isModifyExchange(false),
       usedMoneyBeforeModify(0.0f), usedFeeBeforeModify(0.0f),
-      rootNode(rootNode), tabName(tabName) {
-    myExchangeFormTabBase::recordExchangeData(data);
-    qDebug() << "tab " << tabName << " is Ininialized";
+      rootNode(rootNode), tabName(tabName)
+{
+    data.type = this->tabName;
+    //myExchangeFormTabBase::recordExchangeData(data);
+    qDebug() << "tab " << tabName << " is Ininialized with tabName " << this->tabName;
 }
 
 void myExchangeFormTabBase::recordExchangeData(myExchangeData &tmpData) {

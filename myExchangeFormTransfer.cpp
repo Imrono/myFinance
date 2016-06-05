@@ -2,7 +2,7 @@
 #include "ui_myExchangeFormTransfer.h"
 
 myExchangeFormTransfer::myExchangeFormTransfer(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent) :
-    myExchangeFormTabBase(rootNode, tabName, parent),
+    myExchangeFormTabBase(rootNode, tabName, TAB_TRANS, parent),
     ui(new Ui::myExchangeFormTransfer)
 {
     ui->setupUi(this);
@@ -88,11 +88,11 @@ void myExchangeFormTransfer::on_moneyAccountIn_currentIndexChanged(int index) {
 
 void myExchangeFormTransfer::on_moneyTransferSpinBox_valueChanged(double value) {
     data.price = value;
-    data.money = -data.price;
+    data.money = -data.price - data.fee;
 
     remainMoneyOut = totalMoneyOut + data.money;
     ui->moneySpinBoxRemainOut->setValue(remainMoneyOut);
-    remainMoneyIn = totalMoneyIn - data.money;
+    remainMoneyIn = totalMoneyIn + data.price;
     ui->moneySpinBoxRemainIn->setValue(remainMoneyIn);
 }
 
@@ -100,7 +100,7 @@ void myExchangeFormTransfer::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
     tmpData.account1 = ui->moneyAccountOut->itemText(ui->moneyAccountOut->currentIndex());
-    tmpData.money    = -ui->moneyTransferSpinBox->value() + data.fee;
+    tmpData.money    = -ui->moneyTransferSpinBox->value() - data.fee;
 
     tmpData.account2 = ui->moneyAccountIn->itemText(ui->moneyAccountIn->currentIndex());
     tmpData.code     = MY_CASH;
@@ -120,6 +120,7 @@ void myExchangeFormTransfer::setUI(const myExchangeData &exchangeData) {
 void myExchangeFormTransfer::exchangeWindowFeeChanged(double fee) {
     qDebug() << "$$myExchangeFormTransfer::exchangeWindowFeeChanged " << fee << "$$";
     myExchangeFormTabBase::exchangeWindowFeeChanged(fee);
-    remainMoneyIn = totalMoneyIn - data.money - fee;
-    ui->moneySpinBoxRemainIn->setValue(remainMoneyIn);
+    data.money = -data.price - data.fee;
+    remainMoneyOut = totalMoneyIn + data.money;
+    ui->moneySpinBoxRemainOut->setValue(remainMoneyOut);
 }

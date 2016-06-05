@@ -12,16 +12,26 @@ class myFinanceExchangeWindow;
 class myExchangeFormTabBase : public QWidget
 {
 public:
-    explicit myExchangeFormTabBase(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent = 0);
+    enum TAB_NUM {
+        TAB_STOCK = 0,
+        TAB_TRANS = 1,
+        TAB_INCOM = 2,
+        TAB_EXPES = 3,
+        MAX_TAB_COUNT = 4
+    };
+
+    explicit myExchangeFormTabBase(const myRootAccountAsset *rootNode, QString tabName, int tabType, QWidget *parent = 0);
 
     const QString &getTabText() { return tabName;}
     void setTabText(QString &text) { tabName = text;}
+    void setDateTime(const QDateTime &dataTime) { data.time = dataTime;}
     void setModifyChange(bool isModifyChange) {this->isModifyExchange = isModifyChange;}
     void recoverTypeAndFee();
     virtual void recordExchangeData(myExchangeData &tmpData);
     virtual void setUI(const myExchangeData &exchangeData);
 
     const myExchangeData &getExchangeData() { return data;}
+    const int getTabType() { return tabType;}
     virtual void exchangeWindowFeeChanged(double fee);
 
 protected:
@@ -39,6 +49,7 @@ protected:
     myFinanceExchangeWindow *parent;
     const myRootAccountAsset *rootNode;
     myExchangeData data;
+    int tabType;
 
     QString tabName;
 

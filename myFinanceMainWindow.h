@@ -84,6 +84,7 @@ private slots:
     void listViewContextMenu(const QPoint& pt);
 
 private:
+    unsigned getTypeOfExchange(const QString &type);
     void doChangeAssetDirectly(changeType type);
 
     enum upDownMenu {

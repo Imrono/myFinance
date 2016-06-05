@@ -26,6 +26,7 @@ private:
     QMap<int, int> inIdx2AccountIdx;
     QMap<int, int> outIdx2AccountIdx;
 
+    // data.money+fee 转出； data.price 转入。
     float remainMoneyOut;
     float totalMoneyOut;
     float remainMoneyIn;

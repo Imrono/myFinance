@@ -32,6 +32,7 @@ class myFinanceExchangeWindow : public QDialog
 
 public:
     enum EXCHANGE_WINDOW_TYPE {
+        TYPE_NONE  = 0x00,
         TYPE_STOCK = 0x01,
         TYPE_TRANS = 0x02,
         TYPE_INCOM = 0x04,
@@ -58,19 +59,15 @@ private slots:
 
     void on_checkBoxRollback_clicked();
 
+    void on_timeDateTimeEdit_dateTimeChanged(const QDateTime &dateTime);
+
 private:
-    enum TAB_NUM {
-        TAB_STOCK = 0,
-        TAB_TRANS = 1,
-        TAB_INCOM = 2,
-        TAB_EXPES = 3,
-        MAX_TAB_COUNT = 4
-    };
 
     Ui::myFinanceExchangeWindow *ui;
     unsigned winType;
-    myExchangeFormTabBase *_myTabs[MAX_TAB_COUNT];
+    QList<myExchangeFormTabBase *> _myTabs;
     myExchangeFormTabBase *_currentTab;
+    QDateTime dateTime;
 
     int dataSource;
 

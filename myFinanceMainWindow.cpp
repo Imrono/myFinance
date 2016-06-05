@@ -365,7 +365,7 @@ void myFinanceMainWindow::modifyExchange_clicked() {
         return;
     }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myFinanceExchangeWindow exWin(this);
+    myFinanceExchangeWindow exWin(this, getTypeOfExchange(originExchangeData.type));
     exWin.setWindowTitle(info);
     exWin.setUI(originExchangeData, true);
     if(exWin.exec() == QDialog::Accepted) {
@@ -400,14 +400,14 @@ void myFinanceMainWindow::deleteExchange_clicked() {
         return;
     }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myModifyExchange dial(this);
+    myFinanceExchangeWindow dial(this, getTypeOfExchange(originExchangeData.type));
     dial.setWindowTitle(info);
     dial.setUI(originExchangeData);
-    dial.setUI4Delete();
+    //dial.setUI4Delete();
     if(dial.exec() == QDialog::Accepted) {
         qDebug() << info + "Accepted";
         // 1. DO EXCHANGE ASSET_DATA
-        if (dial.isRollback()) {
+        if (dial.getIsRollback()) {
             ans = assetModel->doExchange(-originExchangeData) && ans;
         }
         // 2. DO EXCHANGE EXCHANGE_DATA
@@ -418,4 +418,17 @@ void myFinanceMainWindow::deleteExchange_clicked() {
         }
     }
     ui->treeView->expandAll();
+}
+
+unsigned myFinanceMainWindow::getTypeOfExchange(const QString &type) {
+    if (type.contains(STR("证券"))) {
+        return myFinanceExchangeWindow::TYPE_STOCK;
+    } else if (type == STR("转帐")) {
+        return myFinanceExchangeWindow::TYPE_TRANS;
+    } else if (type == STR("收入")) {
+        return myFinanceExchangeWindow::TYPE_INCOM;
+    } else if (type == STR("支出")) {
+        return myFinanceExchangeWindow::TYPE_EXPES;
+    } else { }
+    return myFinanceExchangeWindow::TYPE_NONE;
 }

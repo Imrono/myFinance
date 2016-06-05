@@ -14,29 +14,39 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, unsigned winTy
     isRollback(false), stockCode(myStockCodeName::getInstance()),
     _currentTab(nullptr), dataSource(-1)
 {
+    qDebug() << "################## INITIAL EXCHANGE WINDOW ##################";
+    qDebug() << "TAB symbols are " << winType;
     ui->setupUi(this);
-
+    // COMMON UI UPDATE
     ui->timeDateTimeEdit->setDateTime(QDateTime::currentDateTime());
     ui->typeLineEdit->setReadOnly(true);
 
     rootNode = &static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode();
 
-    _myTabs[TAB_STOCK] = winType&TYPE_STOCK ? new myExchangeFormStock   (rootNode, STR("股票交易"), this) : nullptr;
-    _myTabs[TAB_TRANS] = winType&TYPE_TRANS ? new myExchangeFormTransfer(rootNode, STR("转帐"),     this) : nullptr;
-    _myTabs[TAB_INCOM] = winType&TYPE_INCOM ? new myExchangeFormIncome  (rootNode, STR("收入"),     this) : nullptr;
-    _myTabs[TAB_EXPES] = winType&TYPE_EXPES ? new myExchangeFormExpenses(rootNode, STR("支出"),     this) : nullptr;
+    if (winType&TYPE_STOCK)
+        _myTabs.append(new myExchangeFormStock   (rootNode, STR("股票交易"), this));
+    if (winType&TYPE_TRANS)
+        _myTabs.append(new myExchangeFormTransfer(rootNode, STR("转帐")    , this));
+    if (winType&TYPE_INCOM)
+        _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
+    if (winType&TYPE_EXPES)
+        _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
 
-    for (int i = 0; i < MAX_TAB_COUNT; i++) {
+    int j = 0;
+    for (int i = 0; i < myExchangeFormTabBase::MAX_TAB_COUNT; i++) {
         unsigned tmpTab = 0x01 << i;
         if (winType & tmpTab) {
             if (-1 == dataSource) { //默认值是第一个
-                dataSource = i;
+                dataSource = 0;
                 _currentTab = _myTabs[dataSource];
-                ui->tabWidget->setCurrentIndex(dataSource);
+                _currentTab->setDateTime(dateTime);
             }
-            ui->tabWidget->addTab(_myTabs[i], _myTabs[i]->getTabText());
+            ui->tabWidget->addTab(_myTabs[j], _myTabs[j]->getTabText());
+            qDebug() << _myTabs[j]->getTabText() << "ADDED to Exchange Window";
+            j ++;
         }
     }
+    ui->tabWidget->setCurrentIndex(dataSource);
 
     // ROLLBACK CHECKBOX
     ui->checkBoxRollback->setChecked(isRollback);
@@ -56,14 +66,15 @@ void myFinanceExchangeWindow::on_tabWidget_currentChanged(int index)
 {
     // 1. 检查之前tab中数据的一致性
     if (!checkDataConsistence()) {
-        QMessageBox::warning(this, "checkDataConsistence", "checkDataConsistence Failed", QMessageBox::Discard, QMessageBox::Discard);
+        QMessageBox::warning(this, "checkDataConsistence", _currentTab->getTabText()+"： checkDataConsistence Failed", QMessageBox::Discard, QMessageBox::Discard);
     }
     // 2. 更新新tab
     dataSource = index;
     _currentTab = _myTabs[dataSource];
-    qDebug() << "## CURRENT TAB: " << dataSource << " ##";
+    qDebug() << "## CURRENT TAB: " << dataSource << " with tabName " << _currentTab->getTabText() << " ##";
     // 3. 更新新tab中的公共数据
     _currentTab->recoverTypeAndFee();
+    _currentTab->setDateTime(dateTime);
 }
 
 void myFinanceExchangeWindow::showRollback() {
@@ -84,13 +95,13 @@ void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rol
     }
 
     if (data.type.contains(STR("证券"))) {
-        ui->tabWidget->setCurrentIndex(TAB_STOCK);
-    }  else if (data.type.contains(STR("转帐"))) {
-        ui->tabWidget->setCurrentIndex(TAB_TRANS);
+        ui->tabWidget->setCurrentIndex(myExchangeFormTabBase::TAB_STOCK);
+    } else if (data.type.contains(STR("转帐"))) {
+        ui->tabWidget->setCurrentIndex(myExchangeFormTabBase::TAB_TRANS);
     } else if (data.type.contains(STR("收入"))) {
-        ui->tabWidget->setCurrentIndex(TAB_INCOM);
+        ui->tabWidget->setCurrentIndex(myExchangeFormTabBase::TAB_INCOM);
     } else if (data.type.contains(STR("支出"))) {
-        ui->tabWidget->setCurrentIndex(TAB_EXPES);
+        ui->tabWidget->setCurrentIndex(myExchangeFormTabBase::TAB_EXPES);
     } else {}
 
     _currentTab->setUI(data);
@@ -124,4 +135,9 @@ bool myFinanceExchangeWindow::checkDataConsistence() {
         qDebug() << "tab " << _currentTab->getTabText() << "Data Consistence NOK";
         return false;
     }
+}
+
+void myFinanceExchangeWindow::on_timeDateTimeEdit_dateTimeChanged(const QDateTime &dateTime) {
+    this->dateTime = dateTime;
+    qDebug() << "DATE TIME " << dateTime.toString();
 }
