@@ -130,6 +130,6 @@ void myExchangeFormTransfer::exchangeWindowFeeChanged(double fee) {
     qDebug() << "$$myExchangeFormTransfer::exchangeWindowFeeChanged " << fee << "$$";
     myExchangeFormTabBase::exchangeWindowFeeChanged(fee);
     data.money = -data.price - data.fee;
-    remainMoneyOut = totalMoneyIn + data.money;
+    remainMoneyOut = totalMoneyOut + data.money;
     ui->moneySpinBoxRemainOut->setValue(remainMoneyOut);
 }

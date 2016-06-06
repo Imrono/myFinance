@@ -15,7 +15,6 @@ myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QSt
     grpBuySell->setExclusive(true);         //设为互斥
     grpBuySell->setId(ui->radioBuy,  BUY);  //radioBuy的Id设为0
     grpBuySell->setId(ui->radioSell, SELL); //radioBuy的Id设为1
-    ui->radioBuy->setChecked(true);
 
     grpMarket = new QButtonGroup(this);
     grpMarket->addButton(ui->radioSH);
@@ -25,8 +24,8 @@ myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QSt
     grpMarket->setId(ui->radioSH, SH);       //radioBuy的Id设为0
     grpMarket->setId(ui->radioSZ, SZ);       //radioBuy的Id设为1
     grpMarket->setId(ui->radioOther, OTHER); //radioBuy的Id设为2
-    ui->radioOther->setChecked(true);
-    on_radioBuy_clicked();
+    ui->radioOther->click();
+    ui->radioBuy->click();
 
     updateMarketInfo();
     updateBuySell();
@@ -80,7 +79,12 @@ void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
     ui->nameLineEdit->setText(exchangeData.name);
     ui->codeLineEdit->setText(exchangeData.code);
     ui->spinBoxPrice->setValue(exchangeData.price);
-    ui->spinBoxAmount->setValue(exchangeData.amount);
+    ui->spinBoxAmount->setValue(qAbs(exchangeData.amount));
+    if (STR("证券买入") == exchangeData.type) {
+        ui->radioBuy->click();
+    } else if (STR("证券卖出") == exchangeData.type) {
+        ui->radioSell->click();
+    } else {}
 
     myExchangeFormTabBase::setUI(exchangeData);
 }
@@ -164,7 +168,7 @@ void myExchangeFormStock::updateExchangeFee() {
     } else {}
 
     fee = fee1 + fee2 + fee3;
-    data.fee = fee;
+    data.fee = static_cast<float>(static_cast<int>(fee*100+0.5))/100;
     setExchangeWindowFee(data.fee);
 }
 
@@ -201,7 +205,7 @@ void myExchangeFormStock::on_codeLineEdit_textChanged(const QString &str) {
 
     if (data.code == "cash") {
         data.amount = 1;
-        ui->spinBoxAmount->setValue(data.amount);
+        ui->spinBoxAmount->setValue(qAbs(data.amount));
         ui->spinBoxAmount->setDisabled(true);
         ui->labelPrice->setText(STR("资金："));
     } else {

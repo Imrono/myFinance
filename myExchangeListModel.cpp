@@ -109,7 +109,7 @@ bool myExchangeListModel::initial() {
             tmpExchange.time     = QDateTime::fromString(query.value(1).toString(), "yyyy-MM-ddThh:mm:ss");
             tmpExchange.type     = query.value(2).toString();
             tmpExchange.account1 = query.value(3).toString();
-            tmpExchange.money    = query.value(4).toInt();
+            tmpExchange.money    = query.value(4).toDouble();
             tmpExchange.account2 = query.value(5).toString();
             tmpExchange.code     = query.value(6).toString();
             tmpExchange.name     = query.value(7).toString();
