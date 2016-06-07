@@ -7,14 +7,14 @@ myExchangeFormExpenses::myExchangeFormExpenses(const myRootAccountAsset *rootNod
 {
     ui->setupUi(this);
 
-    ui->lineEditExpendCode->setText(STR("绫诲埆"));
-    ui->lineEditExpendName->setText(STR("鍚嶇О"));
+    ui->lineEditExpendCode->setText(STR("类别"));
+    ui->lineEditExpendName->setText(STR("名称"));
 
     spendIdx2AccountIdx.clear();
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode->getAccountNode(i);
-        if (accountNode->nodeData.value<myAssetAccount>().type.contains(STR("鍒稿晢"))) {
+        if (accountNode->nodeData.value<myAssetAccount>().type.contains(STR("券商"))) {
                 continue;
         }
         for (int j = 0; j < accountNode->children.count(); j++) {
@@ -24,7 +24,7 @@ myExchangeFormExpenses::myExchangeFormExpenses(const myRootAccountAsset *rootNod
                 const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
                 QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
-                if (accountData.name.contains(STR("閾惰"))) {
+                if (accountData.name.contains(STR("银行"))) {
                     code = "**** **** " + accountData.code.right(4);
                 } else {
                     code = accountData.code;
