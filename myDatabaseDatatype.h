@@ -41,7 +41,7 @@ struct myExchangeData {
     int       id;
     QDateTime time;
     QString   type;
-    float     fee;      //??????????????
+    float     fee;      //为正数，用减法
 
     QString   account1;
     float     money;
@@ -50,6 +50,9 @@ struct myExchangeData {
     QString   name;
     float     price;
     int       amount;
+
+    QString   exchangeType;
+    QString   assetType;
 
     // additional data
     myExchangeDetail detail;

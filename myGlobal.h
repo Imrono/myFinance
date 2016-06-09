@@ -12,6 +12,7 @@
 #   define  STR(x)  QString::fromLocal8Bit(x)
 #endif
 
+// QT_NO_DEBUG -> QT release version macro
 class myGlobal
 {
 public:

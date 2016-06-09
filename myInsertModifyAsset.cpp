@@ -5,7 +5,7 @@
 
 #include <QDebug>
 
-myInsertModifyAsset::myInsertModifyAsset(QString accountCode, QString accountName, QWidget *parent) :
+myInsertModifyAsset::myInsertModifyAsset(QString accountCode, QString accountName, QWidget *parent, bool setAllDisable) :
     QDialog(parent),
     ui(new Ui::myInsertAsset),
     stockCode(myStockCodeName::getInstance())
@@ -25,6 +25,9 @@ myInsertModifyAsset::myInsertModifyAsset(QString accountCode, QString accountNam
     grpMarket->setId(ui->radioSZ, SZ);       //radioBuy的Id设为1
     grpMarket->setId(ui->radioOther, OTHER); //radioBuy的Id设为2
     ui->radioSH->setChecked(true);
+
+    if (setAllDisable)
+        setAllDisabled();
 }
 
 myInsertModifyAsset::~myInsertModifyAsset()
@@ -192,4 +195,16 @@ void myInsertModifyAsset::setUI(myAssetData assetData) {
     ui->spinBoxPrice->setValue(assetData.price);
     ui->lineEditType->setText(assetData.type);
     data.originAssetCode = assetData.assetCode;
+}
+
+void myInsertModifyAsset::setAllDisabled() {
+    ui->lineEditAssetCode->setDisabled(true);
+    ui->lineEditAssetName->setDisabled(true);
+    ui->spinBoxAmount->setDisabled(true);
+    ui->spinBoxPrice->setDisabled(true);
+    ui->lineEditType->setDisabled(true);
+
+    ui->radioSH->setDisabled(true);
+    ui->radioSZ->setDisabled(true);
+    ui->radioOther->setDisabled(true);
 }

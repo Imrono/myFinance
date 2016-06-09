@@ -10,4 +10,7 @@
     <qresource prefix="/icon/myLogo">
         <file>resource/icon/myLogo.ico</file>
     </qresource>
+    <qresource prefix="/SplashScreen">
+        <file>resource/SplashScreen/gold10years.jpg</file>
+    </qresource>
 </RCC>

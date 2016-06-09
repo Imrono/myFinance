@@ -17,13 +17,14 @@ class myInsertModifyAsset : public QDialog
     Q_OBJECT
 
 public:
-    explicit myInsertModifyAsset(QString accountCode, QString accountName, QWidget *parent = 0);
+    explicit myInsertModifyAsset(QString accountCode, QString accountName, QWidget *parent = 0, bool setAllDisable = false);
     ~myInsertModifyAsset();
 
     myAssetData getData() {
         return data;
     }
     void setUI(myAssetData assetData);
+    void setAllDisabled();
 
 private slots:
     void on_buttonBox_accepted();

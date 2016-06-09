@@ -15,6 +15,7 @@
 #include "myStockCodeName.h"
 #include "assetChangeDelegate.h"
 #include "myDatabaseDatatype.h"
+#include "myFinanceTreeVeiwContextMenu.h"
 
 namespace Ui {
 class myFinanceMainWindow;
@@ -54,13 +55,7 @@ private:
     QLabel statusLabel;
 
     bool doExchange();
-
-    QMenu *editAsset;
-    QAction *deleteAsset;
-    QAction *insertAsset;
-    QAction *modifyAsset;
-    QAction *upAsset;
-    QAction *downAsset;
+    myFinanceTreeVeiwContextMenu treeViewContextMenu;
 
     QMenu *editExchange;
     QAction *modifyExchange;
@@ -71,28 +66,17 @@ private slots:
     void codeDataReady();
 
     /// treeView
-    void deleteAsset_clicked();
-    void insertAsset_clicked();
-    void modifyAsset_clicked();
-    void upAsset_clicked();
-    void downAsset_clicked();
-    void treeViewContextMenu(const QPoint& pt);
+    void treeViewContextMenuSlot(const QPoint& pt);
+
 
     /// listView
+    void listViewContextMenu(const QPoint& pt);
     void modifyExchange_clicked();
     void deleteExchange_clicked();
-    void listViewContextMenu(const QPoint& pt);
 
-private:
-    void doChangeAssetDirectly(changeType type);
-
-    enum upDownMenu {
-        HAS_UP   = 1,
-        HAS_DOWN = 2,
-        HAS_UPDOWN = 3,
-        HAS_NONE   = 0
-    };
-    void doUpDown(bool isUp);
+public:
+    void doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data, const QString &info);
+    void doUpDown(const myAssetNode *node, bool isUp);
 };
 
 #endif // MYFINANCEMAINWINDOW_H

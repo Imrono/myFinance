@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     myExchangeFormStock.cpp \
     myExchangeFormExpenses.cpp \
     myExchangeFormTransfer.cpp \
-    myExchangeFormTabBase.cpp
+    myExchangeFormTabBase.cpp \
+    myFinanceTreeVeiwContextMenu.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \
@@ -52,7 +53,8 @@ HEADERS  += myFinanceMainWindow.h \
     myExchangeFormStock.h \
     myExchangeFormExpenses.h \
     myExchangeFormTransfer.h \
-    myExchangeFormTabBase.h
+    myExchangeFormTabBase.h \
+    myFinanceTreeVeiwContextMenu.h
 
 FORMS    += myFinanceMainWindow.ui \
     myFinanceExchangeWindow.ui \

@@ -34,11 +34,12 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
         int numRows = myFinanceDatabase::getQueryRows(execWord);
         if (1 == numRows) {        //UPDATE
             execWord = STR("UPDATE 资产变化 "
-                                              "SET 时间='%1', 变化类别='%2', 资产帐户代号1='%3', 变化资金=%4, "
-                                              "资产帐户代号2='%5', 代号='%6', 名称='%7', 单价=%8, 数量=%9 "
-                                              "WHERE id=%10")
+                    "SET 时间='%1', 变化类别='%2', 资产帐户代号1='%3', 变化资金=%4, "
+                    "资产帐户代号2='%5', 代号='%6', 名称='%7', 单价=%8, 数量=%9 "
+                    "WHERE id=%10")
                     .arg(exchangeTime).arg(exchangeType).arg(exchangeData.account1).arg(exchangeData.money)
-                    .arg(exchangeData.account2).arg(exchangeData.code).arg(exchangeData.name).arg(exchangeData.price).arg(exchangeData.amount).arg(exchangeData.id);
+                    .arg(exchangeData.account2).arg(exchangeData.code).arg(exchangeData.name)
+                    .arg(exchangeData.price).arg(exchangeData.amount).arg(exchangeData.id);
             qDebug() << execWord;
 
             if(!query.exec(execWord)) {

@@ -103,7 +103,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                 return QVariant();
             case myAssetNode::nodeHolds: {
                 myAssetHold holds = node->nodeData.value<myAssetHold>();
-                if (holds.assetCode == "cash") {
+                if (holds.assetCode == "cash" || holds.type == STR("货币基金")) {
                     QString strPrice = QString::number(holds.price, 'f', 2);
                     return QString("%1").arg(strPrice);
                 } else {
@@ -156,6 +156,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             return QVariant();
         }
     } else if (Qt::DecorationRole == role) {
+#ifdef QT_NO_DEBUG
         myAssetNode *node = nodeFromIndex(index);
         if (!node)
             return QVariant();
@@ -165,6 +166,8 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                 return QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(node->nodeData.value<myAssetAccount>().logo));
             }
         }
+#endif
+        return QVariant();
     } else if (Qt::FontRole == role) {
         if (index.column() == 2 || index.column() == 3) {
             return QFont(QString(), -1, QFont::Bold);
@@ -354,7 +357,7 @@ bool myAssetModel::doInsertAccount(myAccountData data) {
     return ans;
 }
 
-bool myAssetModel::doUpDown(bool isUp, myAssetNode *node) {
+bool myAssetModel::doUpDown(bool isUp, const myAssetNode *node) {
     int pos = -1;
     int pos2 = -1;
     if (myAssetNode::nodeAccount == node->type) {

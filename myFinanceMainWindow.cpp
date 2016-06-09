@@ -12,8 +12,8 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::myFinanceMainWindow),
     assetModel(nullptr), exchangeModel(nullptr),
-    stockCode(myStockCodeName::getInstance()), statusLabel(this), editAsset(nullptr),
-    deleteAsset(nullptr), insertAsset(nullptr), modifyAsset(nullptr)
+    stockCode(myStockCodeName::getInstance()), statusLabel(this),
+    treeViewContextMenu(this)
 {
     assetModel = new myAssetModel(this);
     //delegate = new assetChangeDelegate(this);
@@ -45,20 +45,10 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     }
 
     /// treeView
-    editAsset = new QMenu(this);
-    deleteAsset = new QAction(ui->treeView);
-    insertAsset = new QAction(ui->treeView);
-    modifyAsset = new QAction(ui->treeView);
-    upAsset     = new QAction(ui->treeView);;
-    downAsset   = new QAction(ui->treeView);;
-    connect(deleteAsset, SIGNAL(triggered()), this, SLOT(deleteAsset_clicked()));
-    connect(insertAsset, SIGNAL(triggered()), this, SLOT(insertAsset_clicked()));
-    connect(modifyAsset, SIGNAL(triggered()), this, SLOT(modifyAsset_clicked()));
-    connect(upAsset    , SIGNAL(triggered()), this, SLOT(upAsset_clicked()));
-    connect(downAsset  , SIGNAL(triggered()), this, SLOT(downAsset_clicked()));
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeView, SIGNAL(customContextMenuRequested(const QPoint&)),
-            this, SLOT(treeViewContextMenu(const QPoint&)));
+            this, SLOT(treeViewContextMenuSlot(const QPoint&)));
+
     /// listView
     editExchange = new QMenu(this);
     modifyExchange = new QAction(ui->listView);
@@ -173,162 +163,14 @@ void myFinanceMainWindow::on_updatePrice_clicked()
     qDebug() << STR("更新价格 clicked assetModel->doUpdatePrice requested");
 }
 
-void myFinanceMainWindow::treeViewContextMenu(const QPoint& pt) {
+///////////////////////////////////////////////////////////////////////////////////////////
+/// treeView的右键菜单
+void myFinanceMainWindow::treeViewContextMenuSlot(const QPoint& pt) {
     QModelIndex index = ui->treeView->indexAt(pt);
     myAssetNode *node = assetModel->nodeFromIndex(index);
-    editAsset->clear();
-    if (myAssetNode::nodeAccount == node->type) {
-        insertAsset->setText(STR("添加资产"));
-        editAsset->addAction(insertAsset);
-        modifyAsset->setText(STR("更新帐户"));
-        editAsset->addAction(modifyAsset);
-        deleteAsset->setText(STR("删除帐户"));
-        editAsset->addAction(deleteAsset);
-    } else if (myAssetNode::nodeHolds == node->type) {
-        modifyAsset->setText(STR("更新资产"));
-        editAsset->addAction(modifyAsset);
-        deleteAsset->setText(STR("删除资产"));
-        editAsset->addAction(deleteAsset);
-    } else if (myAssetNode::nodeRoot == node->type) {
-    } else {}
-
-    upAsset->setEnabled(true);
-    downAsset->setEnabled(true);
-    unsigned int upDownType = myFinanceMainWindow::HAS_NONE;
-    if (myAssetNode::nodeAccount == node->type) {
-        int pos = node->nodeData.value<myAssetAccount>().pos;
-        if (0 != pos) {
-            upDownType |= myFinanceMainWindow::HAS_UP;
-        }
-        if (node->parent->children.count()-1 != pos){
-            upDownType |= myFinanceMainWindow::HAS_DOWN;
-        }
-    } else if (myAssetNode::nodeHolds == node->type) {
-        int pos = node->nodeData.value<myAssetHold>().pos;
-        if (0 != pos) {
-            upDownType |= myFinanceMainWindow::HAS_UP;
-        }
-        if (node->parent->children.count()-1 != pos){
-            upDownType |= myFinanceMainWindow::HAS_DOWN;
-        }
-    } else {}
-
-    editAsset->addSeparator();
-    upAsset->setText(STR("上移"));
-    editAsset->addAction(upAsset);
-    downAsset->setText(STR("下移"));
-    editAsset->addAction(downAsset);
-    if (!(upDownType & myFinanceMainWindow::HAS_UP)) {
-        upAsset->setDisabled(true);
-    }
-    if (!(upDownType & myFinanceMainWindow::HAS_DOWN)) {
-        downAsset->setDisabled(true);
-    }
-    editAsset->exec(QCursor::pos());
+    treeViewContextMenu.treeViewContextMenu(node);
 }
-void myFinanceMainWindow::deleteAsset_clicked() {
-    doChangeAssetDirectly(POP_DELETE);
-}
-void myFinanceMainWindow::insertAsset_clicked() {
-    doChangeAssetDirectly(POP_INSERT);
-}
-void myFinanceMainWindow::modifyAsset_clicked() {
-    doChangeAssetDirectly(POP_MODIFY);
-}
-void myFinanceMainWindow::upAsset_clicked() {
-    doUpDown(true);
-}
-void myFinanceMainWindow::downAsset_clicked() {
-    doUpDown(false);
-}
-
-void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
-    myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
-    QVariant data;
-     QString info;
-
-    if (myAssetNode::nodeAccount == node->type) {
-        /// INSERT ASSET
-        if (POP_INSERT == type) {
-            info = STR("添加资产");
-            myAssetAccount nodeData = node->nodeData.value<myAssetAccount>();
-            myInsertModifyAsset dial(nodeData.code, nodeData.name, this);
-            dial.setWindowTitle(info);
-            if(dial.exec() == QDialog::Accepted) {
-                data.setValue(dial.getData());
-                qDebug() << info + "Accepted";
-            } else {
-                return;
-            }
-        /// MODIFY ACCOUNT
-        } else if (POP_MODIFY == type) {
-            info = STR("更新帐户");
-            myAssetAccount nodeData = node->nodeData.value<myAssetAccount>();
-            myAccountData originAccountData(nodeData);
-            myInsertModifyAccount dial(this);
-            dial.setWindowTitle(info);
-            dial.setUI(myAccountData(nodeData));
-            if(dial.exec() == QDialog::Accepted) {
-                qDebug() << info + "Accepted";
-                myAccountData targetAccountData = dial.getData();
-                if (myAccountData::isSameAccountData(targetAccountData, originAccountData)) {
-                    qDebug() << info + "Nothing Changed";
-                    return;
-                } else {
-                    data.setValue(targetAccountData);
-                }
-            } else {
-                return;
-            }
-        /// DELETE ACCOUNT
-        } else if (POP_DELETE == type) {
-            info = STR("删除帐户");
-            if(QMessageBox::Ok == QMessageBox::warning(this, info, info + "->\n" +
-                                  node->nodeData.value<myAssetAccount>().code + "\n" + node->nodeData.value<myAssetAccount>().name,
-                                  QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok)) {
-                qDebug() << info + "Accepted";
-            } else {
-                return;
-            }
-        } else {}
-    } else if (myAssetNode::nodeHolds == node->type) {
-        /// MODIFY ASSET
-        if (POP_MODIFY == type) {
-            info = STR("更新资产");
-            myAssetHold nodeData = node->nodeData.value<myAssetHold>();
-            myAssetData originAssetData(nodeData);
-            myAssetNode *accountNode = assetModel->getRootNode().getAccountNode(nodeData.accountCode);
-            myAssetAccount accountNodeData = accountNode->nodeData.value<myAssetAccount>();
-            myInsertModifyAsset dial(accountNodeData.code, accountNodeData.name, this);
-            dial.setUI(myAssetData(nodeData));
-            dial.setWindowTitle(info);
-            if(dial.exec() == QDialog::Accepted) {
-                qDebug() << info + "Accepted";
-                myAssetData targetAssetData = dial.getData();
-                if (myAssetData::isSameAssetData(targetAssetData, originAssetData)) {
-                    qDebug() << info + "Nothing Changed";
-                    return;
-                } else {
-                    data.setValue(targetAssetData);
-                }
-            } else {
-                return;
-            }
-        /// DELETE ASSET
-        } else if (POP_DELETE == type) {
-            info = STR("删除资产");
-            if(QMessageBox::Ok == QMessageBox::warning(this, info, info + "->\n" +
-                                  node->nodeData.value<myAssetHold>().assetCode + "\n" + node->nodeData.value<myAssetHold>().name,
-                                  QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok)) {
-                qDebug() << info + "Accepted";
-            } else {
-                return;
-            }
-        } else {}
-    } else if (myAssetNode::nodeRoot == node->type) {
-    } else {}
-
-    qDebug() << "view" << (int)type;
+void myFinanceMainWindow::doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data, const QString &info) {
     if (!assetModel->doChangeAssetDirectly(node, type, data)) {
         ui->treeView->expandAll();
         QMessageBox::warning(this, info+"failed", info+"failed", QMessageBox::Ok, QMessageBox::Ok);
@@ -336,8 +178,7 @@ void myFinanceMainWindow::doChangeAssetDirectly(changeType type) {
     ui->treeView->expandAll();
 }
 
-void myFinanceMainWindow::doUpDown(bool isUp) {
-    myAssetNode *node = assetModel->nodeFromIndex(ui->treeView->currentIndex());
+void myFinanceMainWindow::doUpDown(const myAssetNode *node, bool isUp) {
     if (!assetModel->doUpDown(isUp, node)) {
         ui->treeView->expandAll();
         QMessageBox::warning(this, "doUpDown failed", "doUpDown failed", QMessageBox::Ok, QMessageBox::Ok);
@@ -345,6 +186,8 @@ void myFinanceMainWindow::doUpDown(bool isUp) {
     ui->treeView->expandAll();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
+/// listView的右键菜单
 void myFinanceMainWindow::listViewContextMenu(const QPoint& pt) {
     QModelIndex index = ui->listView->indexAt(pt);
     if (!index.isValid()) {
