@@ -22,6 +22,7 @@ public:
     void exchangeWindowFeeChanged(double fee);
     void recordExchangeData(myExchangeData &tmpData);
     void setUI(const myExchangeData &exchangeData);
+    void checkAndSetDisable(const myExchangeData &exchangeData);
 
 private:
     ///UI
@@ -60,6 +61,7 @@ private slots:
 
     void on_moneyAccount_currentIndexChanged(int index);
     void on_moneySpinBox_valueChanged(double value);
+    void on_nameLineEdit_textChanged(const QString &name);
 };
 
 #endif // MYEXCHANGEFORMSTOCK_H

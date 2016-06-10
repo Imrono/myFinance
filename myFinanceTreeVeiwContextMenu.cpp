@@ -7,21 +7,22 @@
 #include "myInsertModifyAsset.h"
 #include "myModifyExchange.h"
 #include "myFinanceMainWindow.h"
+#include "myFinanceExchangeWindow.h"
 
-myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : QMenu(parent), parent(static_cast<myFinanceMainWindow *>(parent)) {
-    editAsset = new QMenu(this);
+myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : parent(static_cast<myFinanceMainWindow *>(parent)) {
+    editAsset = new QMenu(parent);
 
-    deleteAccount = new QAction(this);
-    modifyAccount = new QAction(this);
-    insertAsset   = new QAction(this);
-    deleteAsset   = new QAction(this);
-    modifyAsset   = new QAction(this);
-    buyAsset      = new QAction(this);
-    sellAsset     = new QAction(this);
-    transferIn    = new QAction(this);
-    transferOut   = new QAction(this);
-    upAsset       = new QAction(this);
-    downAsset     = new QAction(this);
+    deleteAccount = new QAction(parent);
+    modifyAccount = new QAction(parent);
+    insertAsset   = new QAction(parent);
+    deleteAsset   = new QAction(parent);
+    modifyAsset   = new QAction(parent);
+    buyAsset      = new QAction(parent);
+    sellAsset     = new QAction(parent);
+    transferIn    = new QAction(parent);
+    transferOut   = new QAction(parent);
+    upAsset       = new QAction(parent);
+    downAsset     = new QAction(parent);
 
     deleteAccount->setText(STR("删除帐户"));
     modifyAccount->setText(STR("更新帐户"));
@@ -47,22 +48,20 @@ myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : QM
     connect(upAsset,       SIGNAL(triggered()), this, SLOT(upAsset_clicked()));
     connect(downAsset,     SIGNAL(triggered()), this, SLOT(downAsset_clicked()));
 }
+myFinanceTreeVeiwContextMenu::~myFinanceTreeVeiwContextMenu() {
+
+}
 
 void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myAssetNode *node) {
     currentNode = node;
 
     editAsset->clear();
     if (myAssetNode::nodeAccount == node->type) {
-        insertAsset->setText(STR("添加资产"));
         editAsset->addAction(insertAsset);
-        modifyAsset->setText(STR("更新帐户"));
-        editAsset->addAction(modifyAsset);
-        deleteAsset->setText(STR("删除帐户"));
-        editAsset->addAction(deleteAsset);
+        editAsset->addAction(modifyAccount);
+        editAsset->addAction(deleteAccount);
     } else if (myAssetNode::nodeHolds == node->type) {
-        modifyAsset->setText(STR("更新资产"));
         editAsset->addAction(modifyAsset);
-        deleteAsset->setText(STR("删除资产"));
         editAsset->addAction(deleteAsset);
         editAsset->addSeparator();
         myAssetHold assetHolds = node->nodeData.value<myAssetHold>();
@@ -114,43 +113,62 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myAssetNode *node) 
 void myFinanceTreeVeiwContextMenu::deleteAccount_clicked() {
     doChangeAssetDirectly(POP_DELETE);
 }
-
 void myFinanceTreeVeiwContextMenu::modifyAccount_clicked() {
     doChangeAssetDirectly(POP_MODIFY);
 }
-
-void myFinanceTreeVeiwContextMenu::deleteAsset_clicked() {
-    doChangeAssetDirectly(POP_DELETE);
-}
-
 void myFinanceTreeVeiwContextMenu::insertAsset_clicked() {
     doChangeAssetDirectly(POP_INSERT);
 }
-
+void myFinanceTreeVeiwContextMenu::deleteAsset_clicked() {
+    doChangeAssetDirectly(POP_DELETE);
+}
 void myFinanceTreeVeiwContextMenu::modifyAsset_clicked() {
     doChangeAssetDirectly(POP_MODIFY);
 }
 
 void myFinanceTreeVeiwContextMenu::buyAsset_clicked() {
-
+    qDebug() << STR("右键买入 clicked");
+    doExchangeStock(STR("证券买入"));
 }
-
 void myFinanceTreeVeiwContextMenu::sellAsset_clicked() {
-
+    qDebug() << STR("右键卖出 clicked");
+    doExchangeStock(STR("证券卖出"));
+}
+void myFinanceTreeVeiwContextMenu::doExchangeStock(const QString &type) {
+    myExchangeData exchangeData;
+    myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
+    exchangeData.account1 = holds.accountCode;
+    exchangeData.account2 = holds.accountCode;
+    exchangeData.code     = holds.assetCode;
+    exchangeData.name     = holds.name;
+    exchangeData.type     = type;
+    exchangeData.exchangeType = type;
+    parent->doExchange(myExchangeUI(exchangeData), true);
 }
 
 void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
-
+    qDebug() << STR("右键转入 clicked");
+    myExchangeData exchangeData;
+    myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
+    exchangeData.account2 = holds.accountCode;
+    exchangeData.type     = STR("转帐");
+    exchangeData.exchangeType = STR("转帐");
+    parent->doExchange(myExchangeUI(exchangeData), true);
 }
 
 void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
-
+    qDebug() << STR("右键转出 clicked");
+    myExchangeData exchangeData;
+    myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
+    exchangeData.account1 = holds.accountCode;
+    exchangeData.type     = STR("转帐");
+    exchangeData.exchangeType = STR("转帐");
+    parent->doExchange(myExchangeUI(exchangeData), true);
 }
 
 void myFinanceTreeVeiwContextMenu::upAsset_clicked() {
     doUpDown(true);
 }
-
 void myFinanceTreeVeiwContextMenu::downAsset_clicked() {
     doUpDown(false);
 }
@@ -165,7 +183,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
         if (POP_INSERT == type) {
             info = STR("添加资产");
             myAssetAccount nodeData = currentNode->nodeData.value<myAssetAccount>();
-            myInsertModifyAsset dial(nodeData.code, nodeData.name, this);
+            myInsertModifyAsset dial(nodeData.code, nodeData.name, parent);
             dial.setWindowTitle(info);
             if(dial.exec() == QDialog::Accepted) {
                 data.setValue(dial.getData());
@@ -178,7 +196,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
             info = STR("更新帐户");
             myAssetAccount nodeData = currentNode->nodeData.value<myAssetAccount>();
             myAccountData originAccountData(nodeData);
-            myInsertModifyAccount dial(this);
+            myInsertModifyAccount dial(parent);
             dial.setWindowTitle(info);
             dial.setUI(myAccountData(nodeData));
             if(dial.exec() == QDialog::Accepted) {
@@ -196,7 +214,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
         /// DELETE ACCOUNT
         } else if (POP_DELETE == type) {
             info = STR("删除帐户");
-            if(QMessageBox::Ok == QMessageBox::warning(this, info, info + "->\n" +
+            if(QMessageBox::Ok == QMessageBox::warning(parent, info, info + "->\n" +
                                   currentNode->nodeData.value<myAssetAccount>().code + "\n" + currentNode->nodeData.value<myAssetAccount>().name,
                                   QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok)) {
                 qDebug() << info + "Accepted";
@@ -208,7 +226,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
         myAssetHold nodeData = currentNode->nodeData.value<myAssetHold>();
         myAssetData originAssetData(nodeData);
         myAssetAccount accountNodeData = currentNode->parent->nodeData.value<myAssetAccount>();
-        myInsertModifyAsset dial(accountNodeData.code, accountNodeData.name, this);
+        myInsertModifyAsset dial(accountNodeData.code, accountNodeData.name, parent);
         dial.setUI(myAssetData(nodeData));
         /// MODIFY ASSET
         if (POP_MODIFY == type) {

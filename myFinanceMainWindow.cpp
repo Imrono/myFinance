@@ -108,7 +108,11 @@ void myFinanceMainWindow::codeDataReady() {
 void myFinanceMainWindow::on_exchange_clicked()
 {
     qDebug() << STR("资产变化 clicked");
-    myFinanceExchangeWindow exWin(this, myExchangeUI());
+    myExchangeUI exchangeUI = myExchangeUI();
+    doExchange(exchangeUI);
+}
+void myFinanceMainWindow::doExchange(const myExchangeUI& uiSetup, bool isSetDisable) {
+    myFinanceExchangeWindow exWin(this, uiSetup, isSetDisable);
     if(exWin.exec() == QDialog::Accepted) {
         myExchangeData data = exWin.getExchangeData();
         QString abnormalInfo;

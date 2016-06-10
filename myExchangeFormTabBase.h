@@ -21,6 +21,7 @@ public:
     void recoverTypeAndFee();
     virtual void recordExchangeData(myExchangeData &tmpData);
     virtual void setUI(const myExchangeData &exchangeData);
+    virtual void checkAndSetDisable(const myExchangeData &exchangeData);
 
     const myExchangeData &getExchangeData() { return data;}
     const int getTabType() { return tabType;}

@@ -21,6 +21,9 @@ void myExchangeFormTabBase::setUI(const myExchangeData &exchangeData) {
         usedFeeBeforeModify = exchangeData.price*static_cast<float>(exchangeData.amount) - exchangeData.money;
     }
 }
+void myExchangeFormTabBase::checkAndSetDisable(const myExchangeData &exchangeData) {
+
+}
 
 void myExchangeFormTabBase::setExchangeWindowType(const QString &type) {
     parent->setExchangeWindowUiType(type);

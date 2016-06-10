@@ -6,14 +6,16 @@
 
 #include "myGlobal.h"
 #include "myAssetNode.h"
+#include "myDatabaseDatatype.h"
 
 class myFinanceMainWindow;
-class myFinanceTreeVeiwContextMenu : public QMenu
+class myFinanceTreeVeiwContextMenu : public QObject
 {
     Q_OBJECT
 
 public:
-    myFinanceTreeVeiwContextMenu(QWidget *parent = 0);
+    myFinanceTreeVeiwContextMenu(QWidget *parent);
+    ~myFinanceTreeVeiwContextMenu();
 
     void treeViewContextMenu(const myAssetNode *node);
 
@@ -57,6 +59,7 @@ private slots:
 
     void doChangeAssetDirectly(changeType type);
     void doUpDown(bool isUp);
+    void doExchangeStock(const QString &type);
 };
 
 #endif // MYFINANCETREEVEIWCONTEXTMENU_H

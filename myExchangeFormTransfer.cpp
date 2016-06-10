@@ -126,6 +126,13 @@ void myExchangeFormTransfer::setUI(const myExchangeData &exchangeData) {
 
     myExchangeFormTabBase::setUI(exchangeData);
 }
+void myExchangeFormTransfer::checkAndSetDisable(const myExchangeData &exchangeData) {
+    setUI(exchangeData);
+    if (exchangeData.account1 != "")
+        ui->moneyAccountOut->setDisabled(true);
+    if (exchangeData.account2 != "")
+        ui->moneyAccountIn->setDisabled(true);
+}
 void myExchangeFormTransfer::exchangeWindowFeeChanged(double fee) {
     qDebug() << "$$myExchangeFormTransfer::exchangeWindowFeeChanged " << fee << "$$";
     myExchangeFormTabBase::exchangeWindowFeeChanged(fee);

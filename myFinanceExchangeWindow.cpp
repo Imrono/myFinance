@@ -9,7 +9,7 @@
 
 #include <QtDebug>
 
-myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchangeUI &exchangeUI) :
+myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchangeUI &exchangeUI, bool isPartial) :
     QDialog(parent), ui(new Ui::myFinanceExchangeWindow),
     isRollback(false), stockCode(myStockCodeName::getInstance()),
     _currentTab(nullptr), dataSource(0)
@@ -22,6 +22,15 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchan
     ui->timeDateTimeEdit->setDateTime(QDateTime::currentDateTime());
     ui->typeLineEdit->setReadOnly(true);
 
+    initialTabs(exchangeUI, isPartial);
+
+
+    // ROLLBACK CHECKBOX
+    ui->checkBoxRollback->setChecked(isRollback);
+    ui->checkBoxRollback->hide();
+}
+
+void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool isPartial) {
     /// 1. 默认4个tab，默认的setUI
     /// 2. 单个tab，用exchangeUI中数据setUI
     if (myExchangeUI::MAX_TAB_COUNT == exchangeUI.getNumOfTabs()) {
@@ -39,8 +48,14 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchan
             _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_EXPES)
             _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
+        if (_myTabs.count() == 0) {
+            qDebug() << "ERROR: NO TAB IS ADDED";
+            return;
+        }
         _currentTab = _myTabs[dataSource];
         setUI(exchangeUI.getExchangeData(), true);
+        if (isPartial)
+            _currentTab->checkAndSetDisable(exchangeUI.getExchangeData());
         qDebug() << "## SETUP UI MODEL FINISH";
     } else {  }
 
@@ -50,10 +65,6 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchan
         qDebug() << _myTabs[i]->getTabText() << "ADDED to Exchange Window";
     }
     ui->tabWidget->setCurrentIndex(dataSource);
-
-    // ROLLBACK CHECKBOX
-    ui->checkBoxRollback->setChecked(isRollback);
-    ui->checkBoxRollback->hide();
 }
 
 myFinanceExchangeWindow::~myFinanceExchangeWindow() {

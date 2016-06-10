@@ -29,9 +29,8 @@ public:
     explicit myFinanceMainWindow(QWidget *parent = 0);
     ~myFinanceMainWindow();
 
-    myAssetModel *getAssetModel() {
-        return assetModel;
-    }
+    void doExchange(const myExchangeUI& uiSetup, bool isSetDisable = false);
+    myAssetModel *getAssetModel() { return assetModel;}
 
 private slots:
     void on_exchange_clicked();
@@ -54,7 +53,6 @@ private:
     myStockCodeName *stockCode; //用于更新ui状态
     QLabel statusLabel;
 
-    bool doExchange();
     myFinanceTreeVeiwContextMenu treeViewContextMenu;
 
     QMenu *editExchange;
@@ -75,6 +73,7 @@ private slots:
     void deleteExchange_clicked();
 
 public:
+    /// treeView
     void doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data, const QString &info);
     void doUpDown(const myAssetNode *node, bool isUp);
 };

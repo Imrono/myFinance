@@ -18,7 +18,7 @@ public:
     void exchangeWindowFeeChanged(double fee);
     void recordExchangeData(myExchangeData &tmpData);
     void setUI(const myExchangeData &exchangeData);
-
+    void checkAndSetDisable(const myExchangeData &exchangeData);
 
 private:
     Ui::myExchangeFormTransfer *ui;

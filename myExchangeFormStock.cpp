@@ -88,6 +88,19 @@ void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
 
     myExchangeFormTabBase::setUI(exchangeData);
 }
+void myExchangeFormStock::checkAndSetDisable(const myExchangeData &exchangeData) {
+    setUI(exchangeData);
+    if (exchangeData.account1 == exchangeData.account2 && exchangeData.account1 != "")
+        ui->moneyAccount->setDisabled(true);
+    if (exchangeData.code != "") {
+        ui->codeLineEdit->setDisabled(true);
+        ui->radioSH->setDisabled(true);
+        ui->radioSZ->setDisabled(true);
+        ui->radioOther->setDisabled(true);
+    }
+    if (exchangeData.name != "")
+        ui->nameLineEdit->setDisabled(true);
+}
 
 void myExchangeFormStock::updateBuySell() {
     buySellFlag = grpBuySell->checkedId() == SELL ? 1.0f : -1.0f;
@@ -220,8 +233,7 @@ void myExchangeFormStock::on_codeLineEdit_editingFinished() {
     qDebug() << STR("´úºÅEditLine") << ui->codeLineEdit->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
-            data.name = stockCode->findNameFromCode(data.code);
-            ui->nameLineEdit->setText(data.name);
+            ui->nameLineEdit->setText(stockCode->findNameFromCode(data.code));
         }
     }
 }
@@ -330,4 +342,8 @@ void myExchangeFormStock::exchangeWindowFeeChanged(double fee) {
     myExchangeFormTabBase::exchangeWindowFeeChanged(fee);
     data.money = static_cast<float>(data.amount) * data.price - data.fee;
     ui->moneySpinBox->setValue(data.money);
+}
+
+void myExchangeFormStock::on_nameLineEdit_textChanged(const QString &name) {
+    data.name = name;
 }
