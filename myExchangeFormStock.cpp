@@ -80,9 +80,9 @@ void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
     ui->codeLineEdit->setText(exchangeData.code);
     ui->spinBoxPrice->setValue(exchangeData.price);
     ui->spinBoxAmount->setValue(qAbs(exchangeData.amount));
-    if (STR("证券买入") == exchangeData.type) {
+    if (STR("证券买入") == exchangeData.exchangeType) {
         ui->radioBuy->click();
-    } else if (STR("证券卖出") == exchangeData.type) {
+    } else if (STR("证券卖出") == exchangeData.exchangeType) {
         ui->radioSell->click();
     } else {}
 
@@ -282,14 +282,14 @@ void myExchangeFormStock::on_spinBoxPrice_valueChanged(double value) {
 void myExchangeFormStock::on_radioBuy_clicked() {
     qDebug() << "#radioBuy_clicked#";
     updateBuySell();
-    data.type = STR("证券买入");
-    setExchangeWindowType(data.type);
+    data.exchangeType = STR("证券买入");
+    setExchangeWindowType(data.exchangeType);
 }
 void myExchangeFormStock::on_radioSell_clicked() {
     qDebug() << "#radioSell_clicked#";
     updateBuySell();
-    data.type = STR("证券卖出");
-    setExchangeWindowType(data.type);
+    data.exchangeType = STR("证券卖出");
+    setExchangeWindowType(data.exchangeType);
 }
 
 void myExchangeFormStock::on_radioSH_clicked() {

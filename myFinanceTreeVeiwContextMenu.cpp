@@ -141,7 +141,6 @@ void myFinanceTreeVeiwContextMenu::doExchangeStock(const QString &type) {
     exchangeData.account2 = holds.accountCode;
     exchangeData.code     = holds.assetCode;
     exchangeData.name     = holds.name;
-    exchangeData.type     = type;
     exchangeData.exchangeType = type;
     parent->doExchange(myExchangeUI(exchangeData), true);
 }
@@ -151,7 +150,6 @@ void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
     myExchangeData exchangeData;
     myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
     exchangeData.account2 = holds.accountCode;
-    exchangeData.type     = STR("转帐");
     exchangeData.exchangeType = STR("转帐");
     parent->doExchange(myExchangeUI(exchangeData), true);
 }
@@ -161,7 +159,6 @@ void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
     myExchangeData exchangeData;
     myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
     exchangeData.account1 = holds.accountCode;
-    exchangeData.type     = STR("转帐");
     exchangeData.exchangeType = STR("转帐");
     parent->doExchange(myExchangeUI(exchangeData), true);
 }

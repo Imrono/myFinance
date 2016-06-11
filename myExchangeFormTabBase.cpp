@@ -7,7 +7,7 @@ myExchangeFormTabBase::myExchangeFormTabBase(const myRootAccountAsset *rootNode,
       usedMoneyBeforeModify(0.0f), usedFeeBeforeModify(0.0f),
       rootNode(rootNode), tabName(tabName)
 {
-    data.type = this->tabName;
+    data.exchangeType = this->tabName;
     //myExchangeFormTabBase::recordExchangeData(data);
     qDebug() << "tab " << tabName << " is Ininialized with tabName " << this->tabName;
 }
@@ -32,7 +32,7 @@ void myExchangeFormTabBase::setExchangeWindowFee(double fee) {
     parent->setExchangeWindowUiFee(fee);
 }
 void myExchangeFormTabBase::recoverTypeAndFee() {
-    setExchangeWindowType(data.type);
+    setExchangeWindowType(data.exchangeType);
     setExchangeWindowFee(data.fee);
 }
 
@@ -59,7 +59,7 @@ float myExchangeFormTabBase::getTotalMoney(int index) {
 void myExchangeFormTabBase::traceExchangeData() {
     qDebug() << "##CURRENT TAB: " << tabName << "##";
     qDebug() << "data.time "     << data.time << ","
-             << "data.type "     << data.type << ","
+             << "data.type "     << data.exchangeType << ","
              << "data.account1 " << data.account1 << ","
              << "data.money "    << data.money << "\n"
              << "data.account2 " << data.account2 << ","

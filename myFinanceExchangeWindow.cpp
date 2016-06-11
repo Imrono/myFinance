@@ -96,7 +96,7 @@ void myFinanceExchangeWindow::showRollback() {
 }
 void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rollbackShow) {
     ui->timeDateTimeEdit->setDateTime(exchangeData.time);
-    ui->typeLineEdit->setText(exchangeData.type);
+    ui->typeLineEdit->setText(exchangeData.exchangeType);
     if (qAbs(exchangeData.fee) > MONEY_EPS) {
         ui->exchangeFeeSpinBox->setValue(exchangeData.fee);
     } else {
@@ -124,7 +124,7 @@ void myFinanceExchangeWindow::setExchangeWindowUiFee(double fee) {
 }
 void myFinanceExchangeWindow::getCommonExchangeData(myExchangeData &tmpData) {
     tmpData.time = ui->timeDateTimeEdit->dateTime();
-    tmpData.type = ui->typeLineEdit->text();
+    tmpData.exchangeType = ui->typeLineEdit->text();
     tmpData.fee  = ui->exchangeFeeSpinBox->value();
 }
 

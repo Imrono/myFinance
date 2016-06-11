@@ -40,7 +40,6 @@ struct myExchangeData {
 
     int       id;
     QDateTime time;
-    QString   type;
     float     fee;      //为正数，用减法
 
     QString   account1;
@@ -52,7 +51,6 @@ struct myExchangeData {
     int       amount;
 
     QString   exchangeType;
-    QString   assetType;
 
     // additional data
     myExchangeDetail detail;
@@ -88,13 +86,13 @@ private:
     void setTypeOfExchange (const myExchangeData &data) {
         exchangeData = data;
         numOfTabs = 1;
-        if (data.type.contains(STR("证券"))) {
+        if (data.exchangeType.contains(STR("证券"))) {
             tabType = myExchangeUI::TAB_STOCK;
-        } else if (data.type == STR("转帐")) {
+        } else if (data.exchangeType == STR("转帐")) {
             tabType = myExchangeUI::TAB_TRANS;
-        } else if (data.type == STR("收入")) {
+        } else if (data.exchangeType == STR("收入")) {
             tabType = myExchangeUI::TAB_INCOM;
-        } else if (data.type == STR("支出")) {
+        } else if (data.exchangeType == STR("支出")) {
             tabType = myExchangeUI::TAB_EXPES;
         } else {
             tabType = myExchangeUI::TAB_NONE;
@@ -117,8 +115,7 @@ struct myAccountData {
 struct myAssetData {
     myAssetData();
     myAssetData(myAssetHold data);
-    QString originAccountCode;
-    QString originAssetCode;
+
     QString accountCode;
     QString assetCode;
     QString assetName;

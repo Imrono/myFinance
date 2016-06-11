@@ -3,7 +3,7 @@
 myExchangeData::myExchangeData() {
     id       = -1;
     time     = QDateTime();
-    type     = "";
+    exchangeType     = "";
     account1 = "";
     money    = 0.0f;
     account2 = "";
@@ -28,7 +28,7 @@ myExchangeData myExchangeData::operator -() {
 myExchangeData &myExchangeData::operator =(const myExchangeData &data) {
     id       = data.id;
     time     = data.time;
-    type     = data.type;
+    exchangeType     = data.exchangeType;
     account1 = data.account1;
     money    = data.money;
     account2 = data.account2;
@@ -43,7 +43,7 @@ myExchangeData &myExchangeData::operator =(const myExchangeData &data) {
 bool myExchangeData::operator ==(const myExchangeData &data) {
     bool ans = true;
     ans = (time     == data.time)          && ans;
-    ans = (type     == data.type)          && ans;
+    ans = (exchangeType     == data.exchangeType)          && ans;
     ans = (account1 == data.account1)      && ans;
     ans = ((money-data.money) < MONEY_EPS) && ans;
     ans = (account2 == data.account2)      && ans;

@@ -28,7 +28,7 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
         }
     } else {
         QString exchangeTime = exchangeData.time.toString(("yyyy-MM-dd hh:mm:ss"));
-        QString exchangeType = exchangeData.type;
+        QString exchangeType = exchangeData.exchangeType;
         // 1 update database, "资产变化"表 CHANGE
         execWord = STR("SELECT count(*) FROM 资产变化 WHERE id=%1").arg(exchangeData.id);
         int numRows = myFinanceDatabase::getQueryRows(execWord);
@@ -81,13 +81,13 @@ QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exc
                      << "!="    << exchangeData.account2 << " " << exchangeData.price;
         QString strMoney = QString::number(exchangeData.money, 'f', 2);
         exchangeStr = STR("[%1]%2->%3(￥%4)")
-                .arg(exchangeData.type)
+                .arg(exchangeData.exchangeType)
                 .arg(exchangeData.account1).arg(exchangeData.account2).arg(strMoney);
     } else {
         QString strMoney = QString::number(exchangeData.money, 'f', 2);
         QString strPrice = QString::number(exchangeData.price, 'f', 2);
         exchangeStr = STR("[%1]%2(￥%3) - %4@%5(%6*%7)")
-                .arg(exchangeData.type)
+                .arg(exchangeData.exchangeType)
                 .arg(exchangeData.account1).arg(strMoney)
                 .arg(exchangeData.name).arg(exchangeData.account2)
                 .arg(exchangeData.amount).arg(strPrice);
@@ -108,7 +108,7 @@ bool myExchangeListModel::initial() {
             myExchangeData tmpExchange;
             tmpExchange.id       = query.value(0).toInt();
             tmpExchange.time     = QDateTime::fromString(query.value(1).toString(), "yyyy-MM-ddThh:mm:ss");
-            tmpExchange.type     = query.value(2).toString();
+            tmpExchange.exchangeType = query.value(2).toString();
             tmpExchange.account1 = query.value(3).toString();
             tmpExchange.money    = query.value(4).toDouble();
             tmpExchange.account2 = query.value(5).toString();
@@ -158,7 +158,7 @@ void myExchangeListModel::coordinatorModifyExchange(const myExchangeData &origin
         changeIdx |= TARG_ACCOUNT_2;
     }
     if (   originData.time != targetData.time
-        || originData.type != targetData.type) {
+        || originData.exchangeType != targetData.exchangeType) {
         changeIdx |= OTHER_EXCHANGE;
     }
 }

@@ -11,7 +11,6 @@ myInsertModifyAsset::myInsertModifyAsset(QString accountCode, QString accountNam
     stockCode(myStockCodeName::getInstance())
 {
     data.accountCode = accountCode;
-    data.originAccountCode = accountCode;
 
     ui->setupUi(this);
     ui->labelAccount->setText(accountCode + " - " + accountName);
@@ -194,7 +193,6 @@ void myInsertModifyAsset::setUI(myAssetData assetData) {
     ui->spinBoxAmount->setValue(assetData.amount);
     ui->spinBoxPrice->setValue(assetData.price);
     ui->lineEditType->setText(assetData.type);
-    data.originAssetCode = assetData.assetCode;
 }
 
 void myInsertModifyAsset::setAllDisabled() {

@@ -127,7 +127,7 @@ bool myAssetNode::doExchange(myExchangeData data, myRootAccountAsset &rootNode) 
             }
             execWord = STR("INSERT INTO 资产 VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
                     .arg(data.code).arg(data.name).arg(data.account2).arg(amount).arg(avgCost)
-                    .arg(data.type).arg(rootNode.getAccountNode(data.account2)->children.count());
+                    .arg(data.exchangeType).arg(rootNode.getAccountNode(data.account2)->children.count());
             qDebug() << execWord;
             if(!query.exec(execWord)) {
                 qDebug() << query.lastError().text();
@@ -521,12 +521,14 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
             } else { return false;}
         } else { return false;}
     } else if (myAssetNode::nodeHolds == node->type) {
+        QString originalAccountCode = node->nodeData.value<myAssetHold>().accountCode;
+        QString originalAssetCode = node->nodeData.value<myAssetHold>().assetCode;
         /// MODIFY ASSET
         if (POP_MODIFY == type) {
             myAssetData assetData = data.value<myAssetData>();
 
             filter   = STR("资产帐户代号='%1' AND 代号='%2'")
-                            .arg(assetData.originAccountCode).arg(assetData.originAssetCode);
+                            .arg(originalAccountCode).arg(originalAssetCode);
             execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
             qDebug() << execWord;
             if (1 == myFinanceDatabase::getQueryRows(execWord)) {
@@ -545,9 +547,7 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
         /// DELETE ASSET
         } else if (POP_DELETE == type) {
             // delete holds
-            QString accountCode = node->nodeData.value<myAssetHold>().accountCode;
-            QString assetCode = node->nodeData.value<myAssetHold>().assetCode;
-            return deleteOneAsset(accountCode, assetCode);
+            return deleteOneAsset(originalAccountCode, originalAssetCode);
         }
     } else { return false;}
     return false;
