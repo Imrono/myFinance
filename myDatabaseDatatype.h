@@ -105,7 +105,6 @@ struct myAssetHold;
 struct myAccountData {
     myAccountData();
     myAccountData(myAssetAccount data);
-    QString originCode;
     QString Code;
     QString Name;
     QString Type;

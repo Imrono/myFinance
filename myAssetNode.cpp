@@ -459,11 +459,11 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
             } else { return false;}
         /// MODIFY ACCOUNT
         } else if (POP_MODIFY == type) {
-            myAccountData accountData = data.value<myAccountData>();
-
-            filter   = STR("代号='%1'").arg(accountData.originCode);
+            QString accountCode = node->nodeData.value<myAssetAccount>().code;
+            filter   = STR("代号='%1'").arg(accountCode);
             execWord = STR("select count(*) from 资产帐户 WHERE %1").arg(filter);
             if (1 == myFinanceDatabase::getQueryRows(execWord)) {
+                myAccountData accountData = data.value<myAccountData>();
                 execWord = STR("UPDATE 资产帐户 SET 代号='%1', 名称='%2', 类别='%3', 备注='%4' WHERE %5")
                         .arg(accountData.Code).arg(accountData.Name).arg(accountData.Type).arg(accountData.Note)
                         .arg(filter);

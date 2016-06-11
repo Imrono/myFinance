@@ -26,5 +26,4 @@ void myInsertModifyAccount::setUI(myAccountData accountData) {
     ui->lineEditName->setText(accountData.Name);
     ui->lineEditType->setText(accountData.Type);
     ui->lineEditNote->setText(accountData.Note);
-    data.originCode = accountData.Code;
 }

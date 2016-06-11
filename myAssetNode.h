@@ -35,13 +35,8 @@ struct myAssetHold {
     QString assetCode;
     QString name;
     QString accountCode;
-    int amount;
-    float price;
-//    enum assetType {
-//        debt    = 0,
-//        current = 1,
-//        stock   = 2
-//    };
+    int     amount;
+    float   price;
     QString type;
 
     float currentPrice;
