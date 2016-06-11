@@ -291,7 +291,7 @@
    </property>
    <layout class="QVBoxLayout" name="vlMoneyAccount_2" stretch="1,0">
     <item>
-     <widget class="QLabel" name="labelAccount1_2">
+     <widget class="QLabel" name="labelaccountMoney_2">
       <property name="font">
        <font>
         <weight>75</weight>
@@ -323,7 +323,7 @@
    </property>
    <layout class="QVBoxLayout" name="vlMoneyAccount_3" stretch="1,0">
     <item>
-     <widget class="QLabel" name="labelAccount1_3">
+     <widget class="QLabel" name="labelaccountMoney_3">
       <property name="font">
        <font>
         <weight>75</weight>

@@ -45,14 +45,14 @@
     <item>
      <layout class="QFormLayout" name="formLayoutLeft">
       <item row="0" column="0">
-       <widget class="QLabel" name="labelAccount1">
+       <widget class="QLabel" name="labelaccountMoney">
         <property name="text">
          <string>帐户1：</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEditAccount1"/>
+       <widget class="QLineEdit" name="lineEditaccountMoney"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="labelMoney">

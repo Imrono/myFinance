@@ -15,15 +15,15 @@ myInsertModifyAccount::~myInsertModifyAccount()
 
 void myInsertModifyAccount::on_buttonBox_accepted()
 {
-    data.Code = ui->lineEditCode->text();
-    data.Name = ui->lineEditName->text();
-    data.Type = ui->lineEditType->text();
-    data.Note = ui->lineEditNote->text();
+    data.code = ui->lineEditCode->text();
+    data.name = ui->lineEditName->text();
+    data.type = ui->lineEditType->text();
+    data.note = ui->lineEditNote->text();
 }
 
 void myInsertModifyAccount::setUI(myAccountData accountData) {
-    ui->lineEditCode->setText(accountData.Code);
-    ui->lineEditName->setText(accountData.Name);
-    ui->lineEditType->setText(accountData.Type);
-    ui->lineEditNote->setText(accountData.Note);
+    ui->lineEditCode->setText(accountData.code);
+    ui->lineEditName->setText(accountData.name);
+    ui->lineEditType->setText(accountData.type);
+    ui->lineEditNote->setText(accountData.note);
 }

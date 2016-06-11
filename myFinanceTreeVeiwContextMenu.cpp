@@ -65,7 +65,7 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myAssetNode *node) 
         editAsset->addAction(deleteAsset);
         editAsset->addSeparator();
         myAssetHold assetHolds = node->nodeData.value<myAssetHold>();
-        if (assetHolds.assetCode == STR("cash")) {
+        if (assetHolds.assetData.assetCode == STR("cash")) {
             editAsset->addAction(transferIn);
             editAsset->addAction(transferOut);
         } else {
@@ -137,11 +137,11 @@ void myFinanceTreeVeiwContextMenu::sellAsset_clicked() {
 void myFinanceTreeVeiwContextMenu::doExchangeStock(const QString &type) {
     myExchangeData exchangeData;
     myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
-    exchangeData.account1 = holds.accountCode;
-    exchangeData.account2 = holds.accountCode;
-    exchangeData.code     = holds.assetCode;
-    exchangeData.name     = holds.name;
-    exchangeData.exchangeType = type;
+    exchangeData.accountMoney          = holds.assetData.accountCode;
+    exchangeData.assetData.accountCode = holds.assetData.accountCode;
+    exchangeData.assetData.assetCode   = holds.assetData.assetCode;
+    exchangeData.assetData.assetName   = holds.assetData.assetName;
+    exchangeData.exchangeType          = type;
     parent->doExchange(myExchangeUI(exchangeData), true);
 }
 
@@ -149,7 +149,7 @@ void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
     qDebug() << STR("右键转入 clicked");
     myExchangeData exchangeData;
     myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
-    exchangeData.account2 = holds.accountCode;
+    exchangeData.assetData.accountCode = holds.assetData.accountCode;
     exchangeData.exchangeType = STR("转帐");
     parent->doExchange(myExchangeUI(exchangeData), true);
 }
@@ -158,7 +158,7 @@ void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
     qDebug() << STR("右键转出 clicked");
     myExchangeData exchangeData;
     myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
-    exchangeData.account1 = holds.accountCode;
+    exchangeData.accountMoney = holds.assetData.accountCode;
     exchangeData.exchangeType = STR("转帐");
     parent->doExchange(myExchangeUI(exchangeData), true);
 }
@@ -180,7 +180,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
         if (POP_INSERT == type) {
             info = STR("添加资产");
             myAssetAccount nodeData = currentNode->nodeData.value<myAssetAccount>();
-            myInsertModifyAsset dial(nodeData.code, nodeData.name, parent);
+            myInsertModifyAsset dial(nodeData.accountData.code, nodeData.accountData.name, parent);
             dial.setWindowTitle(info);
             if(dial.exec() == QDialog::Accepted) {
                 data.setValue(dial.getData());
@@ -212,7 +212,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
         } else if (POP_DELETE == type) {
             info = STR("删除帐户");
             if(QMessageBox::Ok == QMessageBox::warning(parent, info, info + "->\n" +
-                                  currentNode->nodeData.value<myAssetAccount>().code + "\n" + currentNode->nodeData.value<myAssetAccount>().name,
+                                  currentNode->nodeData.value<myAssetAccount>().accountData.code + "\n" + currentNode->nodeData.value<myAssetAccount>().accountData.name,
                                   QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok)) {
                 qDebug() << info + "Accepted";
             } else {
@@ -223,7 +223,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
         myAssetHold nodeData = currentNode->nodeData.value<myAssetHold>();
         myAssetData originAssetData(nodeData);
         myAssetAccount accountNodeData = currentNode->parent->nodeData.value<myAssetAccount>();
-        myInsertModifyAsset dial(accountNodeData.code, accountNodeData.name, parent);
+        myInsertModifyAsset dial(accountNodeData.accountData.code, accountNodeData.accountData.name, parent);
         dial.setUI(myAssetData(nodeData));
         /// MODIFY ASSET
         if (POP_MODIFY == type) {

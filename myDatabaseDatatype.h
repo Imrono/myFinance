@@ -32,6 +32,36 @@ enum databaseExchangeType {
 struct myExchangeDetail {
 
 };
+
+struct myAssetAccount;
+struct myAssetHold;
+struct myAccountData {
+    myAccountData();
+    myAccountData(myAssetAccount data);
+    QString code;
+    QString name;
+    QString type;
+    QString note;
+    static bool isSameAccountData(const myAccountData &data1, const myAccountData &data2);
+};
+struct myAssetData {
+    myAssetData();
+    myAssetData(myAssetHold data);
+    myAssetData &operator =(const myAssetData &data);
+    bool operator ==(const myAssetData &data);
+
+    QString accountCode;
+    QString assetCode;
+    QString assetName;
+    int     amount;
+    float   price;
+    QString type;
+    static bool isSameAssetData(const myAssetData &data1, const myAssetData &data2);
+};
+
+Q_DECLARE_METATYPE(myAccountData)
+Q_DECLARE_METATYPE(myAssetData)
+
 struct myExchangeData {
     myExchangeData();
     myExchangeData operator -();
@@ -42,13 +72,9 @@ struct myExchangeData {
     QDateTime time;
     float     fee;      //为正数，用减法
 
-    QString   account1;
+    QString   accountMoney;
     float     money;
-    QString   account2;
-    QString   code;
-    QString   name;
-    float     price;
-    int       amount;
+    myAssetData assetData;
 
     QString   exchangeType;
 
@@ -99,33 +125,6 @@ private:
         }
     }
 };
-
-struct myAssetAccount;
-struct myAssetHold;
-struct myAccountData {
-    myAccountData();
-    myAccountData(myAssetAccount data);
-    QString Code;
-    QString Name;
-    QString Type;
-    QString Note;
-    static bool isSameAccountData(const myAccountData &data1, const myAccountData &data2);
-};
-struct myAssetData {
-    myAssetData();
-    myAssetData(myAssetHold data);
-
-    QString accountCode;
-    QString assetCode;
-    QString assetName;
-    int     amount;
-    float   price;
-    QString type;
-    static bool isSameAssetData(const myAssetData &data1, const myAssetData &data2);
-};
-
-Q_DECLARE_METATYPE(myAccountData)
-Q_DECLARE_METATYPE(myAssetData)
 
 #endif // MYDATABASEDATATYPE
 

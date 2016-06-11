@@ -20,20 +20,20 @@ myExchangeFormIncome::myExchangeFormIncome(const myRootAccountAsset *rootNode, Q
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode->getAccountNode(i);
-        if (accountNode->nodeData.value<myAssetAccount>().type.contains(STR("券商"))) {
+        if (accountNode->nodeData.value<myAssetAccount>().accountData.type.contains(STR("券商"))) {
                 continue;
         }
         for (int j = 0; j < accountNode->children.count(); j++) {
             myAssetNode *holdNode = accountNode->children.at(j);
-            QString assetCode = holdNode->nodeData.value<myAssetHold>().assetCode;
+            QString assetCode = holdNode->nodeData.value<myAssetHold>().assetData.assetCode;
             if (assetCode.contains("cash")) {
                 const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
                 QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
-                if (accountData.name.contains(STR("银行"))) {
-                    code = "**** **** " + accountData.code.right(4);
+                if (accountData.accountData.name.contains(STR("银行"))) {
+                    code = "**** **** " + accountData.accountData.code.right(4);
                 } else {
-                    code = accountData.code;
+                    code = accountData.accountData.code;
                 }
                 incomeIdx2AccountIdx.insert(localCount, i);
                 ui->moneyAccountIncome->addItem(icon, code);
@@ -52,18 +52,18 @@ myExchangeFormIncome::~myExchangeFormIncome()
 void myExchangeFormIncome::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
-    tmpData.account2 = ui->moneyAccountIncome->itemText(ui->moneyAccountIncome->currentIndex());
-    tmpData.code     = MY_CASH;
+    tmpData.assetData.accountCode = ui->moneyAccountIncome->itemText(ui->moneyAccountIncome->currentIndex());
+    tmpData.assetData.assetCode   = MY_CASH;
     if (grpIncomeType->checkedId() == 0) {
-        tmpData.name = STR("工资收入");
+        tmpData.assetData.assetName = STR("工资收入");
     } else if (grpIncomeType->checkedId() == 1) {
-        tmpData.name = ui->lineEditIncomeType->text();
+        tmpData.assetData.assetName = ui->lineEditIncomeType->text();
     } else {}
-    tmpData.amount   = 1;
-    tmpData.price    = ui->spinBoxIncome->value();
+    tmpData.assetData.amount = 1;
+    tmpData.assetData.price  = ui->spinBoxIncome->value();
 
-    tmpData.account1 = OTHER_ACCOUNT;
-    tmpData.money    = -data.price;
+    tmpData.accountMoney = OTHER_ACCOUNT;
+    tmpData.money    = -data.assetData.price;
 }
 void myExchangeFormIncome::setUI(const myExchangeData &exchangeData) {
 
@@ -79,14 +79,14 @@ void myExchangeFormIncome::on_radioOtherIncome_clicked() {
     updateIncomeType();
 }
 void myExchangeFormIncome::on_lineEditIncomeType_textChanged(const QString &str) {
-    data.name = str;
+    data.assetData.assetName = str;
 }
 void myExchangeFormIncome::updateIncomeType() {
     if (grpIncomeType->checkedId() == 0) {
-        data.name = STR("工资收入");
+        data.assetData.assetName = STR("工资收入");
         ui->lineEditIncomeType->setDisabled(true);
     } else if (grpIncomeType->checkedId() == 1) {
         ui->lineEditIncomeType->setEnabled(true);
-        data.name = ui->lineEditIncomeType->text();
+        data.assetData.assetName = ui->lineEditIncomeType->text();
     } else {}
 }

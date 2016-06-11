@@ -12,10 +12,8 @@
 struct myAssetAccount {
     myAssetAccount();
     myAssetAccount(myAccountData data);
-    QString code;
-    QString name;
-    QString type;
-    QString note;
+
+    myAccountData accountData;
 
     QString logo;
     float value;
@@ -26,12 +24,8 @@ struct myAssetAccount {
 struct myAssetHold {
     myAssetHold();
     myAssetHold(myAssetData data);
-    QString assetCode;
-    QString name;
-    QString accountCode;
-    int     amount;
-    float   price;
-    QString type;
+
+    myAssetData assetData;
 
     float currentPrice;
     float value;

@@ -100,7 +100,7 @@ void myFinanceExchangeWindow::setUI(const myExchangeData &exchangeData, bool rol
     if (qAbs(exchangeData.fee) > MONEY_EPS) {
         ui->exchangeFeeSpinBox->setValue(exchangeData.fee);
     } else {
-        double fee = -(static_cast<double>(exchangeData.amount)*exchangeData.price + exchangeData.money);
+        double fee = -(static_cast<double>(exchangeData.assetData.amount)*exchangeData.assetData.price + exchangeData.money);
         ui->exchangeFeeSpinBox->setValue(fee);
     }
     if (rollbackShow) {

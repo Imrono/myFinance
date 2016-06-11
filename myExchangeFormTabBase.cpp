@@ -18,11 +18,11 @@ void myExchangeFormTabBase::recordExchangeData(myExchangeData &tmpData) {
 void myExchangeFormTabBase::setUI(const myExchangeData &exchangeData) {
     if (qAbs(exchangeData.money) > MONEY_EPS) {
         usedMoneyBeforeModify = exchangeData.money;
-        usedFeeBeforeModify = exchangeData.price*static_cast<float>(exchangeData.amount) - exchangeData.money;
+        usedFeeBeforeModify = exchangeData.assetData.price*static_cast<float>(exchangeData.assetData.amount) - exchangeData.money;
     }
 }
 void myExchangeFormTabBase::checkAndSetDisable(const myExchangeData &exchangeData) {
-
+    Q_UNUSED(exchangeData);
 }
 
 void myExchangeFormTabBase::setExchangeWindowType(const QString &type) {
@@ -47,9 +47,9 @@ float myExchangeFormTabBase::getTotalMoney(int index) {
     for (int i = 0; i < numAsset; i++) {
         myAssetNode *asset = accountNode->children.at(i);
         const myAssetHold &assetHold = (asset->nodeData).value<myAssetHold>();
-        if (assetHold.assetCode == MY_CASH) {
-            qDebug() << assetHold.accountCode << " " << assetHold.assetCode << " " << assetHold.price;
-            tmpTotalMoney = assetHold.price;
+        if (assetHold.assetData.assetCode == MY_CASH) {
+            qDebug() << assetHold.assetData.accountCode << " " << assetHold.assetData.assetCode << " " << assetHold.assetData.price;
+            tmpTotalMoney = assetHold.assetData.price;
             break;
         }
     }
@@ -60,11 +60,11 @@ void myExchangeFormTabBase::traceExchangeData() {
     qDebug() << "##CURRENT TAB: " << tabName << "##";
     qDebug() << "data.time "     << data.time << ","
              << "data.type "     << data.exchangeType << ","
-             << "data.account1 " << data.account1 << ","
+             << "data.accountMoney " << data.accountMoney << ","
              << "data.money "    << data.money << "\n"
-             << "data.account2 " << data.account2 << ","
-             << "data.code "     << data.code << ","
-             << "data.name "     << data.name << ","
-             << "data.amount "   << data.amount << ","
-             << "data.price "    << data.price;
+             << "data.account2 " << data.assetData.accountCode << ","
+             << "data.code "     << data.assetData.assetCode << ","
+             << "data.name "     << data.assetData.assetName << ","
+             << "data.amount "   << data.assetData.amount << ","
+             << "data.price "    << data.assetData.price;
 }

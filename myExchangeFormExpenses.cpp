@@ -14,20 +14,20 @@ myExchangeFormExpenses::myExchangeFormExpenses(const myRootAccountAsset *rootNod
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode->getAccountNode(i);
-        if (accountNode->nodeData.value<myAssetAccount>().type.contains(STR("券商"))) {
+        if (accountNode->nodeData.value<myAssetAccount>().accountData.type.contains(STR("券商"))) {
                 continue;
         }
         for (int j = 0; j < accountNode->children.count(); j++) {
             myAssetNode *holdNode = accountNode->children.at(j);
-            QString assetCode = holdNode->nodeData.value<myAssetHold>().assetCode;
+            QString assetCode = holdNode->nodeData.value<myAssetHold>().assetData.assetCode;
             if (assetCode.contains("cash")) {
                 const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
                 QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
-                if (accountData.name.contains(STR("银行"))) {
-                    code = "**** **** " + accountData.code.right(4);
+                if (accountData.accountData.name.contains(STR("银行"))) {
+                    code = "**** **** " + accountData.accountData.code.right(4);
                 } else {
-                    code = accountData.code;
+                    code = accountData.accountData.code;
                 }
                 spendIdx2AccountIdx.insert(localCount, i);
                 ui->moneyAccountExpend->addItem(icon, code);
@@ -46,14 +46,14 @@ myExchangeFormExpenses::~myExchangeFormExpenses()
 void myExchangeFormExpenses::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
-    tmpData.account1 = ui->moneyAccountExpend->itemText(ui->moneyAccountExpend->currentIndex());
+    tmpData.accountMoney = ui->moneyAccountExpend->itemText(ui->moneyAccountExpend->currentIndex());
     tmpData.money    = -ui->spinBoxExpend->value();
 
-    tmpData.account2 = OTHER_ACCOUNT;
-    tmpData.code     = ui->lineEditExpendCode->text();
-    tmpData.name     = ui->lineEditExpendName->text();
-    tmpData.amount   = 1;
-    tmpData.price    = ui->spinBoxExpend->value();
+    tmpData.assetData.accountCode = OTHER_ACCOUNT;
+    tmpData.assetData.assetCode   = ui->lineEditExpendCode->text();
+    tmpData.assetData.assetCode   = ui->lineEditExpendName->text();
+    tmpData.assetData.amount      = 1;
+    tmpData.assetData.price       = ui->spinBoxExpend->value();
 }
 void myExchangeFormExpenses::setUI(const myExchangeData &exchangeData) {
 

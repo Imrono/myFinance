@@ -36,16 +36,16 @@ myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QSt
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode->getAccountNode(i);
-        const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
-        if (!accountData.type.contains(STR("券商")))
+        const myAssetAccount accountData = accountNode->nodeData.value<myAssetAccount>();
+        if (!accountData.accountData.type.contains(STR("券商")))
             continue;
 
         QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
         QString code;
-        if (accountData.name.contains(STR("银行"))) {
-            code = "**** **** " + accountData.code.right(4);
+        if (accountData.accountData.name.contains(STR("银行"))) {
+            code = "**** **** " + accountData.accountData.code.right(4);
         } else {
-            code = accountData.code;
+            code = accountData.accountData.code;
         }
         exchangeIdx2AccountIdx.insert(localCount, i);
         ui->moneyAccount->addItem(icon, code);
@@ -60,26 +60,26 @@ myExchangeFormStock::~myExchangeFormStock() {
 void myExchangeFormStock::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
-    tmpData.account1 = ui->moneyAccount->itemText(ui->moneyAccount->currentIndex());
+    tmpData.accountMoney = ui->moneyAccount->itemText(ui->moneyAccount->currentIndex());
     tmpData.money  = ui->moneySpinBox->value();
 
-    tmpData.account2 = data.account1;
-    tmpData.code   = ui->codeLineEdit->text();
-    if (data.code == "cash") {
-        tmpData.amount = 1;
+    tmpData.assetData.accountCode = data.accountMoney;
+    tmpData.assetData.assetCode   = ui->codeLineEdit->text();
+    if (data.assetData.assetCode == "cash") {
+        tmpData.assetData.amount = 1;
     } else {
-        tmpData.amount = ui->spinBoxAmount->text().toInt() * -buySellFlag;
+        tmpData.assetData.amount = ui->spinBoxAmount->text().toInt() * -buySellFlag;
     }
-    tmpData.price  = ui->spinBoxPrice->text().toDouble();
-    tmpData.name   = ui->nameLineEdit->text();
+    tmpData.assetData.price     = ui->spinBoxPrice->text().toDouble();
+    tmpData.assetData.assetName = ui->nameLineEdit->text();
 }
 void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
-    int index = ui->moneyAccount->findText(exchangeData.account2);
+    int index = ui->moneyAccount->findText(exchangeData.assetData.accountCode);
     ui->moneyAccount->setCurrentIndex(exchangeIdx2AccountIdx.find(index).value());
-    ui->nameLineEdit->setText(exchangeData.name);
-    ui->codeLineEdit->setText(exchangeData.code);
-    ui->spinBoxPrice->setValue(exchangeData.price);
-    ui->spinBoxAmount->setValue(qAbs(exchangeData.amount));
+    ui->nameLineEdit->setText(exchangeData.assetData.assetCode);
+    ui->codeLineEdit->setText(exchangeData.assetData.assetName);
+    ui->spinBoxPrice->setValue(exchangeData.assetData.price);
+    ui->spinBoxAmount->setValue(qAbs(exchangeData.assetData.amount));
     if (STR("证券买入") == exchangeData.exchangeType) {
         ui->radioBuy->click();
     } else if (STR("证券卖出") == exchangeData.exchangeType) {
@@ -90,32 +90,32 @@ void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
 }
 void myExchangeFormStock::checkAndSetDisable(const myExchangeData &exchangeData) {
     setUI(exchangeData);
-    if (exchangeData.account1 == exchangeData.account2 && exchangeData.account1 != "")
+    if (exchangeData.accountMoney == exchangeData.assetData.accountCode && exchangeData.accountMoney != "")
         ui->moneyAccount->setDisabled(true);
-    if (exchangeData.code != "") {
+    if (exchangeData.assetData.assetCode != "") {
         ui->codeLineEdit->setDisabled(true);
         ui->radioSH->setDisabled(true);
         ui->radioSZ->setDisabled(true);
         ui->radioOther->setDisabled(true);
     }
-    if (exchangeData.name != "")
+    if (exchangeData.assetData.assetName != "")
         ui->nameLineEdit->setDisabled(true);
 }
 
 void myExchangeFormStock::updateBuySell() {
     buySellFlag = grpBuySell->checkedId() == SELL ? 1.0f : -1.0f;
-    data.amount = -buySellFlag*qAbs(data.amount);
+    data.assetData.amount = -buySellFlag*qAbs(data.assetData.amount);
 
     // market, price, amount, fee 决定 money
     // market, price*amount, buy/sell 决定 fee
     if (grpMarket->checkedId() != OTHER) {
         updateExchangeFee();
     }
-    data.money = -static_cast<float>(data.amount) * data.price - data.fee;
+    data.money = -static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
     ui->moneySpinBox->setValue(data.money);
 
     qDebug() << "#updateBuySell# data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
-             << "data.amount " << data.amount << ","
+             << "data.amount " << data.assetData.amount << ","
              << "data.money "  << data.money  << ",";
 }
 
@@ -134,24 +134,24 @@ void myExchangeFormStock::updateMarketInfo() {
     default:
         break;
     }
-    int pointIndex = data.code.indexOf(QString("."));
-    data.code.remove(0, pointIndex+1);
-    data.code.insert(0, market);
-    if (data.code == "sh.sh") {
-        data.code = "sh.";
-    } else if (data.code == "sz.sz") {
-        data.code = "sz.";
+    int pointIndex = data.assetData.assetCode.indexOf(QString("."));
+    data.assetData.assetCode.remove(0, pointIndex+1);
+    data.assetData.assetCode.insert(0, market);
+    if (data.assetData.assetCode == "sh.sh") {
+        data.assetData.assetCode = "sh.";
+    } else if (data.assetData.assetCode == "sz.sz") {
+        data.assetData.assetCode = "sz.";
     } else {}
-    ui->codeLineEdit->setText(data.code);
+    ui->codeLineEdit->setText(data.assetData.assetCode);
 
     updateExchangeFee();
     if (stockCode->getIsInitialed()) {
-        data.name = stockCode->findNameFromCode(data.code);
-        ui->nameLineEdit->setText(data.name);
+        data.assetData.assetName = stockCode->findNameFromCode(data.assetData.assetCode);
+        ui->nameLineEdit->setText(data.assetData.assetName);
     }
     qDebug() << "updateMarketInfo()" << ","
-             << "data.code"  << data.code << ","
-             << "data.name"  << data.name << ","
+             << "data.code"  << data.assetData.assetCode << ","
+             << "data.name"  << data.assetData.assetName << ","
              << (grpMarket->checkedId() == SH ? "radioSH" :
                  grpMarket->checkedId() == SZ ? "radioSZ" :
                  grpMarket->checkedId() == OTHER ? "radioOther" : "radioUnknown");
@@ -159,25 +159,25 @@ void myExchangeFormStock::updateMarketInfo() {
 
 void myExchangeFormStock::updateExchangeFee() {
     double fee = 0.0f;
-    double amount = qAbs(static_cast<double>(data.amount));
+    double amount = qAbs(static_cast<double>(data.assetData.amount));
 
     double fee1 = 0.0f; //佣金
     double fee2 = 0.0f; //过户费
     double fee3 = 0.0f; //印花税
 
     if (OTHER != grpMarket->checkedId()) {
-        fee1 = data.price * amount * commisionRate;
+        fee1 = data.assetData.price * amount * commisionRate;
         if (fee1 < 5.0f) {
             fee1 = 5.0f;
         } else {}
     }
 
     if (SH == grpMarket->checkedId()) {
-        fee2 = data.price * amount * 0.02f*0.001f;  //0.02‰
+        fee2 = data.assetData.price * amount * 0.02f*0.001f;  //0.02‰
     } else {}
 
     if (SELL == grpBuySell->checkedId()) {
-        fee3 = data.price * amount * 0.001f;
+        fee3 = data.assetData.price * amount * 0.001f;
     } else {}
 
     fee = fee1 + fee2 + fee3;
@@ -186,27 +186,27 @@ void myExchangeFormStock::updateExchangeFee() {
 }
 
 void myExchangeFormStock::on_codeLineEdit_textChanged(const QString &str) {
-    data.code = str;
+    data.assetData.assetCode = str;
 
     // 上海，深圳通过股票代码自动判断
-    int pointIndex = data.code.indexOf(QString("."));
-    int len = data.code.size();
+    int pointIndex = data.assetData.assetCode.indexOf(QString("."));
+    int len = data.assetData.assetCode.size();
     if (len - pointIndex > 2 &&
         (grpMarket->checkedId() == SH ||
          grpMarket->checkedId() == SZ)) {
-        QString subStr = data.code.mid(pointIndex+1, 2);
+        QString subStr = data.assetData.assetCode.mid(pointIndex+1, 2);
         if (subStr == "30" || subStr == "00") {
             ui->radioSZ->setChecked(true);
         } else if (subStr == "60") {
             ui->radioSH->setChecked(true);
         } else {
-            subStr = data.code.mid(pointIndex+1, 4);
+            subStr = data.assetData.assetCode.mid(pointIndex+1, 4);
             if (subStr == "cash") {
                 ui->radioOther->setChecked(true);
             } else {}
         }
     } else if (grpMarket->checkedId() == OTHER) {
-        QString subStr = data.code.left(3);
+        QString subStr = data.assetData.assetCode.left(3);
         if (subStr == "sh.") {
             ui->radioSH->setChecked(true);
         } else if (subStr == "sz.") {
@@ -216,9 +216,9 @@ void myExchangeFormStock::on_codeLineEdit_textChanged(const QString &str) {
 
     updateMarketInfo();
 
-    if (data.code == "cash") {
-        data.amount = 1;
-        ui->spinBoxAmount->setValue(qAbs(data.amount));
+    if (data.assetData.assetCode == "cash") {
+        data.assetData.amount = 1;
+        ui->spinBoxAmount->setValue(qAbs(data.assetData.amount));
         ui->spinBoxAmount->setDisabled(true);
         ui->labelPrice->setText(STR("资金："));
     } else {
@@ -233,7 +233,7 @@ void myExchangeFormStock::on_codeLineEdit_editingFinished() {
     qDebug() << STR("代号EditLine") << ui->codeLineEdit->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
-            ui->nameLineEdit->setText(stockCode->findNameFromCode(data.code));
+            ui->nameLineEdit->setText(stockCode->findNameFromCode(data.assetData.assetCode));
         }
     }
 }
@@ -245,9 +245,9 @@ void myExchangeFormStock::on_nameLineEdit_editingFinished() {
     QMap<QString,QString>::const_iterator it = stockCode->codeName.begin();
     for (; it != stockCode->codeName.end(); ++it) {
         if (it.value() == str) {
-            data.code = it.key();
+            data.assetData.assetCode = it.key();
             QRegExp rx("([a-zA-Z]*)[.][0-9]*");
-            int pos = data.code.indexOf(rx);
+            int pos = data.assetData.assetCode.indexOf(rx);
             if (pos >= 0) {
                 QString a = rx.cap(1);
                 if (a == "sh") {
@@ -260,8 +260,8 @@ void myExchangeFormStock::on_nameLineEdit_editingFinished() {
                 updateMarketInfo();
             }
 
-            ui->codeLineEdit->setText(data.code);
-            qDebug() << data.code << it.value();
+            ui->codeLineEdit->setText(data.assetData.assetCode);
+            qDebug() << data.assetData.assetCode << it.value();
             return;
         }
     }
@@ -271,11 +271,11 @@ void myExchangeFormStock::on_nameLineEdit_editingFinished() {
 }
 
 void myExchangeFormStock::on_spinBoxAmount_valueChanged(int value) {
-    data.amount = buySellFlag*qAbs(value);
+    data.assetData.amount = buySellFlag*qAbs(value);
     updateBuySell();
 }
 void myExchangeFormStock::on_spinBoxPrice_valueChanged(double value) {
-    data.price = value;
+    data.assetData.price = value;
     updateBuySell();
 }
 
@@ -307,11 +307,11 @@ void myExchangeFormStock::on_radioOther_clicked() {
 
 void myExchangeFormStock::on_moneyAccount_currentIndexChanged(int index) {
     int nodeIdx = exchangeIdx2AccountIdx.find(index).value();
-    // 1. data.account1 & data.account2 update
+    // 1. data.accountMoney & data.account2 update
     myAssetNode *accountNode = rootNode->getAccountNode(nodeIdx);
     const myAssetAccount accountData = accountNode->nodeData.value<myAssetAccount>();
-    data.account1 = accountData.code;
-    data.account2 = accountData.code;
+    data.accountMoney = accountData.accountData.code;
+    data.assetData.accountCode = accountData.accountData.code;
     // 2. totalMoney
     totalMoney = getTotalMoney(nodeIdx);
     if (isModifyExchange) {
@@ -321,12 +321,12 @@ void myExchangeFormStock::on_moneyAccount_currentIndexChanged(int index) {
     qDebug() << "#moneyAccount_currentIndexChanged# isModifyExchange:" << isModifyExchange
              << " totalMoney:" << totalMoney;
     // 3. aommisionRate
-    commisionRate = accountNode->nodeData.value<myAssetAccount>().note.toDouble();
+    commisionRate = accountNode->nodeData.value<myAssetAccount>().accountData.note.toDouble();
     ui->feeRateSpinBox->setValue(commisionRate*1000);
     qDebug() << STR("佣金") << commisionRate;
     // 4. fee & money
     updateExchangeFee();
-    data.money = static_cast<float>(data.amount) * data.price - data.fee;
+    data.money = static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
     ui->moneySpinBox->setValue(data.money);
 }
 void myExchangeFormStock::on_moneySpinBox_valueChanged(double value) {
@@ -340,10 +340,10 @@ void myExchangeFormStock::on_moneySpinBox_valueChanged(double value) {
 void myExchangeFormStock::exchangeWindowFeeChanged(double fee) {
     qDebug() << "$$myExchangeFormStock::exchangeWindowFeeChanged " << fee << "$$";
     myExchangeFormTabBase::exchangeWindowFeeChanged(fee);
-    data.money = static_cast<float>(data.amount) * data.price - data.fee;
+    data.money = static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
     ui->moneySpinBox->setValue(data.money);
 }
 
 void myExchangeFormStock::on_nameLineEdit_textChanged(const QString &name) {
-    data.name = name;
+    data.assetData.assetName = name;
 }

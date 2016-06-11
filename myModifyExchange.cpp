@@ -19,21 +19,21 @@ void myModifyExchange::setUI(const myExchangeData &exchangeData) {
     ui->dateTimeEditTime->setDateTime(data.time);
     ui->lineEditType->setText(data.exchangeType);
 
-    ui->lineEditAccount1->setText(data.account1);
+    ui->lineEditaccountMoney->setText(data.accountMoney);
     ui->spinBoxMoney->setValue(data.money);
 
-    ui->lineEditAccount2->setText(data.account2);
-    ui->lineEditCode->setText(data.code);
-    ui->lineEditName->setText(data.name);
-    ui->spinBoxAmount->setValue(data.amount);
-    ui->spinBoxPrice->setValue(data.price);
+    ui->lineEditAccount2->setText(data.assetData.accountCode);
+    ui->lineEditCode->setText(data.assetData.assetCode);
+    ui->lineEditName->setText(data.assetData.assetName);
+    ui->spinBoxAmount->setValue(data.assetData.amount);
+    ui->spinBoxPrice->setValue(data.assetData.price);
 }
 void myModifyExchange::setUI4Delete() {
     ui->lineEditId->setDisabled(true);
     ui->dateTimeEditTime->setDisabled(true);
     ui->lineEditType->setDisabled(true);
 
-    ui->lineEditAccount1->setDisabled(true);
+    ui->lineEditaccountMoney->setDisabled(true);
     ui->spinBoxMoney->setDisabled(true);
 
     ui->lineEditAccount2->setDisabled(true);
@@ -45,8 +45,8 @@ void myModifyExchange::setUI4Delete() {
 
 void myModifyExchange::on_lineEditCode_textChanged(const QString &str) {
     if (str == "cash") {
-        data.amount = 1;
-        ui->spinBoxAmount->setValue(data.amount);
+        data.assetData.amount = 1;
+        ui->spinBoxAmount->setValue(data.assetData.amount);
         ui->spinBoxAmount->setDisabled(true);
         ui->labelPrice->setText(STR("金额"));
     } else {
@@ -63,14 +63,14 @@ void myModifyExchange::on_buttonBox_accepted()
     data.time = ui->dateTimeEditTime->dateTime();
     data.exchangeType = ui->lineEditType->text();
 
-    data.account1 = ui->lineEditAccount1->text();
+    data.accountMoney = ui->lineEditaccountMoney->text();
     data.money = ui->spinBoxMoney->value();
 
-    data.account2 = ui->lineEditAccount2->text();
-    data.code = ui->lineEditCode->text();
-    data.name = ui->lineEditName->text();
-    data.amount = ui->spinBoxAmount->value();
-    data.price = ui->spinBoxPrice->value();
+    data.assetData.accountCode = ui->lineEditAccount2->text();
+    data.assetData.assetCode   = ui->lineEditCode->text();
+    data.assetData.assetName   = ui->lineEditName->text();
+    data.assetData.amount      = ui->spinBoxAmount->value();
+    data.assetData.price       = ui->spinBoxPrice->value();
 }
 
 myExchangeData myModifyExchange::getData() {
@@ -82,8 +82,8 @@ bool myModifyExchange::isRollback() {
 
 void myModifyExchange::on_spinBoxPrice_valueChanged(double price) {
     if (ui->lineEditCode->text() == MY_CASH) {
-        data.price = price;
-        data.money = - data.price;
+        data.assetData.price = price;
+        data.money = - data.assetData.price;
         ui->spinBoxMoney->setValue(data.money);
     }
 }
@@ -91,7 +91,7 @@ void myModifyExchange::on_spinBoxPrice_valueChanged(double price) {
 void myModifyExchange::on_spinBoxMoney_valueChanged(double money) {
     if (ui->lineEditCode->text() == MY_CASH) {
         data.money = money;
-        data.price = - data.money;
-        ui->spinBoxPrice->setValue(data.price);
+        data.assetData.price = - data.money;
+        ui->spinBoxPrice->setValue(data.assetData.price);
     }
 }

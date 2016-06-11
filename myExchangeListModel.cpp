@@ -37,9 +37,9 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
                     "SET 时间='%1', 变化类别='%2', 资产帐户代号1='%3', 变化资金=%4, "
                     "资产帐户代号2='%5', 代号='%6', 名称='%7', 单价=%8, 数量=%9 "
                     "WHERE id=%10")
-                    .arg(exchangeTime).arg(exchangeType).arg(exchangeData.account1).arg(exchangeData.money)
-                    .arg(exchangeData.account2).arg(exchangeData.code).arg(exchangeData.name)
-                    .arg(exchangeData.price).arg(exchangeData.amount).arg(exchangeData.id);
+                    .arg(exchangeTime).arg(exchangeType).arg(exchangeData.accountMoney).arg(exchangeData.money)
+                    .arg(exchangeData.assetData.accountCode).arg(exchangeData.assetData.assetCode).arg(exchangeData.assetData.assetName)
+                    .arg(exchangeData.assetData.price).arg(exchangeData.assetData.amount).arg(exchangeData.id);
             qDebug() << execWord;
 
             if(!query.exec(execWord)) {
@@ -57,8 +57,9 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
         } else if (0 == numRows) { //INSERT
             execWord = STR("INSERT INTO 资产变化 "
                                               "VALUES (null, '%1', '%2', '%3', %4, '%5', '%6', '%7', %8, %9)")
-                    .arg(exchangeTime).arg(exchangeType).arg(exchangeData.account1).arg(exchangeData.money)
-                    .arg(exchangeData.account2).arg(exchangeData.code).arg(exchangeData.name).arg(exchangeData.price).arg(exchangeData.amount);
+                    .arg(exchangeTime).arg(exchangeType).arg(exchangeData.accountMoney).arg(exchangeData.money)
+                    .arg(exchangeData.assetData.accountCode).arg(exchangeData.assetData.assetCode).arg(exchangeData.assetData.assetName)
+                    .arg(exchangeData.assetData.price).arg(exchangeData.assetData.amount);
             qDebug() << execWord;
 
             if(!query.exec(execWord)) {
@@ -75,22 +76,22 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
 }
 QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exchangeData) {
     QString exchangeStr;
-    if (MY_CASH == exchangeData.code && 1 == exchangeData.amount) {
-        if (qAbs(exchangeData.price + exchangeData.money) > 0.0001f)
-            qDebug() << "[转帐]" << exchangeData.account1 << " " << exchangeData.money
-                     << "!="    << exchangeData.account2 << " " << exchangeData.price;
+    if (MY_CASH == exchangeData.assetData.assetCode && 1 == exchangeData.assetData.amount) {
+        if (qAbs(exchangeData.assetData.price + exchangeData.money) > 0.0001f)
+            qDebug() << "[转帐]" << exchangeData.accountMoney << " " << exchangeData.money
+                     << "!="    << exchangeData.assetData.accountCode << " " << exchangeData.assetData.price;
         QString strMoney = QString::number(exchangeData.money, 'f', 2);
         exchangeStr = STR("[%1]%2->%3(￥%4)")
                 .arg(exchangeData.exchangeType)
-                .arg(exchangeData.account1).arg(exchangeData.account2).arg(strMoney);
+                .arg(exchangeData.accountMoney).arg(exchangeData.assetData.accountCode).arg(strMoney);
     } else {
         QString strMoney = QString::number(exchangeData.money, 'f', 2);
-        QString strPrice = QString::number(exchangeData.price, 'f', 2);
+        QString strPrice = QString::number(exchangeData.assetData.price, 'f', 2);
         exchangeStr = STR("[%1]%2(￥%3) - %4@%5(%6*%7)")
                 .arg(exchangeData.exchangeType)
-                .arg(exchangeData.account1).arg(strMoney)
-                .arg(exchangeData.name).arg(exchangeData.account2)
-                .arg(exchangeData.amount).arg(strPrice);
+                .arg(exchangeData.accountMoney).arg(strMoney)
+                .arg(exchangeData.assetData.assetName).arg(exchangeData.assetData.accountCode)
+                .arg(exchangeData.assetData.amount).arg(strPrice);
     }
     return exchangeStr;
 }
@@ -106,16 +107,16 @@ bool myExchangeListModel::initial() {
         int i = 0;
         while(query.next()) { // 定位结果到下一条记录
             myExchangeData tmpExchange;
-            tmpExchange.id       = query.value(0).toInt();
-            tmpExchange.time     = QDateTime::fromString(query.value(1).toString(), "yyyy-MM-ddThh:mm:ss");
-            tmpExchange.exchangeType = query.value(2).toString();
-            tmpExchange.account1 = query.value(3).toString();
-            tmpExchange.money    = query.value(4).toDouble();
-            tmpExchange.account2 = query.value(5).toString();
-            tmpExchange.code     = query.value(6).toString();
-            tmpExchange.name     = query.value(7).toString();
-            tmpExchange.price    = query.value(8).toDouble();
-            tmpExchange.amount   = query.value(9).toInt();
+            tmpExchange.id                    = query.value(0).toInt();
+            tmpExchange.time                  = QDateTime::fromString(query.value(1).toString(), "yyyy-MM-ddThh:mm:ss");
+            tmpExchange.exchangeType          = query.value(2).toString();
+            tmpExchange.accountMoney          = query.value(3).toString();
+            tmpExchange.money                 = query.value(4).toDouble();
+            tmpExchange.assetData.accountCode = query.value(5).toString();
+            tmpExchange.assetData.assetCode   = query.value(6).toString();
+            tmpExchange.assetData.assetName   = query.value(7).toString();
+            tmpExchange.assetData.price       = query.value(8).toDouble();
+            tmpExchange.assetData.amount      = query.value(9).toInt();
 
             QString exchangeStr = updateStrFromExchangeData(tmpExchange);
             // 下标为i的list与data要保持对应的
@@ -140,21 +141,21 @@ myExchangeData myExchangeListModel::getDataFromRow(int row) {
 void myExchangeListModel::coordinatorModifyExchange(const myExchangeData &originData, const myExchangeData &targetData, int &changeIdx) {
     changeIdx = NO_DO_EXCHANGE;
 
-    if (originData.account1 != targetData.account1) {
+    if (originData.accountMoney != targetData.accountMoney) {
         changeIdx |= ROLLBACK_ACCOUNT_1;
         changeIdx |= TARG_ACCOUNT_1;
     }
-    if (   originData.account2 != targetData.account2
-        || originData.code != targetData.code
-        || (qAbs(originData.price - targetData.price) > MONEY_EPS)  //price会影响avgCost的计算
-        || originData.amount != targetData.amount) {                //amount会影响avgCost的计算
+    if (   originData.assetData.accountCode != targetData.assetData.accountCode
+        || originData.assetData.assetCode != targetData.assetData.assetCode
+        || (qAbs(originData.assetData.price - targetData.assetData.price) > MONEY_EPS)  //price会影响avgCost的计算
+        || originData.assetData.amount != targetData.assetData.amount) {                //amount会影响avgCost的计算
         changeIdx |= ROLLBACK_ACCOUNT_2;
         changeIdx |= TARG_ACCOUNT_2;
     }
     if (qAbs(originData.money - targetData.money) > MONEY_EPS) {
         changeIdx |= TARG_ACCOUNT_1;
     }
-    if (   originData.name != targetData.name) {
+    if (originData.assetData.assetName != targetData.assetData.assetName) {
         changeIdx |= TARG_ACCOUNT_2;
     }
     if (   originData.time != targetData.time

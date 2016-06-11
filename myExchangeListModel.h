@@ -20,11 +20,11 @@ public:
 
     /*
      * changeIdx:
-     * 1  changes -> origin account1
+     * 1  changes -> origin accountMoney
      * 2  changes -> origin account2
-     * 4  changes -> origin/target account1
+     * 4  changes -> origin/target accountMoney
      * 8  changes -> origin/target account2
-     * 16 changes -> origin/target account1/account2
+     * 16 changes -> origin/target accountMoney/account2
      */
     enum exchangeType {
         NO_DO_EXCHANGE = 0x0,

@@ -1,16 +1,11 @@
 #include "myDatabaseDatatype.h"
 
-myExchangeData::myExchangeData() {
+myExchangeData::myExchangeData() : assetData() {
     id       = -1;
     time     = QDateTime();
     exchangeType     = "";
-    account1 = "";
+    accountMoney = "";
     money    = 0.0f;
-    account2 = "";
-    code     = "";
-    name     = "";
-    price    = 0.0f;
-    amount   = 0;
     fee      = 0.0f;
 }
 myExchangeData myExchangeData::operator -() {
@@ -18,50 +13,41 @@ myExchangeData myExchangeData::operator -() {
     tmp = *this;
     tmp.money = -tmp.money;
     tmp.fee = -tmp.fee;
-    if (code == MY_CASH) {
-        tmp.price = -tmp.price;
+    if (assetData.assetCode == MY_CASH) {
+        tmp.assetData.price = -tmp.assetData.price;
     } else {
-        tmp.amount = -tmp.amount;
+        tmp.assetData.amount = -tmp.assetData.amount;
     }
     return tmp;
 }
 myExchangeData &myExchangeData::operator =(const myExchangeData &data) {
-    id       = data.id;
-    time     = data.time;
-    exchangeType     = data.exchangeType;
-    account1 = data.account1;
-    money    = data.money;
-    account2 = data.account2;
-    code     = data.code;
-    name     = data.name;
-    price    = data.price;
-    amount   = data.amount;
-    fee      = data.fee;
+    id           = data.id;
+    time         = data.time;
+    exchangeType = data.exchangeType;
+    accountMoney = data.accountMoney;
+    money        = data.money;
+    assetData    = data.assetData;
+    fee          = data.fee;
     return *this;
 }
 
 bool myExchangeData::operator ==(const myExchangeData &data) {
     bool ans = true;
-    ans = (time     == data.time)          && ans;
-    ans = (exchangeType     == data.exchangeType)          && ans;
-    ans = (account1 == data.account1)      && ans;
-    ans = ((money-data.money) < MONEY_EPS) && ans;
-    ans = (account2 == data.account2)      && ans;
-    ans = (code     == data.code)          && ans;
-    ans = (name     == data.name)          && ans;
-    ans = ((price-data.price) < MONEY_EPS) && ans;
-    ans = (amount   == data.amount)        && ans;
-    ans = ((fee-data.fee) < MONEY_EPS)     && ans;
+    ans = (time     == data.time)                 && ans;
+    ans = (exchangeType     == data.exchangeType) && ans;
+    ans = (accountMoney == data.accountMoney)     && ans;
+    ans = ((money-data.money) < MONEY_EPS)        && ans;
+    ans = assetData == data.assetData             && ans;
     return ans;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 bool myAccountData::isSameAccountData(const myAccountData &data1, const myAccountData &data2) {
-    return (   data1.Code == data2.Code
-            && data1.Name == data2.Name
-            && data1.Type == data2.Type
-            && data1.Note == data2.Note);
+    return (   data1.code == data2.code
+            && data1.name == data2.name
+            && data1.type == data2.type
+            && data1.note == data2.note);
 }
 
 bool myAssetData::isSameAssetData(const myAssetData &data1, const myAssetData &data2) {
@@ -79,21 +65,37 @@ myAccountData::myAccountData() {
 }
 
 myAccountData::myAccountData(myAssetAccount data) {
-    Code = data.code;
-    Name = data.name;
-    Type = data.type;
-    Note = data.note;
+    *this = data.accountData;
 }
 
 myAssetData::myAssetData() {
-
+    accountCode = "";
+    assetCode   = "";
+    assetName   = "";
+    price       = 0.0f;
+    amount      = 0;
+    type        = "";
 }
 
 myAssetData::myAssetData(myAssetHold data) {
+    *this = data.assetData;
+}
+
+myAssetData &myAssetData::operator =(const myAssetData &data) {
     accountCode = data.accountCode;
     assetCode   = data.assetCode;
-    assetName   = data.name;
-    amount      = data.amount;
+    assetName   = data.assetName;
     price       = data.price;
-    type        = data.type;
+    amount      = data.amount;
+    return *this;
+}
+bool myAssetData::operator ==(const myAssetData &data) {
+    bool ans = true;
+    ans = (accountCode == data.accountCode) && ans;
+    ans = (assetCode   == data.assetCode)   && ans;
+    ans = (assetName   == data.assetName)   && ans;
+    ans = ((price-data.price) < MONEY_EPS)  && ans;
+    ans = (amount      == data.amount)      && ans;
+    ans = (type        == data.type)        && ans;
+    return ans;
 }

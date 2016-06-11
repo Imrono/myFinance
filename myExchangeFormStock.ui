@@ -300,7 +300,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="10">
       <item>
-       <widget class="QLabel" name="labelAccount1">
+       <widget class="QLabel" name="labelaccountMoney">
         <property name="font">
          <font>
           <weight>75</weight>
