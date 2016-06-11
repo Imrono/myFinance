@@ -14,16 +14,10 @@ struct myAssetAccount {
     myAssetAccount(myAccountData data);
     QString code;
     QString name;
-//    enum accountType {
-//        bankCard   = 0,
-//        aliPay     = 1,
-//        creditCard = 2,
-//        security   = 3
-//    };
     QString type;
-    QString logo;
     QString note;
 
+    QString logo;
     float value;
 
     int pos;
