@@ -79,27 +79,23 @@ private:
     class CGarbo            //它的唯一工作就是在析构函数中删除CSingleton的实例
     {
     public:
-        ~CGarbo()
-        {
+        ~CGarbo() {
             if(myStockCodeName::instance)
-            delete myStockCodeName::instance;
+                delete myStockCodeName::instance;
         }
     };
     static CGarbo Garbo;    //定义一个静态成员变量，程序结束时，系统会自动调用它的析构函数
 public:
     static myStockCodeName *getInstance() {
-        if (!instance)
+        if (instance)
             return instance;
         else
             return initial();
     }
     static myStockCodeName *initial() {
-        if (instance)
-            return instance;
-        else {
+        if (!instance)
             instance = new myStockCodeName();
-            return instance;
-        }
+        return instance;
     }
 
 };

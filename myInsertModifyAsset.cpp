@@ -179,7 +179,7 @@ void myInsertModifyAsset::on_lineEditAssetName_editingFinished()
     updateMarketInfo();
 }
 
-void myInsertModifyAsset::setUI(myAssetData assetData) {
+void myInsertModifyAsset::setUI(const myAssetData &assetData) {
     if (assetData.assetCode.left(3) == "sh.") {
         ui->radioSH->setChecked(true);
     } else if (assetData.assetCode.left(3) == "sz.") {

@@ -23,7 +23,7 @@ public:
     virtual void setUI(const myExchangeData &exchangeData);
     virtual void checkAndSetDisable(const myExchangeData &exchangeData);
 
-    const myExchangeData &getExchangeData() { return data;}
+    const myExchangeData &getExchangeData();
     const int getTabType() { return tabType;}
     virtual void exchangeWindowFeeChanged(double fee);
 

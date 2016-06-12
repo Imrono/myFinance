@@ -34,14 +34,14 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
     /// 1. 默认4个tab，默认的setUI
     /// 2. 单个tab，用exchangeUI中数据setUI
     if (myExchangeUI::MAX_TAB_COUNT == exchangeUI.getNumOfTabs()) {
-        _myTabs.append(new myExchangeFormStock   (rootNode, STR("股票交易"), this));
+        _myTabs.append(new myExchangeFormStock   (rootNode, STR("证券交易"), this));
         _myTabs.append(new myExchangeFormTransfer(rootNode, STR("转帐")    , this));
         _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
         _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
         _currentTab = _myTabs[dataSource];
     } else if (1 == exchangeUI.getNumOfTabs()) {
         if (exchangeUI.getTabType() == myExchangeUI::TAB_STOCK)
-            _myTabs.append(new myExchangeFormStock   (rootNode, STR("股票交易"), this));
+            _myTabs.append(new myExchangeFormStock   (rootNode, STR("证券交易"), this));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_TRANS)
             _myTabs.append(new myExchangeFormTransfer(rootNode, STR("转帐")    , this));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_INCOM)

@@ -23,7 +23,7 @@ public:
     myAssetData getData() {
         return data;
     }
-    void setUI(myAssetData assetData);
+    void setUI(const myAssetData &assetData);
     void setAllDisabled();
 
 private slots:

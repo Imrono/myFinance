@@ -119,7 +119,7 @@ bool myAssetNode::doExchange(myExchangeData data, myRootAccountAsset &rootNode) 
             }
             execWord = STR("INSERT INTO 资产 VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
                     .arg(data.assetData.assetCode).arg(data.assetData.assetName).arg(data.assetData.accountCode).arg(amount).arg(avgCost)
-                    .arg(data.exchangeType).arg(rootNode.getAccountNode(data.assetData.accountCode)->children.count());
+                    .arg(data.assetData.type).arg(rootNode.getAccountNode(data.assetData.accountCode)->children.count());
             qDebug() << execWord;
             if(!query.exec(execWord)) {
                 qDebug() << query.lastError().text();
@@ -352,7 +352,7 @@ bool myRootAccountAsset::fetchAsset() {
             tmpHold.assetData.price       = query.value(4).toFloat();
             tmpHold.assetData.type        = query.value(5).toString();
 
-            tmpHold.pos         = query.value(6).toInt();
+            tmpHold.pos                   = query.value(6).toInt();
 
             QVariant data;
             data.setValue(tmpHold);

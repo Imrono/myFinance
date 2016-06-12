@@ -221,7 +221,6 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
         } else {}
     } else if (myAssetNode::nodeHolds == currentNode->type) {
         myAssetHold nodeData = currentNode->nodeData.value<myAssetHold>();
-        myAssetData originAssetData(nodeData);
         myAssetAccount accountNodeData = currentNode->parent->nodeData.value<myAssetAccount>();
         myInsertModifyAsset dial(accountNodeData.accountData.code, accountNodeData.accountData.name, parent);
         dial.setUI(myAssetData(nodeData));
@@ -231,6 +230,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
             dial.setWindowTitle(info);
             if(dial.exec() == QDialog::Accepted) {
                 qDebug() << info + "Accepted";
+                myAssetData originAssetData(nodeData);
                 myAssetData targetAssetData = dial.getData();
                 if (myAssetData::isSameAssetData(targetAssetData, originAssetData)) {
                     qDebug() << info + "Nothing Changed";

@@ -87,6 +87,7 @@ myAssetData &myAssetData::operator =(const myAssetData &data) {
     assetName   = data.assetName;
     price       = data.price;
     amount      = data.amount;
+    type        = data.type;
     return *this;
 }
 bool myAssetData::operator ==(const myAssetData &data) {
