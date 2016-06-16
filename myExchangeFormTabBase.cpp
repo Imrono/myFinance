@@ -1,6 +1,5 @@
 #include "myExchangeFormTabBase.h"
 #include "myFinanceExchangeWindow.h"
-#include "AssetCode2Type.h"
 
 myExchangeFormTabBase::myExchangeFormTabBase(const myRootAccountAsset *rootNode, QString tabName, int tabType, QWidget *parent)
     : parent(static_cast<myFinanceExchangeWindow *>(parent)), QWidget(parent), tabType(tabType),
@@ -58,7 +57,6 @@ float myExchangeFormTabBase::getTotalMoney(int index) {
 }
 
 const myExchangeData &myExchangeFormTabBase::getExchangeData() {
-    data.assetData.type = AssetCode2Type::getInstance()->getAssetType(data.assetData.assetCode);
     return data;
 }
 

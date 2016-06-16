@@ -89,7 +89,8 @@ public:
         TAB_TRANS = 1,
         TAB_INCOM = 2,
         TAB_EXPES = 3,
-        MAX_TAB_COUNT = 4
+        TAB_FUNDS = 4,
+        MAX_TAB_COUNT = 5
     };
 
     myExchangeUI() {
@@ -120,6 +121,8 @@ private:
             tabType = myExchangeUI::TAB_INCOM;
         } else if (data.exchangeType == STR("支出")) {
             tabType = myExchangeUI::TAB_EXPES;
+        } else if (data.exchangeType == STR("理财")) {
+            tabType = myExchangeUI::TAB_FUNDS;
         } else {
             tabType = myExchangeUI::TAB_NONE;
         }

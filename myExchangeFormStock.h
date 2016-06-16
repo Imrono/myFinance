@@ -31,6 +31,8 @@ private:
     QButtonGroup *grpBuySell;
     QButtonGroup *grpMarket;
 
+    bool isShowRemainStock;
+
     ///DATA
     const myStockCodeName *stockCode;
     QMap<int, int> exchangeIdx2AccountIdx;
@@ -38,6 +40,7 @@ private:
     double commisionRate;
     float remainMoney;
     float totalMoney;
+    myAssetNode *accountNode;
 
     ///METHOD
     void updateBuySell();

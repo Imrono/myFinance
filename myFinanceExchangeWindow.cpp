@@ -35,10 +35,12 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
     /// 2. 单个tab，用exchangeUI中数据setUI
     if (myExchangeUI::MAX_TAB_COUNT == exchangeUI.getNumOfTabs()) {
         _myTabs.append(new myExchangeFormStock   (rootNode, STR("证券交易"), this));
+        _myTabs.append(new myExchangeFormMoneyUp (rootNode, STR("理财")    , this));
         _myTabs.append(new myExchangeFormTransfer(rootNode, STR("转帐")    , this));
         _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
         _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
         _currentTab = _myTabs[dataSource];
+        _currentTab->recoverTypeAndFee();
     } else if (1 == exchangeUI.getNumOfTabs()) {
         if (exchangeUI.getTabType() == myExchangeUI::TAB_STOCK)
             _myTabs.append(new myExchangeFormStock   (rootNode, STR("证券交易"), this));
@@ -48,6 +50,8 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
             _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_EXPES)
             _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
+        if (exchangeUI.getTabType() == myExchangeUI::TAB_FUNDS)
+            _myTabs.append(new myExchangeFormExpenses(rootNode, STR("理财")    , this));
         if (_myTabs.count() == 0) {
             qDebug() << "ERROR: NO TAB IS ADDED";
             return;
@@ -59,7 +63,7 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
         qDebug() << "## SETUP UI MODEL FINISH";
     } else {  }
 
-    for (int i = 0; i < exchangeUI.getNumOfTabs(); i++) {
+    for (int i = 0; i < _myTabs.count(); i++) {
         _myTabs[i]->setDateTime(dateTime);
         ui->tabWidget->addTab(_myTabs[i], _myTabs[i]->getTabText());
         qDebug() << _myTabs[i]->getTabText() << "ADDED to Exchange Window";

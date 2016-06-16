@@ -1,10 +1,12 @@
 #include "myExchangeFormStock.h"
 #include "ui_myExchangeFormStock.h"
+#include "AssetCode2Type.h"
 
 myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent) :
     myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_STOCK, parent),
     stockCode(myStockCodeName::getInstance()),
-    totalMoney(0.0f), remainMoney(0.0f),
+    totalMoney(0.0f), remainMoney(0.0f), isShowRemainStock(true),
+    accountNode(nullptr),
     ui(new Ui::myExchangeFormStock)
 {
     ui->setupUi(this);
@@ -24,6 +26,7 @@ myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QSt
     grpMarket->setId(ui->radioSH, SH);       //radioBuy的Id设为0
     grpMarket->setId(ui->radioSZ, SZ);       //radioBuy的Id设为1
     grpMarket->setId(ui->radioOther, OTHER); //radioBuy的Id设为2
+
     ui->radioOther->click();
     ui->radioBuy->click();
 
@@ -60,7 +63,8 @@ myExchangeFormStock::~myExchangeFormStock() {
 void myExchangeFormStock::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
-    tmpData.accountMoney = ui->moneyAccount->itemText(ui->moneyAccount->currentIndex());
+    if (accountNode)
+        tmpData.accountMoney = accountNode->nodeData.value<myAssetAccount>().accountData.code;;
     tmpData.money  = ui->moneySpinBox->value();
 
     tmpData.assetData.accountCode = data.accountMoney;
@@ -72,6 +76,7 @@ void myExchangeFormStock::recordExchangeData(myExchangeData &tmpData) {
     }
     tmpData.assetData.price     = ui->spinBoxPrice->text().toDouble();
     tmpData.assetData.assetName = ui->nameLineEdit->text();
+    tmpData.assetData.type      = data.assetData.type;
 }
 void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
     int index = ui->moneyAccount->findText(exchangeData.assetData.accountCode);
@@ -227,6 +232,8 @@ void myExchangeFormStock::on_codeLineEdit_textChanged(const QString &str) {
             ui->labelPrice->setText(STR("单价："));
         }
     }
+
+    data.assetData.type = AssetCode2Type::getInstance()->getAssetType(data.assetData.assetCode);
 }
 void myExchangeFormStock::on_codeLineEdit_editingFinished() {
     int count = stockCode->codeName.count();
@@ -234,6 +241,23 @@ void myExchangeFormStock::on_codeLineEdit_editingFinished() {
     if (OTHER != grpMarket->checkedId()) {
         if (stockCode->getIsInitialed()) {
             ui->nameLineEdit->setText(stockCode->findNameFromCode(data.assetData.assetCode));
+        }
+    }
+
+    // check and show remain stock amount
+    if (isShowRemainStock && accountNode) {
+        myAssetNode *assetNode = nullptr;
+        int remainStock = 0;
+        for (int i = 0; i < accountNode->children.count(); i++) {
+            assetNode = accountNode->children.at(i);
+            if (data.assetData.assetCode == assetNode->nodeData.value<myAssetHold>().assetData.accountCode) {
+                remainStock = assetNode->nodeData.value<myAssetHold>().assetData.amount;
+                QFont font;
+                font.setItalic(true);
+                ui->spinBoxAmount->setFont(font);
+                ui->spinBoxAmount->setValue(remainStock);
+                break;
+            }
         }
     }
 }
@@ -308,7 +332,7 @@ void myExchangeFormStock::on_radioOther_clicked() {
 void myExchangeFormStock::on_moneyAccount_currentIndexChanged(int index) {
     int nodeIdx = exchangeIdx2AccountIdx.find(index).value();
     // 1. data.accountMoney & data.account2 update
-    myAssetNode *accountNode = rootNode->getAccountNode(nodeIdx);
+    accountNode = rootNode->getAccountNode(nodeIdx);
     const myAssetAccount accountData = accountNode->nodeData.value<myAssetAccount>();
     data.accountMoney = accountData.accountData.code;
     data.assetData.accountCode = accountData.accountData.code;

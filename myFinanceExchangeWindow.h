@@ -21,6 +21,7 @@
 #include "myExchangeFormTransfer.h"
 #include "myExchangeFormIncome.h"
 #include "myExchangeFormExpenses.h"
+#include "myExchangeFormMoneyUp.h"
 
 namespace Ui {
 class myFinanceExchangeWindow;

@@ -33,7 +33,9 @@ SOURCES += main.cpp\
     myExchangeFormTransfer.cpp \
     myExchangeFormTabBase.cpp \
     myFinanceTreeVeiwContextMenu.cpp \
-    AssetCode2Type.cpp
+    AssetCode2Type.cpp \
+    myExchangeFormMoneyUp.cpp \
+    uiNumberLineEdit.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \
@@ -56,7 +58,9 @@ HEADERS  += myFinanceMainWindow.h \
     myExchangeFormTransfer.h \
     myExchangeFormTabBase.h \
     myFinanceTreeVeiwContextMenu.h \
-    AssetCode2Type.h
+    AssetCode2Type.h \
+    myExchangeFormMoneyUp.h \
+    uiNumberLineEdit.h
 
 FORMS    += myFinanceMainWindow.ui \
     myFinanceExchangeWindow.ui \
@@ -66,7 +70,8 @@ FORMS    += myFinanceMainWindow.ui \
     myExchangeFormIncome.ui \
     myExchangeFormStock.ui \
     myExchangeFormExpenses.ui \
-    myExchangeFormTransfer.ui
+    myExchangeFormTransfer.ui \
+    myExchangeFormMoneyUp.ui
 
 CONFIG(debug, debug|release) {
     CONFIG += console

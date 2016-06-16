@@ -33,11 +33,11 @@ myExchangeData &myExchangeData::operator =(const myExchangeData &data) {
 
 bool myExchangeData::operator ==(const myExchangeData &data) {
     bool ans = true;
-    ans = (time     == data.time)                 && ans;
-    ans = (exchangeType     == data.exchangeType) && ans;
-    ans = (accountMoney == data.accountMoney)     && ans;
-    ans = ((money-data.money) < MONEY_EPS)        && ans;
-    ans = assetData == data.assetData             && ans;
+    ans = (time     == data.time)             && ans;
+    ans = (exchangeType == data.exchangeType) && ans;
+    ans = (accountMoney == data.accountMoney) && ans;
+    ans = ((money - data.money) < MONEY_EPS)  && ans;
+    ans = assetData == data.assetData         && ans;
     return ans;
 }
 

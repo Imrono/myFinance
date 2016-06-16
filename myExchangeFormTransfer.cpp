@@ -1,14 +1,17 @@
 #include "myExchangeFormTransfer.h"
 #include "ui_myExchangeFormTransfer.h"
+#include "AssetCode2Type.h"
 
 myExchangeFormTransfer::myExchangeFormTransfer(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent) :
     myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_TRANS, parent),
+    accountNodeOut(nullptr), accountNodeIn(nullptr),
     ui(new Ui::myExchangeFormTransfer)
 {
     ui->setupUi(this);
 
     data.assetData.assetCode = MY_CASH;
     data.assetData.amount    = 1;
+    data.assetData.type = AssetCode2Type::getInstance()->getAssetType(data.assetData.assetCode);
 
     inIdx2AccountIdx.clear();
     outIdx2AccountIdx.clear();
@@ -46,17 +49,9 @@ myExchangeFormTransfer::~myExchangeFormTransfer()
 void myExchangeFormTransfer::on_moneyAccountOut_currentIndexChanged(int index) {
     int nodeIdx = outIdx2AccountIdx.find(index).value();
     // 1. data.accountMoney & data.account2 update
-    myAssetNode *accountNode = rootNode->getAccountNode(nodeIdx);
-    const myAssetAccount accountData = accountNode->nodeData.value<myAssetAccount>();
+    accountNodeOut = rootNode->getAccountNode(nodeIdx);
+    const myAssetAccount accountData = accountNodeOut->nodeData.value<myAssetAccount>();
     data.accountMoney = accountData.accountData.code;
-    for (int j = 0; j < accountNode->children.count(); j++) {
-        myAssetNode *holdNode = accountNode->children.at(j);
-        QString assetCode = holdNode->nodeData.value<myAssetHold>().assetData.assetCode;
-        if (assetCode.contains("cash")) {
-            data.assetData.assetName = holdNode->nodeData.value<myAssetHold>().assetData.assetName;
-            break;
-        }
-    }
 
     totalMoneyOut = getTotalMoney(nodeIdx);
     if (isModifyExchange) {
@@ -70,11 +65,18 @@ void myExchangeFormTransfer::on_moneyAccountOut_currentIndexChanged(int index) {
 }
 void myExchangeFormTransfer::on_moneyAccountIn_currentIndexChanged(int index) {
     int nodeIdx = inIdx2AccountIdx.find(index).value();
-    // 1. data.accountMoney & data.account2 update
-    myAssetNode *accountNode = rootNode->getAccountNode(nodeIdx);
-    const myAssetAccount accountData = accountNode->nodeData.value<myAssetAccount>();
+    // 1. accountIn update
+    accountNodeIn = rootNode->getAccountNode(nodeIdx);
+    const myAssetAccount accountData = accountNodeIn->nodeData.value<myAssetAccount>();
     data.assetData.accountCode = accountData.accountData.code;
-
+    for (int j = 0; j < accountNodeIn->children.count(); j++) {
+        myAssetNode *holdNode = accountNodeIn->children.at(j);
+        QString assetCode = holdNode->nodeData.value<myAssetHold>().assetData.assetCode;
+        if (assetCode.contains("cash")) {
+            data.assetData.assetName = holdNode->nodeData.value<myAssetHold>().assetData.assetName;
+            break;
+        }
+    }
     totalMoneyIn = getTotalMoney(nodeIdx);
     if (isModifyExchange) {
         totalMoneyIn -= data.money;
@@ -99,14 +101,17 @@ void myExchangeFormTransfer::on_moneyTransferSpinBox_valueChanged(double value) 
 void myExchangeFormTransfer::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
-    tmpData.accountMoney = rootNode->getAccountNode(inIdx2AccountIdx[ui->moneyAccountOut->currentIndex()])->nodeData.value<myAssetAccount>().accountData.code;
+    if (accountNodeOut)
+        tmpData.accountMoney = accountNodeOut->nodeData.value<myAssetAccount>().accountData.code;
     tmpData.money    = -ui->moneyTransferSpinBox->value() - data.fee;
 
-    tmpData.assetData.accountCode = rootNode->getAccountNode(inIdx2AccountIdx[ui->moneyAccountIn->currentIndex()])->nodeData.value<myAssetAccount>().accountData.code;
+    if (accountNodeIn)
+        tmpData.assetData.accountCode = accountNodeIn->nodeData.value<myAssetAccount>().accountData.code;
     tmpData.assetData.assetCode   = MY_CASH;
     tmpData.assetData.assetName   = data.assetData.assetName;
     tmpData.assetData.amount      = 1;
     tmpData.assetData.price       = ui->moneyTransferSpinBox->value();
+    tmpData.assetData.type        = data.assetData.type;
 }
 void myExchangeFormTransfer::setUI(const myExchangeData &exchangeData) {
     myAssetNode *accountNode1 = rootNode->getAccountNode(exchangeData.accountMoney);
