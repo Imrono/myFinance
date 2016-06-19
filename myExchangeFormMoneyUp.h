@@ -60,6 +60,8 @@ private slots:
 
     void on_nameLineEdit_textChanged(const QString &str);
 
+    void on_calcBenefitButton_clicked();
+
 private:
     enum OperationType {
         SUBSCRIBING = 0,

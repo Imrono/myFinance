@@ -10,6 +10,7 @@ myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QSt
     ui(new Ui::myExchangeFormStock)
 {
     ui->setupUi(this);
+    ui->amountLineEdit->setStyleIntDecimal(true);
 
     grpBuySell = new QButtonGroup(this);
     grpBuySell->addButton(ui->radioBuy);
@@ -72,7 +73,7 @@ void myExchangeFormStock::recordExchangeData(myExchangeData &tmpData) {
     if (data.assetData.assetCode == "cash") {
         tmpData.assetData.amount = 1;
     } else {
-        tmpData.assetData.amount = ui->spinBoxAmount->text().toInt() * -buySellFlag;
+        tmpData.assetData.amount = ui->amountLineEdit->text().toInt() * -buySellFlag;
     }
     tmpData.assetData.price     = ui->spinBoxPrice->text().toDouble();
     tmpData.assetData.assetName = ui->nameLineEdit->text();
@@ -84,7 +85,7 @@ void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
     ui->nameLineEdit->setText(exchangeData.assetData.assetCode);
     ui->codeLineEdit->setText(exchangeData.assetData.assetName);
     ui->spinBoxPrice->setValue(exchangeData.assetData.price);
-    ui->spinBoxAmount->setValue(qAbs(exchangeData.assetData.amount));
+    ui->amountLineEdit->setValue(qAbs(exchangeData.assetData.amount));
     if (STR("证券买入") == exchangeData.exchangeType) {
         ui->radioBuy->click();
     } else if (STR("证券卖出") == exchangeData.exchangeType) {
@@ -190,7 +191,7 @@ void myExchangeFormStock::updateExchangeFee() {
     setExchangeWindowFee(data.fee);
 }
 
-void myExchangeFormStock::on_codeLineEdit_textChanged(const QString &str) {
+void myExchangeFormStock::on_codeLineEdit_textEdited(const QString &str) {
     data.assetData.assetCode = str;
 
     // 上海，深圳通过股票代码自动判断
@@ -223,44 +224,36 @@ void myExchangeFormStock::on_codeLineEdit_textChanged(const QString &str) {
 
     if (data.assetData.assetCode == "cash") {
         data.assetData.amount = 1;
-        ui->spinBoxAmount->setValue(qAbs(data.assetData.amount));
-        ui->spinBoxAmount->setDisabled(true);
+        ui->amountLineEdit->setValue(qAbs(data.assetData.amount));
+        ui->amountLineEdit->setDisabled(true);
         ui->labelPrice->setText(STR("资金："));
     } else {
-        if (!ui->spinBoxAmount->isEnabled()) {
-            ui->spinBoxAmount->setEnabled(true);
+        if (!ui->amountLineEdit->isEnabled()) {
+            ui->amountLineEdit->setEnabled(true);
             ui->labelPrice->setText(STR("单价："));
         }
     }
 
     data.assetData.type = AssetCode2Type::getInstance()->getAssetType(data.assetData.assetCode);
-}
-void myExchangeFormStock::on_codeLineEdit_editingFinished() {
-    int count = stockCode->codeName.count();
-    qDebug() << STR("代号EditLine") << ui->codeLineEdit->text() << "(" << count << ")";
-    if (OTHER != grpMarket->checkedId()) {
-        if (stockCode->getIsInitialed()) {
-            ui->nameLineEdit->setText(stockCode->findNameFromCode(data.assetData.assetCode));
-        }
-    }
 
     // check and show remain stock amount
     if (isShowRemainStock && accountNode) {
         myAssetNode *assetNode = nullptr;
         int remainStock = 0;
+        QString defaultStr;
         for (int i = 0; i < accountNode->children.count(); i++) {
             assetNode = accountNode->children.at(i);
-            if (data.assetData.assetCode == assetNode->nodeData.value<myAssetHold>().assetData.accountCode) {
-                remainStock = assetNode->nodeData.value<myAssetHold>().assetData.amount;
-                QFont font;
-                font.setItalic(true);
-                ui->spinBoxAmount->setFont(font);
-                ui->spinBoxAmount->setValue(remainStock);
+            myAssetHold holds = assetNode->nodeData.value<myAssetHold>();
+            if (data.assetData.assetCode == holds.assetData.assetCode) {
+                remainStock = holds.assetData.amount;
+                defaultStr =STR("现共有：%1").arg(remainStock);
                 break;
             }
         }
+        ui->amountLineEdit->setDefaultString(defaultStr);
     }
 }
+
 void myExchangeFormStock::on_nameLineEdit_editingFinished() {
     QString str = ui->nameLineEdit->text();
     int count = stockCode->codeName.count();
@@ -294,8 +287,11 @@ void myExchangeFormStock::on_nameLineEdit_editingFinished() {
     updateMarketInfo();
 }
 
-void myExchangeFormStock::on_spinBoxAmount_valueChanged(int value) {
+void myExchangeFormStock::on_amountLineEdit_textChanged(const QString &str) {
+    ui->amountLineEdit->textHasChanged(str);
+    int value = ui->amountLineEdit->getCurrentValue();
     data.assetData.amount = buySellFlag*qAbs(value);
+    qDebug() << "#amountLineEdit_textChanged:" << value << "data.assetData.amount=" << data.assetData.amount;
     updateBuySell();
 }
 void myExchangeFormStock::on_spinBoxPrice_valueChanged(double value) {
@@ -341,7 +337,9 @@ void myExchangeFormStock::on_moneyAccount_currentIndexChanged(int index) {
     if (isModifyExchange) {
         totalMoney -= usedMoneyBeforeModify;
     }
+    remainMoney = totalMoney + data.money;
     ui->moneySpinBoxTotal->setValue(totalMoney);
+    ui->moneySpinBoxRemain->setValue(remainMoney);
     qDebug() << "#moneyAccount_currentIndexChanged# isModifyExchange:" << isModifyExchange
              << " totalMoney:" << totalMoney;
     // 3. aommisionRate

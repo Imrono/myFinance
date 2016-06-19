@@ -248,3 +248,7 @@ void myExchangeFormMoneyUp::on_nameLineEdit_textChanged(const QString &str) {
     data.assetData.assetName = str;
     qDebug() << STR("理财 assetName changed -> ") << data.assetData.assetName;
 }
+
+void myExchangeFormMoneyUp::on_calcBenefitButton_clicked() {
+    qDebug() << STR("理财 计算收益 clicked()");
+}

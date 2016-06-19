@@ -48,11 +48,11 @@ private:
     void updateExchangeFee();
 
 private slots:
-    void on_codeLineEdit_textChanged(const QString &str);
-    void on_codeLineEdit_editingFinished();
+    void on_codeLineEdit_textEdited(const QString &str);
+    void on_nameLineEdit_textChanged(const QString &name);
     void on_nameLineEdit_editingFinished();
 
-    void on_spinBoxAmount_valueChanged(int value);
+    void on_amountLineEdit_textChanged(const QString &str);
     void on_spinBoxPrice_valueChanged(double value);
 
     void on_radioBuy_clicked();
@@ -64,7 +64,6 @@ private slots:
 
     void on_moneyAccount_currentIndexChanged(int index);
     void on_moneySpinBox_valueChanged(double value);
-    void on_nameLineEdit_textChanged(const QString &name);
 };
 
 #endif // MYEXCHANGEFORMSTOCK_H

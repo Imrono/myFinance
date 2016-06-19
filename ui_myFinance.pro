@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     myFinanceTreeVeiwContextMenu.cpp \
     AssetCode2Type.cpp \
     myExchangeFormMoneyUp.cpp \
-    uiNumberLineEdit.cpp
+    uiNumberLineEdit.cpp \
+    customUI/myLineEdit.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \
@@ -60,7 +61,8 @@ HEADERS  += myFinanceMainWindow.h \
     myFinanceTreeVeiwContextMenu.h \
     AssetCode2Type.h \
     myExchangeFormMoneyUp.h \
-    uiNumberLineEdit.h
+    uiNumberLineEdit.h \
+    customUI/myLineEdit.h
 
 FORMS    += myFinanceMainWindow.ui \
     myFinanceExchangeWindow.ui \
