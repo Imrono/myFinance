@@ -47,6 +47,10 @@ private:
     void updateMarketInfo();
     void updateExchangeFee();
 
+    float calcMoney() {
+        return -static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
+    }
+
 private slots:
     void on_codeLineEdit_textChanged(const QString &str);
     void on_codeLineEdit_editingFinished();

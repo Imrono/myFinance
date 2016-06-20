@@ -116,8 +116,7 @@ void myExchangeFormStock::updateBuySell() {
     if (grpMarket->checkedId() != OTHER) {
         updateExchangeFee();
     }
-    data.money = -static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
-    ui->moneySpinBox->setValue(data.money);
+    ui->moneySpinBox->setValue(calcMoney());
 
     qDebug() << "#updateBuySell# data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
              << "data.amount " << data.assetData.amount << ","
@@ -350,8 +349,7 @@ void myExchangeFormStock::on_moneyAccount_currentIndexChanged(int index) {
     qDebug() << STR("Ó¶½ð") << commisionRate;
     // 4. fee & money
     updateExchangeFee();
-    data.money = static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
-    ui->moneySpinBox->setValue(data.money);
+    ui->moneySpinBox->setValue(calcMoney());
 }
 void myExchangeFormStock::on_moneySpinBox_valueChanged(double value) {
     data.money = value;
@@ -364,8 +362,7 @@ void myExchangeFormStock::on_moneySpinBox_valueChanged(double value) {
 void myExchangeFormStock::exchangeWindowFeeChanged(double fee) {
     qDebug() << "$$myExchangeFormStock::exchangeWindowFeeChanged " << fee << "$$";
     myExchangeFormTabBase::exchangeWindowFeeChanged(fee);
-    data.money = static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
-    ui->moneySpinBox->setValue(data.money);
+    ui->moneySpinBox->setValue(calcMoney());
 }
 
 void myExchangeFormStock::on_nameLineEdit_textChanged(const QString &name) {

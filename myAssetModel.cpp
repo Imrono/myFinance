@@ -238,8 +238,50 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
 }
 
 /////////////////////////////////////////////////////////////////////
-bool myAssetModel::doExchange(const myExchangeData &data, bool reflash) {
-    bool ans = myAssetNode::doExchange(data, root);
+bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) {
+    bool ans = true;
+    myAssetNode *account = nullptr, *asset = nullptr;
+    myAssetData originalAssetData;
+
+    myAssetData moneyData;
+    account = root.getAccountNode(exchangeData.accountMoney);
+    if (account) {
+        asset = account->getAssetNode(MY_CASH);
+        if (asset) {    /// update MY_CASH
+            originalAssetData = asset->nodeData.value<myAssetHold>().assetData;
+        } else { }      /// insert MY_CASH
+        float money = originalAssetData.price + exchangeData.money;
+        moneyData.initMoneyAsset(exchangeData.accountMoney, money);
+        ans = root.doExchange(moneyData) && ans;
+    } else { return false;}
+
+    account = nullptr;
+    asset = nullptr;
+    originalAssetData.reset();
+    myAssetData assetData = exchangeData.assetData;
+    account = root.getAccountNode(exchangeData.assetData.accountCode);
+    if (account) {
+        asset = account->getAssetNode(exchangeData.assetData.assetCode);
+        if (asset) {    /// update MY_ASSET
+            originalAssetData = asset->nodeData.value<myAssetHold>().assetData;
+        } else { }      /// insert MY_ASSET
+
+
+        if (exchangeData.assetData.assetCode != MY_CASH) {
+            assetData.amount = originalAssetData.amount + exchangeData.assetData.amount;
+            //assetData.price  = (exchangeData.assetData.price*exchangeData.assetData.amount
+            //                    + originalAssetData.price*originalAssetData.amount
+            //                    + exchangeData.fee)/assetData.amount;
+        } else {
+            assetData.amount = 1;
+            //avgCost = originalAssetData.price + exchangeData.assetData.price - exchangeData.fee;
+        }
+        assetData.price = (exchangeData.money + originalAssetData.price*originalAssetData.amount)/assetData.amount;
+        ans = root.doExchange(assetData) && ans;
+    } else { return false;}
+
+
+   // bool ans = myAssetNode::doExchange(data, root);
     if (reflash) {
         ans = doReflashData() && ans;
         qDebugNodeData();

@@ -16,7 +16,6 @@ struct myAssetAccount {
     myAccountData accountData;
 
     QString logo;
-    float value;
 
     int pos;
 };
@@ -28,7 +27,6 @@ struct myAssetHold {
     myAssetData assetData;
 
     float currentPrice;
-    float value;
 
     int pos;
 };
@@ -68,10 +66,11 @@ public:
     };
 
     myAssetNode();
-    myAssetNode(nodeType type, QVariant nodeData);
+    myAssetNode(nodeType type, const QVariant &nodeData);
     ~myAssetNode();
 
     void addChild(myAssetNode *childNode);
+    myAssetNode *getAssetNode(const QString &assetCode);
 
     static bool doExchange(const myExchangeData data, myRootAccountAsset &rootNode);
     static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
@@ -103,6 +102,8 @@ public:
     int getAccountCount() const { return rootNode.children.count();}
 
     QStringList getAllStockCodeList();
+
+    bool doExchange(const myAssetData &assetData);
 
     bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
     bool doInsertAccount(myAccountData data);

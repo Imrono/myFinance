@@ -49,6 +49,9 @@ struct myAssetData {
     myAssetData(myAssetHold data);
     myAssetData &operator =(const myAssetData &data);
     bool operator ==(const myAssetData &data);
+    myAssetData operator +(const myAssetData &data);
+    void reset();
+    void initMoneyAsset(const QString &accountCode, const float money);
 
     QString accountCode;
     QString assetCode;
