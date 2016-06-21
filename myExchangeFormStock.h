@@ -40,6 +40,7 @@ private:
     double commisionRate;
     float remainMoney;
     float totalMoney;
+    float bonusTax;
     myAssetNode *accountNode;
 
     ///METHOD
@@ -48,7 +49,9 @@ private:
     void updateExchangeFee();
 
     float calcMoney() {
-        return -static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
+        /// data.assetData.amount 卖出为'-'，买入为'+'
+        /// data.money            卖出为'+'，买入为'-'
+        return -static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee - bonusTax;
     }
 
 private slots:
@@ -69,6 +72,7 @@ private slots:
     void on_moneyAccount_currentIndexChanged(int index);
     void on_moneySpinBox_valueChanged(double value);
     void on_nameLineEdit_textChanged(const QString &name);
+    void on_bonusTaxSpinBox_valueChanged(double value);
 };
 
 #endif // MYEXCHANGEFORMSTOCK_H

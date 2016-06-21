@@ -29,6 +29,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role) const;
 
+    bool doShareDividend(const myDividends &divident, const myAssetData &assetData, myExchangeData &exchangeData);
     bool doExchange(const myExchangeData &exchangeData, bool reflash = true);
     bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
     bool doReflashData(bool isAccount = true, bool isAsset = true);

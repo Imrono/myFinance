@@ -130,3 +130,10 @@ void myAssetData::initMoneyAsset(const QString &accountCode, const float money) 
     this->amount      = 1;
     this->type        = "";
 }
+
+myDividends::myDividends() {
+    shareSplit   = 0.0f;
+    shareBonus   = 0.0f;
+    capitalBonus = 0.0f;
+    base = 0;
+}

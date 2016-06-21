@@ -238,6 +238,24 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
 }
 
 /////////////////////////////////////////////////////////////////////
+bool myAssetModel::doShareDividend(const myDividends &divident, const myAssetData &assetData, myExchangeData &exchangeData) {
+    myAssetNode *account = nullptr, *asset = nullptr;
+    account = root.getAccountNode(assetData.accountCode);
+    if (account) {
+        asset = account->getAssetNode(assetData.assetCode);
+        if (asset) {
+            float divide = (divident.shareBonus + divident.shareSplit) / divident.base;
+            float bonse  = divident.capitalBonus / divident.base;
+            exchangeData.accountMoney     = assetData.accountCode;
+            exchangeData.money            = -bonse * assetData.amount;
+            exchangeData.assetData        = assetData;
+            exchangeData.assetData.amount = (divide-1) * assetData.amount;
+            return doExchange(exchangeData);
+        } else { return false;}
+    } else { return false;}
+    return false;
+}
+
 bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) {
     bool ans = true;
     myAssetNode *account = nullptr, *asset = nullptr;
@@ -266,15 +284,10 @@ bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) 
             originalAssetData = asset->nodeData.value<myAssetHold>().assetData;
         } else { }      /// insert MY_ASSET
 
-
         if (exchangeData.assetData.assetCode != MY_CASH) {
             assetData.amount = originalAssetData.amount + exchangeData.assetData.amount;
-            //assetData.price  = (exchangeData.assetData.price*exchangeData.assetData.amount
-            //                    + originalAssetData.price*originalAssetData.amount
-            //                    + exchangeData.fee)/assetData.amount;
         } else {
             assetData.amount = 1;
-            //avgCost = originalAssetData.price + exchangeData.assetData.price - exchangeData.fee;
         }
         assetData.price = (exchangeData.money + originalAssetData.price*originalAssetData.amount)/assetData.amount;
         ans = root.doExchange(assetData) && ans;

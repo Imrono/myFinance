@@ -6,10 +6,11 @@ myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QSt
     myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_STOCK, parent),
     stockCode(myStockCodeName::getInstance()),
     totalMoney(0.0f), remainMoney(0.0f), isShowRemainStock(true),
-    accountNode(nullptr),
+    accountNode(nullptr), bonusTax(0.0f),
     ui(new Ui::myExchangeFormStock)
 {
     ui->setupUi(this);
+    ui->bonusTaxSpinBox->setValue(0.0f);
 
     grpBuySell = new QButtonGroup(this);
     grpBuySell->addButton(ui->radioBuy);
@@ -294,7 +295,7 @@ void myExchangeFormStock::on_nameLineEdit_editingFinished() {
 }
 
 void myExchangeFormStock::on_spinBoxAmount_valueChanged(int value) {
-    data.assetData.amount = buySellFlag*qAbs(value);
+    data.assetData.amount = -buySellFlag*qAbs(value);
     updateBuySell();
 }
 void myExchangeFormStock::on_spinBoxPrice_valueChanged(double value) {
@@ -367,4 +368,8 @@ void myExchangeFormStock::exchangeWindowFeeChanged(double fee) {
 
 void myExchangeFormStock::on_nameLineEdit_textChanged(const QString &name) {
     data.assetData.assetName = name;
+}
+
+void myExchangeFormStock::on_bonusTaxSpinBox_valueChanged(double value) {
+    bonusTax = value;
 }

@@ -132,5 +132,13 @@ private:
     }
 };
 
+struct myDividends {
+    myDividends();
+    float shareSplit;
+    float shareBonus;
+    float capitalBonus;
+    int base;
+};
+
 #endif // MYDATABASEDATATYPE
 
