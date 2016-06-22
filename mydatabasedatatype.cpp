@@ -136,4 +136,5 @@ myDividends::myDividends() {
     shareBonus   = 0.0f;
     capitalBonus = 0.0f;
     base = 0;
+    type = myDividends::UNSPECIFIED;
 }

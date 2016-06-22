@@ -40,6 +40,8 @@ private:
     QAction *transferOut;
     QAction *upAsset;
     QAction *downAsset;
+    QAction *stockBonus;
+    QAction *intrests;
 
     const myAssetNode *currentNode;
     myFinanceMainWindow *parent;
@@ -56,6 +58,8 @@ private slots:
     void transferOut_clicked();
     void upAsset_clicked();
     void downAsset_clicked();
+    void stockBonus_clicked();
+    void intrests_clicked();
 
     void doChangeAssetDirectly(changeType type);
     void doUpDown(bool isUp);

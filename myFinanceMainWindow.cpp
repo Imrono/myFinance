@@ -269,3 +269,6 @@ void myFinanceMainWindow::deleteExchange_clicked() {
     ui->treeView->expandAll();
 }
 
+void myFinanceMainWindow::doDividend(const myDividends &divident, const myAssetData &nodeAssetData, myExchangeData &exchangeData) {
+    assetModel->doDividend(divident, nodeAssetData, exchangeData);
+}

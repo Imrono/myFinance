@@ -133,11 +133,19 @@ private:
 };
 
 struct myDividends {
+    enum dividendType {
+        UNSPECIFIED    = -1,
+        STOCK_DIVIDEND = 0,
+        INTRESTS       = 1
+    };
+
     myDividends();
+    QDateTime time;
     float shareSplit;
     float shareBonus;
     float capitalBonus;
     int base;
+    int type;
 };
 
 #endif // MYDATABASEDATATYPE
