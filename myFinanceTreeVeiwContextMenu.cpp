@@ -156,7 +156,7 @@ void myFinanceTreeVeiwContextMenu::doExchangeStock(const QString &type) {
     exchangeData.assetData.assetCode   = holds.assetData.assetCode;
     exchangeData.assetData.assetName   = holds.assetData.assetName;
     exchangeData.exchangeType          = type;
-    parent->doExchange(myExchangeUI(exchangeData), true);
+    parent->doExchange(myExchangeUI(exchangeData, false), true);
 }
 
 void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
@@ -165,7 +165,7 @@ void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
     myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
     exchangeData.assetData.accountCode = holds.assetData.accountCode;
     exchangeData.exchangeType = STR("转帐");
-    parent->doExchange(myExchangeUI(exchangeData), true);
+    parent->doExchange(myExchangeUI(exchangeData, false), true);
 }
 
 void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
@@ -174,7 +174,7 @@ void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
     myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
     exchangeData.accountMoney = holds.assetData.accountCode;
     exchangeData.exchangeType = STR("转帐");
-    parent->doExchange(myExchangeUI(exchangeData), true);
+    parent->doExchange(myExchangeUI(exchangeData, false), true);
 }
 
 void myFinanceTreeVeiwContextMenu::upAsset_clicked() {
@@ -279,33 +279,23 @@ void myFinanceTreeVeiwContextMenu::doUpDown(bool isUp) {
 
 void myFinanceTreeVeiwContextMenu::stockBonus_clicked() {
     qDebug() << STR("右键分红 clicked");
-    myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
-    myDividendsDialog dial(holds.assetData, false, parent);
-    if(dial.exec() == QDialog::Accepted) {
-        myDividends dividendsData = dial.getDividendsData();
-        qDebug() << "base" << dividendsData.base
-                 << "shareSplit" << dividendsData.shareSplit
-                 << "shareBonus" << dividendsData.shareBonus
-                 << "capitalBonus" << dividendsData.capitalBonus
-                 << "time" << dividendsData.time.toString()
-                 << "type" << dividendsData.type;
-        myExchangeData exchangeData;
-        //parent->doDividend(dividendsData, holds.assetData, exchangeData);
-    }
+    stockBonus_intrests(false);
 }
 void myFinanceTreeVeiwContextMenu::intrests_clicked() {
     qDebug() << STR("右键利息 clicked");
+    stockBonus_intrests(true);
+}
+void myFinanceTreeVeiwContextMenu::stockBonus_intrests(bool isIntrest) {
     myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
-    myDividendsDialog dial(holds.assetData, true, parent);
+    myDividendsDialog dial(holds.assetData, isIntrest, parent);
     if(dial.exec() == QDialog::Accepted) {
         myDividends dividendsData = dial.getDividendsData();
-        myExchangeData exchangeData;
         qDebug() << "base" << dividendsData.base
                  << "shareSplit" << dividendsData.shareSplit
                  << "shareBonus" << dividendsData.shareBonus
                  << "capitalBonus" << dividendsData.capitalBonus
                  << "time" << dividendsData.time.toString()
                  << "type" << dividendsData.type;
-        //parent->doDividend(dividendsData, holds.assetData, exchangeData);
+        parent->doDividend(dividendsData, holds.assetData, isIntrest);
     }
 }

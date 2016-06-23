@@ -49,8 +49,8 @@ void myDividendsDialog::on_capitalBonusSpinBox_valueChanged(double value) {
     }
 }
 
-void myDividendsDialog::on_dateTimeEdit_dateTimeChanged(const QDateTime &dateTime) {
-    dividendsData.time = dateTime;
+void myDividendsDialog::on_dateEdit_dateChanged(const QDate &date) {
+    dividendsData.time = date;
 }
 
 void myDividendsDialog::setPatternIntrest() {

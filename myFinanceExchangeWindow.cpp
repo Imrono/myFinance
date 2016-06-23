@@ -18,16 +18,16 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchan
     rootNode = &static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode();
 
     ui->setupUi(this);
+
+    // ROLLBACK CHECKBOX HIDE AS DEFAULT
+    ui->checkBoxRollback->setChecked(isRollback);
+    ui->checkBoxRollback->hide();
+
     // COMMON UI UPDATE
     ui->timeDateTimeEdit->setDateTime(QDateTime::currentDateTime());
     ui->typeLineEdit->setReadOnly(true);
 
     initialTabs(exchangeUI, isPartial);
-
-
-    // ROLLBACK CHECKBOX
-    ui->checkBoxRollback->setChecked(isRollback);
-    ui->checkBoxRollback->hide();
 }
 
 void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool isPartial) {
@@ -57,7 +57,7 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
             return;
         }
         _currentTab = _myTabs[dataSource];
-        setUI(exchangeUI.getExchangeData(), true);
+        setUI(exchangeUI.getExchangeData(), exchangeUI.getIsShowRollback());
         if (isPartial)
             _currentTab->checkAndSetDisable(exchangeUI.getExchangeData());
         qDebug() << "## SETUP UI MODEL FINISH";

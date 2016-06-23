@@ -73,10 +73,6 @@ myFinanceMainWindow::~myFinanceMainWindow()
         delete assetModel;
         assetModel = nullptr;
     }
-//    if (nullptr != delegate) {
-//        delete delegate;
-//        delegate = nullptr;
-//    }
     if (nullptr != exchangeModel) {
         delete exchangeModel;
         exchangeModel = nullptr;
@@ -212,7 +208,7 @@ void myFinanceMainWindow::modifyExchange_clicked() {
         return;
     }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myExchangeUI tmpUI(originExchangeData);
+    myExchangeUI tmpUI(originExchangeData, true);
     myFinanceExchangeWindow exWin(this, tmpUI);
     exWin.setWindowTitle(info);
     //exWin.setUI(originExchangeData, true);
@@ -248,11 +244,10 @@ void myFinanceMainWindow::deleteExchange_clicked() {
         return;
     }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myExchangeUI tmpUI(originExchangeData);
+    myExchangeUI tmpUI(originExchangeData, true);
     myFinanceExchangeWindow dial(this, tmpUI);
     dial.setWindowTitle(info);
-    dial.setUI(originExchangeData);
-    //dial.setUI4Delete();
+    dial.setUI(originExchangeData, true);
     if(dial.exec() == QDialog::Accepted) {
         qDebug() << info + "Accepted";
         // 1. DO EXCHANGE ASSET_DATA
@@ -261,7 +256,7 @@ void myFinanceMainWindow::deleteExchange_clicked() {
         }
         // 2. DO EXCHANGE EXCHANGE_DATA
         if (false == ans) {
-            QMessageBox::warning(this, info, info + " ERROR", QMessageBox::Ok, QMessageBox::Ok);
+            QMessageBox::warning(this, info, info + " ERROR", QMessageBox::Ok, QMessageBox::Cancel);
         } else {
             exchangeModel->doExchange(originExchangeData, true);
         }
@@ -269,6 +264,14 @@ void myFinanceMainWindow::deleteExchange_clicked() {
     ui->treeView->expandAll();
 }
 
-void myFinanceMainWindow::doDividend(const myDividends &divident, const myAssetData &nodeAssetData, myExchangeData &exchangeData) {
-    assetModel->doDividend(divident, nodeAssetData, exchangeData);
+void myFinanceMainWindow::doDividend(const myDividends &divident, const myAssetData &dbAssetData, bool isIntrest) {
+    myExchangeData exchangeData;
+    if (isIntrest) {
+        exchangeData.exchangeType = STR("利息");
+    } else {
+        exchangeData.exchangeType = STR("分红");
+    }
+    assetModel->doDividend(divident, dbAssetData, exchangeData);
+    exchangeModel->doExchange(exchangeData);
+    ui->treeView->expandAll();
 }

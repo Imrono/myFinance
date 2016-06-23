@@ -99,22 +99,25 @@ public:
     myExchangeUI() {
         numOfTabs = MAX_TAB_COUNT;
         tabType = TAB_NONE;
+        isShowRollback = false;
     }
-    myExchangeUI(const myExchangeData &data) {
+    myExchangeUI(const myExchangeData &data, bool isShowRollback)
+        : isShowRollback(isShowRollback), exchangeData(data) {
         setTypeOfExchange(data);
     }
 
     int getNumOfTabs() const { return numOfTabs;}
     int getTabType() const { return tabType;}
+    bool getIsShowRollback() const { return isShowRollback;}
     const myExchangeData &getExchangeData() const { return exchangeData;}
 
 private:
     int numOfTabs;
     int tabType;
+    bool isShowRollback;
     myExchangeData exchangeData;
 
     void setTypeOfExchange (const myExchangeData &data) {
-        exchangeData = data;
         numOfTabs = 1;
         if (data.exchangeType.contains(STR("֤ȯ"))) {
             tabType = myExchangeUI::TAB_STOCK;
@@ -140,7 +143,7 @@ struct myDividends {
     };
 
     myDividends();
-    QDateTime time;
+    QDate time;
     float shareSplit;
     float shareBonus;
     float capitalBonus;

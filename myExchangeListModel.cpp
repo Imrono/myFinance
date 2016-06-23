@@ -17,6 +17,7 @@ myExchangeListModel::~myExchangeListModel() {
 }
 
 bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool isDelete) {
+    qDebug() << "### myExchangeListModel::doExchange ###";
     QSqlQuery query;
     QString execWord;
     if (isDelete) {
@@ -76,14 +77,27 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
 }
 QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exchangeData) {
     QString exchangeStr;
-    if (MY_CASH == exchangeData.assetData.assetCode && 1 == exchangeData.assetData.amount) {
+    if (MY_CASH == exchangeData.assetData.assetCode && 1 == exchangeData.assetData.amount
+    && STR("利息") != exchangeData.exchangeType && STR("分红") != exchangeData.exchangeType) {
         if (qAbs(exchangeData.assetData.price + exchangeData.money) > 0.0001f)
-            qDebug() << "[转帐]" << exchangeData.accountMoney << " " << exchangeData.money
+            qDebug() << STR("[转帐]") << exchangeData.accountMoney << " " << exchangeData.money
                      << "!="    << exchangeData.assetData.accountCode << " " << exchangeData.assetData.price;
         QString strMoney = QString::number(exchangeData.money, 'f', 2);
         exchangeStr = STR("[%1]%2->%3(￥%4)")
                 .arg(exchangeData.exchangeType)
                 .arg(exchangeData.accountMoney).arg(exchangeData.assetData.accountCode).arg(strMoney);
+    } else if (STR("利息") == exchangeData.exchangeType || STR("分红") == exchangeData.exchangeType) {
+        float money = 0.0f;
+        if (STR("利息") == exchangeData.exchangeType) {
+            money = exchangeData.assetData.price;
+        } else if (STR("分红") == exchangeData.exchangeType) {
+            money = exchangeData.money;
+        } else { }
+        exchangeStr = STR("[%1]%2.%3(￥%4)")
+                .arg(exchangeData.exchangeType)
+                .arg(exchangeData.accountMoney)
+                .arg(exchangeData.assetData.assetName)
+                .arg(money);
     } else {
         QString strMoney = QString::number(exchangeData.money, 'f', 2);
         QString strPrice = QString::number(exchangeData.assetData.price, 'f', 2);
@@ -95,7 +109,6 @@ QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exc
     }
     return exchangeStr;
 }
-
 
 bool myExchangeListModel::initial() {
     list.clear();

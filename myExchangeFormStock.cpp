@@ -82,8 +82,10 @@ void myExchangeFormStock::recordExchangeData(myExchangeData &tmpData) {
 void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
     int index = ui->moneyAccount->findText(exchangeData.assetData.accountCode);
     ui->moneyAccount->setCurrentIndex(exchangeIdx2AccountIdx.find(index).value());
-    ui->nameLineEdit->setText(exchangeData.assetData.assetCode);
-    ui->codeLineEdit->setText(exchangeData.assetData.assetName);
+    ui->nameLineEdit->setText(exchangeData.assetData.assetName);
+    data.assetData.assetName = exchangeData.assetData.assetName;
+    ui->codeLineEdit->setText(exchangeData.assetData.assetCode);
+    data.assetData.assetCode = exchangeData.assetData.assetCode;
     ui->spinBoxPrice->setValue(exchangeData.assetData.price);
     ui->spinBoxAmount->setValue(qAbs(exchangeData.assetData.amount));
     if (STR("Ö¤È¯ÂòÈë") == exchangeData.exchangeType) {
@@ -372,4 +374,12 @@ void myExchangeFormStock::on_nameLineEdit_textChanged(const QString &name) {
 
 void myExchangeFormStock::on_bonusTaxSpinBox_valueChanged(double value) {
     bonusTax = value;
+}
+
+void myExchangeFormStock::on_moneySpinBoxTotal_valueChanged(double value) {
+    totalMoney = value;
+    remainMoney = totalMoney + data.money;
+    ui->moneySpinBoxRemain->setValue(remainMoney);
+    qDebug() << "#moneySpinBoxTotal_valueChanged# remainMoney:" << remainMoney
+             << " data.money:" << data.money << " totalMoney:" << totalMoney;
 }

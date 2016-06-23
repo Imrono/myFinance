@@ -73,6 +73,7 @@ private slots:
     void on_moneySpinBox_valueChanged(double value);
     void on_nameLineEdit_textChanged(const QString &name);
     void on_bonusTaxSpinBox_valueChanged(double value);
+    void on_moneySpinBoxTotal_valueChanged(double value);
 };
 
 #endif // MYEXCHANGEFORMSTOCK_H

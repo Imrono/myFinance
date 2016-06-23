@@ -30,7 +30,7 @@ private slots:
 
     void on_capitalBonusSpinBox_valueChanged(double value);
 
-    void on_dateTimeEdit_dateTimeChanged(const QDateTime &dateTime);
+    void on_dateEdit_dateChanged(const QDate &date);
 
 private:
     Ui::myDividendsDialog *ui;
