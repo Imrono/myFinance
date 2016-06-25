@@ -72,15 +72,11 @@ public:
     void addChild(myAssetNode *childNode);
     myAssetNode *getAssetNode(const QString &assetCode);
 
-    static bool doExchange(const myExchangeData data, myAccountAssetRootNode &rootNode);
-    static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
-
     nodeType type;
     QVariant nodeData;
     myAssetNode *parent;
 
     QList<myAssetNode *> children;
-
 };
 
 ///
@@ -104,6 +100,7 @@ public:
     QStringList getAllStockCodeList();
 
     bool doExchange(const myAssetData &assetData);
+    static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
 
     bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
     bool doInsertAccount(myAccountData data);

@@ -110,105 +110,7 @@ bool myAccountAssetRootNode::doExchange(const myAssetData &assetData) {
     }
     return false;
 }
-
-bool myAssetNode::doExchange(myExchangeData data, myAccountAssetRootNode &rootNode) {
-    QSqlQuery query;
-    QString filter;
-    QString execWord;
-
-    // 1 MONEY CHANGE
-    filter   = STR("资产帐户代号='%1' AND 代号='cash'").arg(data.accountMoney);
-    execWord = STR("select 单位成本 from 资产 WHERE %1").arg(filter);
-    qDebug() << execWord;
-    if(query.exec(execWord)) {
-        execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
-        if (1 == myFinanceDatabase::getQueryRows(execWord)) {
-            query.next();
-            float moneyOrigin = query.value(0).toDouble();
-            float money = moneyOrigin + data.money;
-            QString strMoney = QString::number(money, 'f', 3);
-            qDebug() << moneyOrigin << "  " << data.money << "  " << money;
-            execWord = STR("UPDATE 资产 SET 单位成本=%1 WHERE %2").arg(strMoney).arg(filter);
-            qDebug() << execWord;
-            if(!query.exec(execWord)) {
-                qDebug() << query.lastError().text();
-                return false;
-            }
-        } else {
-            qDebug() << "select money error:" << execWord;
-            return false;
-        }
-    } else {
-        qDebug() << query.lastError().text();
-        return false;
-    }
-    query.clear();
-
-    // 2 ASSET CHANGE
-    filter   = STR("资产帐户代号='%1' AND 代号='%2'").arg(data.assetData.accountCode).arg(data.assetData.assetCode);
-    execWord = STR("select 数量, 单位成本 from 资产 WHERE %1").arg(filter);
-    qDebug() << execWord;
-    if(query.exec(execWord)) {
-        int   amountOrigin = 0;
-        float priceOrigin  = 0.0f;
-        float avgCost  = 0.0f;
-        int   amount = 0;
-
-        execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
-        int numRows = myFinanceDatabase::getQueryRows(execWord);
-        if (1 == numRows) {
-            //UPDATE
-            query.next();
-            amountOrigin = query.value(0).toInt();
-            priceOrigin  = query.value(1).toDouble();
-            if (data.assetData.assetCode != "cash") {
-                amount = amountOrigin + data.assetData.amount;
-                avgCost = (data.assetData.price*data.assetData.amount + priceOrigin*amountOrigin + data.fee)/amount;
-            } else {
-                amount = 1;
-                avgCost = priceOrigin + data.assetData.price - data.fee;
-            }
-            if (amount != 0) {  //即使为0，"cash"不会被删除
-                execWord = STR("UPDATE 资产 SET 数量=%1, 单位成本=%2 WHERE %3")
-                                    .arg(amount).arg(avgCost).arg(filter);
-            } else {
-                execWord = STR("delete from 资产 WHERE %1").arg(filter);
-            }
-            qDebug() << execWord;
-            if(!query.exec(execWord)) {
-                qDebug() << query.lastError().text();
-                return false;
-            }
-        } else if (0 == numRows) {
-            // INSERT
-            if (data.assetData.assetCode != "cash") {
-                amount = amountOrigin + data.assetData.amount;
-                avgCost = (data.assetData.price*data.assetData.amount + priceOrigin*amountOrigin + data.fee)/amount;
-            } else {
-                amount = 1;
-                avgCost = priceOrigin + data.assetData.price - data.fee;
-            }
-            execWord = STR("INSERT INTO 资产 VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
-                    .arg(data.assetData.assetCode).arg(data.assetData.assetName).arg(data.assetData.accountCode).arg(amount).arg(avgCost)
-                    .arg(data.assetData.type).arg(rootNode.getAccountNode(data.assetData.accountCode)->children.count());
-            qDebug() << execWord;
-            if(!query.exec(execWord)) {
-                qDebug() << query.lastError().text();
-                return false;
-            }
-        } else {
-            qDebug() << "大于一条记录 ERROR:" << execWord;
-            return false;
-        }
-    } else {
-        qDebug() << query.lastError().text();
-        return false;
-    }
-    query.clear();
-
-    return true;
-}
-bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInfo) {
+bool myAccountAssetRootNode::checkExchange(const myExchangeData &data, QString &abnormalInfo) {
     qDebug() << "### myAssetNode::checkExchange ###";
     exchangeAbnomal abnormalCode = NORMAL;
 
@@ -311,7 +213,6 @@ bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInf
     Q_UNUSED(abnormalCode);
     return true;
 }
-
 
 myAccountAssetRootNode::myAccountAssetRootNode() : rootNode(myAssetNode::nodeRoot, "RootNode")
 {

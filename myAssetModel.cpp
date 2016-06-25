@@ -309,7 +309,7 @@ bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) 
     return ans;
 }
 bool myAssetModel::checkExchange(const myExchangeData &data, QString &abnormalInfo) {
-    return myAssetNode::checkExchange(data, abnormalInfo);
+    return myAccountAssetRootNode::checkExchange(data, abnormalInfo);
 }
 
 bool myAssetModel::doReflashData(bool isAccount, bool isAsset) {
