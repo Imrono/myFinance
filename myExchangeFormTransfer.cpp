@@ -2,8 +2,8 @@
 #include "ui_myExchangeFormTransfer.h"
 #include "AssetCode2Type.h"
 
-myExchangeFormTransfer::myExchangeFormTransfer(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent) :
-    myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_TRANS, parent),
+myExchangeFormTransfer::myExchangeFormTransfer(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent, bool isModifyExchange) :
+    myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_TRANS, parent, isModifyExchange),
     accountNodeOut(nullptr), accountNodeIn(nullptr),
     ui(new Ui::myExchangeFormTransfer)
 {

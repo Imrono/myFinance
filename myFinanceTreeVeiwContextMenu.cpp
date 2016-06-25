@@ -8,6 +8,7 @@
 #include "myModifyExchange.h"
 #include "myFinanceMainWindow.h"
 #include "myFinanceExchangeWindow.h"
+#include "myDividendsDialog.h"
 
 myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : parent(static_cast<myFinanceMainWindow *>(parent)) {
     editAsset = new QMenu(parent);
@@ -23,6 +24,8 @@ myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : pa
     transferOut   = new QAction(parent);
     upAsset       = new QAction(parent);
     downAsset     = new QAction(parent);
+    stockBonus    = new QAction(parent);
+    intrests      = new QAction(parent);
 
     deleteAccount->setText(STR("删除帐户"));
     modifyAccount->setText(STR("更新帐户"));
@@ -35,6 +38,8 @@ myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : pa
     transferOut->setText(STR("转出"));
     upAsset->setText(STR("上移"));
     downAsset->setText(STR("下移"));
+    stockBonus->setText(STR("分红"));
+    intrests->setText(STR("利息"));
 
     connect(deleteAccount, SIGNAL(triggered()), this, SLOT(deleteAccount_clicked()));
     connect(modifyAccount, SIGNAL(triggered()), this, SLOT(modifyAccount_clicked()));
@@ -47,6 +52,8 @@ myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : pa
     connect(transferOut,   SIGNAL(triggered()), this, SLOT(transferOut_clicked()));
     connect(upAsset,       SIGNAL(triggered()), this, SLOT(upAsset_clicked()));
     connect(downAsset,     SIGNAL(triggered()), this, SLOT(downAsset_clicked()));
+    connect(stockBonus,    SIGNAL(triggered()), this, SLOT(stockBonus_clicked()));
+    connect(intrests,      SIGNAL(triggered()), this, SLOT(intrests_clicked()));
 }
 myFinanceTreeVeiwContextMenu::~myFinanceTreeVeiwContextMenu() {
 
@@ -65,16 +72,24 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myAssetNode *node) 
         editAsset->addAction(deleteAsset);
         editAsset->addSeparator();
         myAssetHold assetHolds = node->nodeData.value<myAssetHold>();
-        if (assetHolds.assetData.assetCode == STR("cash")) {
+        if (assetHolds.assetData.assetCode == MY_CASH) {
             editAsset->addAction(transferIn);
             editAsset->addAction(transferOut);
         } else {
             editAsset->addAction(buyAsset);
             editAsset->addAction(sellAsset);
         }
+        editAsset->addSeparator();
+        if (assetHolds.assetData.assetCode == MY_CASH
+         || assetHolds.assetData.assetCode == STR("货币基金")) {
+            editAsset->addAction(intrests);
+        } else {
+            editAsset->addAction(stockBonus);
+        }
     } else if (myAssetNode::nodeRoot == node->type) {
     } else {}
 
+    editAsset->addSeparator();
     upAsset->setEnabled(true);
     downAsset->setEnabled(true);
     unsigned int upDownType = HAS_NONE;
@@ -96,7 +111,6 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myAssetNode *node) 
         }
     } else {}
 
-    editAsset->addSeparator();
     upAsset->setText(STR("上移"));
     editAsset->addAction(upAsset);
     downAsset->setText(STR("下移"));
@@ -142,7 +156,7 @@ void myFinanceTreeVeiwContextMenu::doExchangeStock(const QString &type) {
     exchangeData.assetData.assetCode   = holds.assetData.assetCode;
     exchangeData.assetData.assetName   = holds.assetData.assetName;
     exchangeData.exchangeType          = type;
-    parent->doExchange(myExchangeUI(exchangeData), true);
+    parent->doExchange(myExchangeUI(exchangeData, false), true);
 }
 
 void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
@@ -151,7 +165,7 @@ void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
     myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
     exchangeData.assetData.accountCode = holds.assetData.accountCode;
     exchangeData.exchangeType = STR("转帐");
-    parent->doExchange(myExchangeUI(exchangeData), true);
+    parent->doExchange(myExchangeUI(exchangeData, false), true);
 }
 
 void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
@@ -160,7 +174,7 @@ void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
     myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
     exchangeData.accountMoney = holds.assetData.accountCode;
     exchangeData.exchangeType = STR("转帐");
-    parent->doExchange(myExchangeUI(exchangeData), true);
+    parent->doExchange(myExchangeUI(exchangeData, false), true);
 }
 
 void myFinanceTreeVeiwContextMenu::upAsset_clicked() {
@@ -261,4 +275,27 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
 }
 void myFinanceTreeVeiwContextMenu::doUpDown(bool isUp) {
     parent->doUpDown(currentNode, isUp);
+}
+
+void myFinanceTreeVeiwContextMenu::stockBonus_clicked() {
+    qDebug() << STR("右键分红 clicked");
+    stockBonus_intrests(false);
+}
+void myFinanceTreeVeiwContextMenu::intrests_clicked() {
+    qDebug() << STR("右键利息 clicked");
+    stockBonus_intrests(true);
+}
+void myFinanceTreeVeiwContextMenu::stockBonus_intrests(bool isIntrest) {
+    myAssetHold holds = currentNode->nodeData.value<myAssetHold>();
+    myDividendsDialog dial(holds.assetData, isIntrest, parent);
+    if(dial.exec() == QDialog::Accepted) {
+        myDividends dividendsData = dial.getDividendsData();
+        qDebug() << "base" << dividendsData.base
+                 << "shareSplit" << dividendsData.shareSplit
+                 << "shareBonus" << dividendsData.shareBonus
+                 << "capitalBonus" << dividendsData.capitalBonus
+                 << "time" << dividendsData.time.toString()
+                 << "type" << dividendsData.type;
+        parent->doDividend(dividendsData, holds.assetData, isIntrest);
+    }
 }

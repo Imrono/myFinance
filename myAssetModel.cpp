@@ -14,7 +14,7 @@ myAssetModel::myAssetModel(QObject *parent)
 
     connect(&stockPrice, SIGNAL(updatePriceFinish()), this, SLOT(updatePriceFinish()));
 
-    qDebugNodeData();
+    //qDebugNodeData();
 }
 
 myAssetModel::~myAssetModel()
@@ -238,11 +238,73 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
 }
 
 /////////////////////////////////////////////////////////////////////
-bool myAssetModel::doExchange(const myExchangeData &data, bool reflash) {
-    bool ans = myAssetNode::doExchange(data, root);
+bool myAssetModel::doDividend(const myDividends &divident, const myAssetData &nodeAssetData, myExchangeData &exchangeData) {
+    qDebug() << "### myAssetModel::doDividend ###";
+    float divide = (divident.shareBonus + divident.shareSplit) / static_cast<float>(divident.base);
+    float bonse  = divident.capitalBonus / static_cast<float>(divident.base);
+    exchangeData.time.setDate(divident.time);
+    exchangeData.accountMoney = nodeAssetData.accountCode;
+    exchangeData.assetData    = nodeAssetData;
+
+    if (myDividends::INTRESTS == divident.type) {
+        exchangeData.money           = 0.0f;
+        exchangeData.assetData.price = bonse;
+    } else if (myDividends::STOCK_DIVIDEND == divident.type) {
+        exchangeData.money            = bonse * nodeAssetData.amount;
+        exchangeData.assetData.amount = divide * nodeAssetData.amount;
+    } else { }
+    return doExchange(exchangeData);
+}
+
+bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) {
+    qDebug() << "### myAssetModel::doExchange ###";
+    bool ans = true;
+    myAssetNode *account = nullptr, *asset = nullptr;
+    myAssetData originalAssetData;
+
+    if (qAbs(exchangeData.money) > MONEY_EPS) {
+        myAssetData moneyData;
+        account = root.getAccountNode(exchangeData.accountMoney);
+        if (account) {
+            asset = account->getAssetNode(MY_CASH);
+            if (asset) {    /// update MY_CASH
+                originalAssetData = asset->nodeData.value<myAssetHold>().assetData;
+            } else { }      /// insert MY_CASH
+            float money = originalAssetData.price + exchangeData.money;
+            moneyData.initMoneyAsset(exchangeData.accountMoney, money);
+            ans = root.doExchange(moneyData) && ans;
+        } else { return false;}
+    }
+
+    account = nullptr;
+    asset = nullptr;
+    originalAssetData.reset();
+    myAssetData assetData = exchangeData.assetData;
+    account = root.getAccountNode(exchangeData.assetData.accountCode);
+    if (account) {
+        asset = account->getAssetNode(exchangeData.assetData.assetCode);
+        if (asset) {    /// update MY_ASSET
+            originalAssetData = asset->nodeData.value<myAssetHold>().assetData;
+        } else { }      /// insert MY_ASSET
+
+        if (exchangeData.assetData.assetCode != MY_CASH) {
+            assetData.amount = originalAssetData.amount + exchangeData.assetData.amount;
+            if (0 != assetData.amount)
+                assetData.price = (-exchangeData.money + originalAssetData.price*originalAssetData.amount)/static_cast<float>(assetData.amount);
+            else {
+                qDebug() << "ERROR: 0 == assetData.amount";
+                return false;
+            }
+        } else {
+            assetData.amount = 1;
+            assetData.price = exchangeData.assetData.price + originalAssetData.price;
+        }
+        ans = root.doExchange(assetData) && ans;
+    } else { return false;}
+
     if (reflash) {
         ans = doReflashData() && ans;
-        qDebugNodeData();
+        //qDebugNodeData();
     }
     return ans;
 }

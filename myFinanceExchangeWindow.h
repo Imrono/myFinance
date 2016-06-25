@@ -32,7 +32,7 @@ class myFinanceExchangeWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit myFinanceExchangeWindow(QWidget *parent, const myExchangeUI &exchangeUI, bool isPartial = false);
+    explicit myFinanceExchangeWindow(QWidget *parent, const myExchangeUI &exchangeUI, bool isPartial = false, bool isModifyExchange = false);
     ~myFinanceExchangeWindow();
 
     myExchangeData const &getExchangeData() { return _currentTab->getExchangeData();}
@@ -68,7 +68,7 @@ private:
     const myRootAccountAsset *rootNode;
 
     bool checkDataConsistence();
-    void initialTabs(const myExchangeUI &exchangeUI, bool isPartial = false);
+    void initialTabs(const myExchangeUI &exchangeUI, bool isPartial, bool isModifyExchange);
     ///tab2, tab3
     void initIncomeExpensesRadioButton();
     //myMoneyIncomeExpenses _myIncomeExpenses;

@@ -100,3 +100,41 @@ bool myAssetData::operator ==(const myAssetData &data) {
     ans = (type        == data.type)        && ans;
     return ans;
 }
+myAssetData myAssetData::operator +(const myAssetData &data) {
+    if (data.assetCode == this->assetCode) {
+        if (MY_CASH == this->assetCode
+         && 1 == data.amount
+         && 1 == this->amount) {
+            this->price += data.price;
+        } else if (MY_CASH != this->assetCode) {
+            this->amount += data.amount;
+        }
+    }
+    return *this;
+}
+
+void myAssetData::reset() {
+    accountCode = "";
+    assetCode   = "";
+    assetName   = "";
+    price       = 0.0f;
+    amount      = 0;
+    type        = "";
+}
+
+void myAssetData::initMoneyAsset(const QString &accountCode, const float money) {
+    this->accountCode = accountCode;
+    this->assetCode   = MY_CASH;
+    this->assetName   = "";
+    this->price       = money;
+    this->amount      = 1;
+    this->type        = "";
+}
+
+myDividends::myDividends() {
+    shareSplit   = 0.0f;
+    shareBonus   = 0.0f;
+    capitalBonus = 0.0f;
+    base = 0;
+    type = myDividends::UNSPECIFIED;
+}

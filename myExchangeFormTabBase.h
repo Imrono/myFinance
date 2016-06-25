@@ -12,7 +12,7 @@ class myFinanceExchangeWindow;
 class myExchangeFormTabBase : public QWidget
 {
 public:
-    explicit myExchangeFormTabBase(const myRootAccountAsset *rootNode, QString tabName, int tabType, QWidget *parent = 0);
+    explicit myExchangeFormTabBase(const myRootAccountAsset *rootNode, QString tabName, int tabType, QWidget *parent = 0, bool isModifyExchange = false);
 
     const QString &getTabText() { return tabName;}
     void setTabText(QString &text) { tabName = text;}

@@ -84,6 +84,7 @@ void myLineEdit::setDefaultStringStyle() {
 }
 
 void myLineEdit::setValue(int val) {
-    QString str(val);
-    this->setText(str);
+    this->setPalette(defaultPalette);
+    this->setFont(defaultFont);
+    this->setText(QString("%1").arg(val));
 }

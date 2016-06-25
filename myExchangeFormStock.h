@@ -16,7 +16,7 @@ class myExchangeFormStock : public myExchangeFormTabBase
     Q_OBJECT
 
 public:
-    explicit myExchangeFormStock(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent = 0);
+    explicit myExchangeFormStock(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent = 0, bool isModifyExchange = false);
     ~myExchangeFormStock();
 
     void exchangeWindowFeeChanged(double fee);
@@ -40,12 +40,19 @@ private:
     double commisionRate;
     float remainMoney;
     float totalMoney;
+    float bonusTax;
     myAssetNode *accountNode;
 
     ///METHOD
     void updateBuySell();
     void updateMarketInfo();
     void updateExchangeFee();
+
+    float calcMoney() {
+        /// data.assetData.amount 卖出为'-'，买入为'+'
+        /// data.money            卖出为'+'，买入为'-'
+        return -static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee - bonusTax;
+    }
 
 private slots:
     void on_codeLineEdit_textEdited(const QString &str);
@@ -64,6 +71,9 @@ private slots:
 
     void on_moneyAccount_currentIndexChanged(int index);
     void on_moneySpinBox_valueChanged(double value);
+
+    void on_bonusTaxSpinBox_valueChanged(double value);
+    void on_moneySpinBoxTotal_valueChanged(double value);
 };
 
 #endif // MYEXCHANGEFORMSTOCK_H

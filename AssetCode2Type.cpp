@@ -1,9 +1,10 @@
 #include "AssetCode2Type.h"
+#include "myDatabaseDatatype.h"
 
 AssetCode2Type *AssetCode2Type::instance = nullptr;
 AssetCode2Type::AssetCode2Type() {
     code2typeTable.insert(STR("朝朝盈"), STR("货币基金"));
-    code2typeTable[STR("cash")] = STR("现金");
+    code2typeTable[MY_CASH] = STR("现金");
 }
 
 AssetCode2Type::~AssetCode2Type() {

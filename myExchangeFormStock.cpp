@@ -2,15 +2,16 @@
 #include "ui_myExchangeFormStock.h"
 #include "AssetCode2Type.h"
 
-myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent) :
-    myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_STOCK, parent),
+myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent, bool isModifyExchange) :
+    myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_STOCK, parent, isModifyExchange),
     stockCode(myStockCodeName::getInstance()),
     totalMoney(0.0f), remainMoney(0.0f), isShowRemainStock(true),
-    accountNode(nullptr),
+    accountNode(nullptr), bonusTax(0.0f),
     ui(new Ui::myExchangeFormStock)
 {
     ui->setupUi(this);
     ui->amountLineEdit->setStyleIntDecimal(true);
+    ui->bonusTaxSpinBox->setValue(0.0f);
 
     grpBuySell = new QButtonGroup(this);
     grpBuySell->addButton(ui->radioBuy);
@@ -82,10 +83,13 @@ void myExchangeFormStock::recordExchangeData(myExchangeData &tmpData) {
 void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
     int index = ui->moneyAccount->findText(exchangeData.assetData.accountCode);
     ui->moneyAccount->setCurrentIndex(exchangeIdx2AccountIdx.find(index).value());
-    ui->nameLineEdit->setText(exchangeData.assetData.assetCode);
-    ui->codeLineEdit->setText(exchangeData.assetData.assetName);
-    ui->spinBoxPrice->setValue(exchangeData.assetData.price);
-    ui->amountLineEdit->setValue(qAbs(exchangeData.assetData.amount));
+    ui->nameLineEdit->setText(exchangeData.assetData.assetName);
+    ui->codeLineEdit->setText(exchangeData.assetData.assetCode);
+    on_codeLineEdit_textEdited(exchangeData.assetData.assetCode);
+    if (isModifyExchange) {
+        ui->spinBoxPrice->setValue(exchangeData.assetData.price);
+        ui->amountLineEdit->setValue(qAbs(exchangeData.assetData.amount));
+    }
     if (STR("证券买入") == exchangeData.exchangeType) {
         ui->radioBuy->click();
     } else if (STR("证券卖出") == exchangeData.exchangeType) {
@@ -117,8 +121,7 @@ void myExchangeFormStock::updateBuySell() {
     if (grpMarket->checkedId() != OTHER) {
         updateExchangeFee();
     }
-    data.money = -static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
-    ui->moneySpinBox->setValue(data.money);
+    ui->moneySpinBox->setValue(calcMoney());
 
     qDebug() << "#updateBuySell# data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
              << "data.amount " << data.assetData.amount << ","
@@ -348,8 +351,7 @@ void myExchangeFormStock::on_moneyAccount_currentIndexChanged(int index) {
     qDebug() << STR("佣金") << commisionRate;
     // 4. fee & money
     updateExchangeFee();
-    data.money = static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
-    ui->moneySpinBox->setValue(data.money);
+    ui->moneySpinBox->setValue(calcMoney());
 }
 void myExchangeFormStock::on_moneySpinBox_valueChanged(double value) {
     data.money = value;
@@ -362,10 +364,21 @@ void myExchangeFormStock::on_moneySpinBox_valueChanged(double value) {
 void myExchangeFormStock::exchangeWindowFeeChanged(double fee) {
     qDebug() << "$$myExchangeFormStock::exchangeWindowFeeChanged " << fee << "$$";
     myExchangeFormTabBase::exchangeWindowFeeChanged(fee);
-    data.money = static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee;
-    ui->moneySpinBox->setValue(data.money);
+    ui->moneySpinBox->setValue(calcMoney());
 }
 
 void myExchangeFormStock::on_nameLineEdit_textChanged(const QString &name) {
     data.assetData.assetName = name;
+}
+
+void myExchangeFormStock::on_bonusTaxSpinBox_valueChanged(double value) {
+    bonusTax = value;
+}
+
+void myExchangeFormStock::on_moneySpinBoxTotal_valueChanged(double value) {
+    totalMoney = value;
+    remainMoney = totalMoney + data.money;
+    ui->moneySpinBoxRemain->setValue(remainMoney);
+    qDebug() << "#moneySpinBoxTotal_valueChanged# remainMoney:" << remainMoney
+             << " data.money:" << data.money << " totalMoney:" << totalMoney;
 }

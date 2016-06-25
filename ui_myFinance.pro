@@ -36,7 +36,8 @@ SOURCES += main.cpp\
     AssetCode2Type.cpp \
     myExchangeFormMoneyUp.cpp \
     uiNumberLineEdit.cpp \
-    customUI/myLineEdit.cpp
+    customUI/myLineEdit.cpp \
+    myDividendsDialog.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \
@@ -62,7 +63,8 @@ HEADERS  += myFinanceMainWindow.h \
     AssetCode2Type.h \
     myExchangeFormMoneyUp.h \
     uiNumberLineEdit.h \
-    customUI/myLineEdit.h
+    customUI/myLineEdit.h \
+    myDividendsDialog.h
 
 FORMS    += myFinanceMainWindow.ui \
     myFinanceExchangeWindow.ui \
@@ -73,7 +75,8 @@ FORMS    += myFinanceMainWindow.ui \
     myExchangeFormStock.ui \
     myExchangeFormExpenses.ui \
     myExchangeFormTransfer.ui \
-    myExchangeFormMoneyUp.ui
+    myExchangeFormMoneyUp.ui \
+    myDividendsDialog.ui
 
 CONFIG(debug, debug|release) {
     CONFIG += console

@@ -9,7 +9,7 @@
 
 #include <QtDebug>
 
-myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchangeUI &exchangeUI, bool isPartial) :
+myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchangeUI &exchangeUI, bool isPartial, bool isModifyExchange) :
     QDialog(parent), ui(new Ui::myFinanceExchangeWindow),
     isRollback(false), stockCode(myStockCodeName::getInstance()),
     _currentTab(nullptr), dataSource(0)
@@ -18,19 +18,19 @@ myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchan
     rootNode = &static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode();
 
     ui->setupUi(this);
+
+    // ROLLBACK CHECKBOX HIDE AS DEFAULT
+    ui->checkBoxRollback->setChecked(isRollback);
+    ui->checkBoxRollback->hide();
+
     // COMMON UI UPDATE
     ui->timeDateTimeEdit->setDateTime(QDateTime::currentDateTime());
     ui->typeLineEdit->setReadOnly(true);
 
-    initialTabs(exchangeUI, isPartial);
-
-
-    // ROLLBACK CHECKBOX
-    ui->checkBoxRollback->setChecked(isRollback);
-    ui->checkBoxRollback->hide();
+    initialTabs(exchangeUI, isPartial, isModifyExchange);
 }
 
-void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool isPartial) {
+void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool isPartial, bool isModifyExchange) {
     /// 1. 默认4个tab，默认的setUI
     /// 2. 单个tab，用exchangeUI中数据setUI
     if (myExchangeUI::MAX_TAB_COUNT == exchangeUI.getNumOfTabs()) {
@@ -43,9 +43,9 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
         _currentTab->recoverTypeAndFee();
     } else if (1 == exchangeUI.getNumOfTabs()) {
         if (exchangeUI.getTabType() == myExchangeUI::TAB_STOCK)
-            _myTabs.append(new myExchangeFormStock   (rootNode, STR("证券交易"), this));
+            _myTabs.append(new myExchangeFormStock   (rootNode, STR("证券交易"), this, isModifyExchange));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_TRANS)
-            _myTabs.append(new myExchangeFormTransfer(rootNode, STR("转帐")    , this));
+            _myTabs.append(new myExchangeFormTransfer(rootNode, STR("转帐")    , this, isModifyExchange));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_INCOM)
             _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_EXPES)
@@ -57,7 +57,7 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
             return;
         }
         _currentTab = _myTabs[dataSource];
-        setUI(exchangeUI.getExchangeData(), true);
+        setUI(exchangeUI.getExchangeData(), exchangeUI.getIsShowRollback());
         if (isPartial)
             _currentTab->checkAndSetDisable(exchangeUI.getExchangeData());
         qDebug() << "## SETUP UI MODEL FINISH";

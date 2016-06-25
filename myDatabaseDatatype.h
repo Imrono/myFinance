@@ -49,6 +49,9 @@ struct myAssetData {
     myAssetData(myAssetHold data);
     myAssetData &operator =(const myAssetData &data);
     bool operator ==(const myAssetData &data);
+    myAssetData operator +(const myAssetData &data);
+    void reset();
+    void initMoneyAsset(const QString &accountCode, const float money);
 
     QString accountCode;
     QString assetCode;
@@ -96,22 +99,25 @@ public:
     myExchangeUI() {
         numOfTabs = MAX_TAB_COUNT;
         tabType = TAB_NONE;
+        isShowRollback = false;
     }
-    myExchangeUI(const myExchangeData &data) {
+    myExchangeUI(const myExchangeData &data, bool isShowRollback)
+        : isShowRollback(isShowRollback), exchangeData(data) {
         setTypeOfExchange(data);
     }
 
     int getNumOfTabs() const { return numOfTabs;}
     int getTabType() const { return tabType;}
+    bool getIsShowRollback() const { return isShowRollback;}
     const myExchangeData &getExchangeData() const { return exchangeData;}
 
 private:
     int numOfTabs;
     int tabType;
+    bool isShowRollback;
     myExchangeData exchangeData;
 
     void setTypeOfExchange (const myExchangeData &data) {
-        exchangeData = data;
         numOfTabs = 1;
         if (data.exchangeType.contains(STR("֤ȯ"))) {
             tabType = myExchangeUI::TAB_STOCK;
@@ -127,6 +133,22 @@ private:
             tabType = myExchangeUI::TAB_NONE;
         }
     }
+};
+
+struct myDividends {
+    enum dividendType {
+        UNSPECIFIED    = -1,
+        STOCK_DIVIDEND = 0,
+        INTRESTS       = 1
+    };
+
+    myDividends();
+    QDate time;
+    float shareSplit;
+    float shareBonus;
+    float capitalBonus;
+    int base;
+    int type;
 };
 
 #endif // MYDATABASEDATATYPE
