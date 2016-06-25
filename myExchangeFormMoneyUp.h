@@ -14,7 +14,7 @@ class myExchangeFormMoneyUp : public myExchangeFormTabBase
     Q_OBJECT
 
 public:
-    explicit myExchangeFormMoneyUp(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent = 0);
+    explicit myExchangeFormMoneyUp(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent = 0);
     ~myExchangeFormMoneyUp();
 
     void exchangeWindowFeeChanged(double fee);

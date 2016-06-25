@@ -55,7 +55,7 @@ enum changeType {
     BTN_INSERT = 3
 };
 
-class myRootAccountAsset;
+class myAccountAssetRootNode;
 class myAssetNode
 {
 public:
@@ -72,7 +72,7 @@ public:
     void addChild(myAssetNode *childNode);
     myAssetNode *getAssetNode(const QString &assetCode);
 
-    static bool doExchange(const myExchangeData data, myRootAccountAsset &rootNode);
+    static bool doExchange(const myExchangeData data, myAccountAssetRootNode &rootNode);
     static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
 
     nodeType type;
@@ -84,14 +84,14 @@ public:
 };
 
 ///
-/// \brief The myRootAccountAsset class
+/// \brief The myAccountAssetRootNode class
 /// 1. fetch/push data from/to the DataBase
 /// 2. sort the data
 ///
-class myRootAccountAsset {
+class myAccountAssetRootNode {
 public:
-    myRootAccountAsset();
-    ~myRootAccountAsset();
+    myAccountAssetRootNode();
+    ~myAccountAssetRootNode();
 
     bool initial(bool isFetchAccount = true, bool isFetchAsset = true);
     bool callback(bool isRemoveAccount = true, bool isRemoveAsset = true);

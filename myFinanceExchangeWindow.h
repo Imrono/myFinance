@@ -65,7 +65,7 @@ private:
     bool isRollback;
 
     const myStockCodeName *stockCode; //用于从code到name的推导
-    const myRootAccountAsset *rootNode;
+    const myAccountAssetRootNode *rootNode;
 
     bool checkDataConsistence();
     void initialTabs(const myExchangeUI &exchangeUI, bool isPartial, bool isModifyExchange);

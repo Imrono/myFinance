@@ -12,7 +12,7 @@ class myExchangeFormTransfer : public myExchangeFormTabBase
     Q_OBJECT
 
 public:
-    explicit myExchangeFormTransfer(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent = 0, bool isModifyExchange = false);
+    explicit myExchangeFormTransfer(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent = 0, bool isModifyExchange = false);
     ~myExchangeFormTransfer();
 
     void exchangeWindowFeeChanged(double fee);

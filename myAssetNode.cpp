@@ -52,7 +52,7 @@ myAssetNode *myAssetNode::getAssetNode(const QString &assetCode) {
     }
 }
 
-bool myRootAccountAsset::doExchange(const myAssetData &assetData) {
+bool myAccountAssetRootNode::doExchange(const myAssetData &assetData) {
     QSqlQuery query;
     QString filter;
     QString execWord;
@@ -111,7 +111,7 @@ bool myRootAccountAsset::doExchange(const myAssetData &assetData) {
     return false;
 }
 
-bool myAssetNode::doExchange(myExchangeData data, myRootAccountAsset &rootNode) {
+bool myAssetNode::doExchange(myExchangeData data, myAccountAssetRootNode &rootNode) {
     QSqlQuery query;
     QString filter;
     QString execWord;
@@ -313,16 +313,16 @@ bool myAssetNode::checkExchange(const myExchangeData &data, QString &abnormalInf
 }
 
 
-myRootAccountAsset::myRootAccountAsset() : rootNode(myAssetNode::nodeRoot, "RootNode")
+myAccountAssetRootNode::myAccountAssetRootNode() : rootNode(myAssetNode::nodeRoot, "RootNode")
 {
     rootNode.parent = nullptr;
 }
-myRootAccountAsset::~myRootAccountAsset() {
+myAccountAssetRootNode::~myAccountAssetRootNode() {
     callback();
 }
 
-bool myRootAccountAsset::initial(bool isFetchAccount, bool isFetchAsset) {
-    qDebug() << "### myRootAccountAsset::initial ###";
+bool myAccountAssetRootNode::initial(bool isFetchAccount, bool isFetchAsset) {
+    qDebug() << "### myAccountAssetRootNode::initial ###";
     if (!myFinanceDatabase::isConnected) {
         if (!myFinanceDatabase::connectDB())
             return false;
@@ -346,8 +346,8 @@ bool myRootAccountAsset::initial(bool isFetchAccount, bool isFetchAsset) {
     }
     return true;
 }
-bool myRootAccountAsset::callback(bool isRemoveAccount, bool isRemoveAsset) {
-    qDebug() << "### myRootAccountAsset::callback ###";
+bool myAccountAssetRootNode::callback(bool isRemoveAccount, bool isRemoveAsset) {
+    qDebug() << "### myAccountAssetRootNode::callback ###";
     if (!isRemoveAccount && !isRemoveAsset) {
         return true;
     }
@@ -368,8 +368,8 @@ bool myRootAccountAsset::callback(bool isRemoveAccount, bool isRemoveAsset) {
     return true;
 }
 ///读“资产帐户”表
-bool myRootAccountAsset::fetchAccount() {
-    qDebug() << "## myRootAccountAsset::fetchAccount ##";
+bool myAccountAssetRootNode::fetchAccount() {
+    qDebug() << "## myAccountAssetRootNode::fetchAccount ##";
     QSqlQuery query;
     if(query.exec(STR("select * from 资产帐户"))) {
         int i = 0;
@@ -414,8 +414,8 @@ bool myRootAccountAsset::fetchAccount() {
     return true;
 }
 ///读“资产”表
-bool myRootAccountAsset::fetchAsset() {
-    qDebug() << "## myRootAccountAsset::fetchAsset ##";
+bool myAccountAssetRootNode::fetchAsset() {
+    qDebug() << "## myAccountAssetRootNode::fetchAsset ##";
     QSqlQuery query;
     if(query.exec(STR("select * from 资产"))) {
         int i = 0;
@@ -452,7 +452,7 @@ bool myRootAccountAsset::fetchAsset() {
     return true;
 }
 
-myAssetNode *myRootAccountAsset::getAccountNode(const QString &accountCode) const {
+myAssetNode *myAccountAssetRootNode::getAccountNode(const QString &accountCode) const {
     for ( int i = 0; i != rootNode.children.size(); ++i ) {
         if ((rootNode.children.at(i)->nodeData).value<myAssetAccount>().accountData.code == accountCode ) {
             return rootNode.children.at(i);
@@ -460,7 +460,7 @@ myAssetNode *myRootAccountAsset::getAccountNode(const QString &accountCode) cons
     }
     return nullptr;
 }
-myAssetNode *myRootAccountAsset::getAccountNode(int i) const {
+myAssetNode *myAccountAssetRootNode::getAccountNode(int i) const {
     int count = rootNode.children.size();
     if (i < 0 || i >= count) {
         return nullptr;
@@ -469,7 +469,7 @@ myAssetNode *myRootAccountAsset::getAccountNode(int i) const {
     }
 }
 
-QStringList myRootAccountAsset::getAllStockCodeList() {
+QStringList myAccountAssetRootNode::getAllStockCodeList() {
     QStringList list;
     int numAccount = rootNode.children.size();
     for (int i = 0; i < numAccount; i++) {
@@ -493,7 +493,7 @@ QStringList myRootAccountAsset::getAllStockCodeList() {
     return list;
 }
 
-bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data) {
+bool myAccountAssetRootNode::doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data) {
     QSqlQuery query;
     QString execWord, filter;
 
@@ -621,7 +621,7 @@ bool myRootAccountAsset::doChangeAssetDirectly(const myAssetNode *node, changeTy
     } else { return false;}
     return false;
 }
-bool myRootAccountAsset::deleteOneAsset(const QString &accountCode, const QString &assetCode) {
+bool myAccountAssetRootNode::deleteOneAsset(const QString &accountCode, const QString &assetCode) {
     QSqlQuery query;
     QString filter   = STR("资产帐户代号='%1' AND 代号='%2'").arg(accountCode).arg(assetCode);
     QString execWord = STR("select * from 资产 WHERE %1").arg(filter);
@@ -653,7 +653,7 @@ bool myRootAccountAsset::deleteOneAsset(const QString &accountCode, const QStrin
         } else { return false;}
     } else { return false;}
 }
-bool myRootAccountAsset::doInsertAccount(myAccountData data) {
+bool myAccountAssetRootNode::doInsertAccount(myAccountData data) {
     QSqlQuery query;
     QString execWord, filter;
     filter   = STR("代号='%1'").arg(data.code);
@@ -680,7 +680,7 @@ bool myRootAccountAsset::doInsertAccount(myAccountData data) {
 }
 
 /// POSITION
-bool myRootAccountAsset::setAccountPosition(const QString &accountCode, int pos) {
+bool myAccountAssetRootNode::setAccountPosition(const QString &accountCode, int pos) {
     QSqlQuery query;
     QString filter   = STR("代号='%1'").arg(accountCode);
     QString execWord = STR("select count(*) from 资产帐户 WHERE %1").arg(filter);
@@ -702,7 +702,7 @@ bool myRootAccountAsset::setAccountPosition(const QString &accountCode, int pos)
             return false;}
     } else { return false;}
 }
-bool myRootAccountAsset::setAssetPosition(const QString &accountCode, const QString &assetCode, int pos) {
+bool myAccountAssetRootNode::setAssetPosition(const QString &accountCode, const QString &assetCode, int pos) {
     QSqlQuery query;
     QString filter   = STR("资产帐户代号='%1' AND 代号='%2'").arg(accountCode).arg(assetCode);
     QString execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
@@ -727,7 +727,7 @@ bool myRootAccountAsset::setAssetPosition(const QString &accountCode, const QStr
     } else { return false;}
 }
 
-void myRootAccountAsset::doSortPosition(bool isSortAccount, bool isSortAsset) {
+void myAccountAssetRootNode::doSortPosition(bool isSortAccount, bool isSortAsset) {
     /// SORT ACCOUNT
     if (isSortAccount) {
         sortPositionAccount();
@@ -740,7 +740,7 @@ void myRootAccountAsset::doSortPosition(bool isSortAccount, bool isSortAsset) {
         }
     }
 }
-void myRootAccountAsset::sortPositionAccount() {
+void myAccountAssetRootNode::sortPositionAccount() {
     QList<int> left;
     QList<int> posList;
     // 0 ~ numOfAsset-1 中找一个没用到的，给重复使用或超出范围的使用
@@ -788,7 +788,7 @@ void myRootAccountAsset::sortPositionAccount() {
     }
     rootNode.children = tmpChild;
 }
-void myRootAccountAsset::sortPositionAsset(myAssetNode *accountNode) {
+void myAccountAssetRootNode::sortPositionAsset(myAssetNode *accountNode) {
     if (myAssetNode::nodeAccount != accountNode->type) {
         return;
     }

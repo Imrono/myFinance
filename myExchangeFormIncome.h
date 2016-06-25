@@ -14,7 +14,7 @@ class myExchangeFormIncome : public myExchangeFormTabBase
     Q_OBJECT
 
 public:
-    explicit myExchangeFormIncome(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent = 0);
+    explicit myExchangeFormIncome(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent = 0);
     ~myExchangeFormIncome();
 
     void recordExchangeData(myExchangeData &tmpData);

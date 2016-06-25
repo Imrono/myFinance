@@ -1,7 +1,7 @@
 #include "myExchangeFormExpenses.h"
 #include "ui_myExchangeFormExpenses.h"
 
-myExchangeFormExpenses::myExchangeFormExpenses(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent) :
+myExchangeFormExpenses::myExchangeFormExpenses(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent) :
     myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_EXPES, parent),
     ui(new Ui::myExchangeFormExpenses)
 {

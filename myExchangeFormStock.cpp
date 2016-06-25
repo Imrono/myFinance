@@ -2,7 +2,7 @@
 #include "ui_myExchangeFormStock.h"
 #include "AssetCode2Type.h"
 
-myExchangeFormStock::myExchangeFormStock(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent, bool isModifyExchange) :
+myExchangeFormStock::myExchangeFormStock(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent, bool isModifyExchange) :
     myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_STOCK, parent, isModifyExchange),
     stockCode(myStockCodeName::getInstance()),
     totalMoney(0.0f), remainMoney(0.0f), isShowRemainStock(true),

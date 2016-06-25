@@ -12,7 +12,7 @@ class myExchangeFormExpenses : public myExchangeFormTabBase
     Q_OBJECT
 
 public:
-    explicit myExchangeFormExpenses(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent = 0);
+    explicit myExchangeFormExpenses(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent = 0);
     ~myExchangeFormExpenses();
 
     void recordExchangeData(myExchangeData &tmpData);

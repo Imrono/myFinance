@@ -16,7 +16,7 @@ class myExchangeFormStock : public myExchangeFormTabBase
     Q_OBJECT
 
 public:
-    explicit myExchangeFormStock(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent = 0, bool isModifyExchange = false);
+    explicit myExchangeFormStock(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent = 0, bool isModifyExchange = false);
     ~myExchangeFormStock();
 
     void exchangeWindowFeeChanged(double fee);

@@ -2,7 +2,7 @@
 #include "ui_myExchangeFormMoneyUp.h"
 #include "AssetCode2Type.h"
 
-myExchangeFormMoneyUp::myExchangeFormMoneyUp(const myRootAccountAsset *rootNode, QString tabName, QWidget *parent) :
+myExchangeFormMoneyUp::myExchangeFormMoneyUp(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent) :
     myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_FUNDS, parent),
     accountNode(nullptr), assetNode(nullptr), caller(-1),
     totalAssetValue(0.0f), remainAssetValue(0.0f),
