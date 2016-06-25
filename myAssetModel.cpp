@@ -266,7 +266,7 @@ bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) 
         myAssetData moneyData;
         account = root.getAccountNode(exchangeData.accountMoney);
         if (account) {
-            asset = account->getAssetNode(MY_CASH);
+            asset = myAccountAssetRootNode::getAssetNode(account, MY_CASH);
             if (asset) {    /// update MY_CASH
                 originalAssetData = asset->nodeData.value<myAssetHold>().assetData;
             } else { }      /// insert MY_CASH
@@ -282,7 +282,7 @@ bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) 
     myAssetData assetData = exchangeData.assetData;
     account = root.getAccountNode(exchangeData.assetData.accountCode);
     if (account) {
-        asset = account->getAssetNode(exchangeData.assetData.assetCode);
+        asset = myAccountAssetRootNode::getAssetNode(account, exchangeData.assetData.assetCode);
         if (asset) {    /// update MY_ASSET
             originalAssetData = asset->nodeData.value<myAssetHold>().assetData;
         } else { }      /// insert MY_ASSET

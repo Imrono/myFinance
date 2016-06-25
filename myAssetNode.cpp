@@ -39,11 +39,11 @@ myAssetNode::~myAssetNode() {
 void myAssetNode::addChild(myAssetNode *childNode) {
     this->children.append(childNode);
 }
-myAssetNode *myAssetNode::getAssetNode(const QString &assetCode) {
-    if (myAssetNode::nodeAccount == type) {
-        for ( int i = 0; i != children.size(); ++i ) {
-            if ((children.at(i)->nodeData).value<myAssetHold>().assetData.assetCode == assetCode) {
-                return children.at(i);
+myAssetNode *myAccountAssetRootNode::getAssetNode(const myAssetNode *account, const QString &assetCode) {
+    if (myAssetNode::nodeAccount == account->type) {
+        for ( int i = 0; i != account->children.size(); ++i ) {
+            if ((account->children.at(i)->nodeData).value<myAssetHold>().assetData.assetCode == assetCode) {
+                return account->children.at(i);
             }
         }
         return nullptr;
@@ -72,7 +72,7 @@ bool myAccountAssetRootNode::doExchange(const myAssetData &assetData) {
             /// UPDATE MEMORY DATA
             myAssetNode *account = getAccountNode(assetData.accountCode);
             if (account) {
-                myAssetNode *asset = account->getAssetNode(assetData.assetCode);
+                myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, assetData.assetCode);
                 if (asset) {    /// update MY_CASH
                     myAssetHold holds = asset->nodeData.value<myAssetHold>();
                     holds.assetData.amount = assetData.amount;

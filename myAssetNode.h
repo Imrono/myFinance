@@ -70,7 +70,6 @@ public:
     ~myAssetNode();
 
     void addChild(myAssetNode *childNode);
-    myAssetNode *getAssetNode(const QString &assetCode);
 
     nodeType type;
     QVariant nodeData;
@@ -96,6 +95,7 @@ public:
     myAssetNode *getAccountNode(const QString &accountCode) const;
     myAssetNode *getAccountNode(int i) const;
     int getAccountCount() const { return rootNode.children.count();}
+    static myAssetNode *getAssetNode(const myAssetNode *account, const QString &assetCode);
 
     QStringList getAllStockCodeList();
 
