@@ -27,7 +27,7 @@ private:
     QString getCurrentAssetName() {
         QString name;
         if (assetNode) {
-            name = assetNode->nodeData.value<myAssetHold>().assetData.assetName;
+            name = assetNode->nodeData.value<myAssetNodeData>().assetData.assetName;
         }
         return name;
     }

@@ -20,14 +20,14 @@ myExchangeFormIncome::myExchangeFormIncome(const myAccountAssetRootNode *rootNod
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode->getAccountNode(i);
-        if (accountNode->nodeData.value<myAssetAccount>().accountData.type.contains(STR("券商"))) {
+        if (accountNode->nodeData.value<myAccountNodeData>().accountData.type.contains(STR("券商"))) {
                 continue;
         }
         for (int j = 0; j < accountNode->children.count(); j++) {
             myAssetNode *holdNode = accountNode->children.at(j);
-            QString assetCode = holdNode->nodeData.value<myAssetHold>().assetData.assetCode;
+            QString assetCode = holdNode->nodeData.value<myAssetNodeData>().assetData.assetCode;
             if (assetCode.contains("cash")) {
-                const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
+                const myAccountNodeData &accountData = accountNode->nodeData.value<myAccountNodeData>();
                 QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
                 if (accountData.accountData.name.contains(STR("银行"))) {

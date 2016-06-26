@@ -9,12 +9,12 @@
 #include <QVariant>
 #include <QDebug>
 
-myAssetHold::myAssetHold() {}
-myAssetHold::myAssetHold(myAssetData data) {
+myAssetNodeData::myAssetNodeData() {}
+myAssetNodeData::myAssetNodeData(myAssetData data) {
     assetData = data;
 }
-myAssetAccount::myAssetAccount() {}
-myAssetAccount::myAssetAccount(myAccountData data) {
+myAccountNodeData::myAccountNodeData() {}
+myAccountNodeData::myAccountNodeData(myAccountData data) {
     this->accountData = data;
 }
 
@@ -42,7 +42,7 @@ void myAssetNode::addChild(myAssetNode *childNode) {
 myAssetNode *myAccountAssetRootNode::getAssetNode(const myAssetNode *account, const QString &assetCode) {
     if (myAssetNode::nodeAccount == account->type) {
         for ( int i = 0; i != account->children.size(); ++i ) {
-            if ((account->children.at(i)->nodeData).value<myAssetHold>().assetData.assetCode == assetCode) {
+            if ((account->children.at(i)->nodeData).value<myAssetNodeData>().assetData.assetCode == assetCode) {
                 return account->children.at(i);
             }
         }
@@ -74,7 +74,7 @@ bool myAccountAssetRootNode::doExchange(const myAssetData &assetData) {
             if (account) {
                 myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, assetData.assetCode);
                 if (asset) {    /// update MY_CASH
-                    myAssetHold holds = asset->nodeData.value<myAssetHold>();
+                    myAssetNodeData holds = asset->nodeData.value<myAssetNodeData>();
                     holds.assetData.amount = assetData.amount;
                     holds.assetData.price  = assetData.price;
                     asset->nodeData.setValue(holds);
@@ -93,7 +93,7 @@ bool myAccountAssetRootNode::doExchange(const myAssetData &assetData) {
         qDebug() << execWord;
         if(query.exec(execWord)) {
             /// INSERT MEMORY DATA
-            myAssetHold holds(assetData);
+            myAssetNodeData holds(assetData);
             holds.pos = getAccountNode(assetData.accountCode)->children.count();
             QVariant data;
             data.setValue(holds);
@@ -275,7 +275,7 @@ bool myAccountAssetRootNode::fetchAccount() {
     if(query.exec(STR("select * from 资产帐户"))) {
         int i = 0;
         while(query.next()) { // 定位结果到下一条记录
-            myAssetAccount tmpAccount;
+            myAccountNodeData tmpAccount;
             tmpAccount.accountData.code = query.value(0).toString();
             tmpAccount.accountData.name = query.value(1).toString();
             tmpAccount.accountData.type = query.value(2).toString();
@@ -321,7 +321,7 @@ bool myAccountAssetRootNode::fetchAsset() {
     if(query.exec(STR("select * from 资产"))) {
         int i = 0;
         while(query.next()) { // 定位结果到下一条记录
-            myAssetHold tmpHold;
+            myAssetNodeData tmpHold;
             tmpHold.assetData.assetCode   = query.value(0).toString();
             tmpHold.assetData.assetName   = query.value(1).toString();
             tmpHold.assetData.accountCode = query.value(2).toString();
@@ -355,7 +355,7 @@ bool myAccountAssetRootNode::fetchAsset() {
 
 myAssetNode *myAccountAssetRootNode::getAccountNode(const QString &accountCode) const {
     for ( int i = 0; i != rootNode.children.size(); ++i ) {
-        if ((rootNode.children.at(i)->nodeData).value<myAssetAccount>().accountData.code == accountCode ) {
+        if ((rootNode.children.at(i)->nodeData).value<myAccountNodeData>().accountData.code == accountCode ) {
             return rootNode.children.at(i);
         }
     }
@@ -378,7 +378,7 @@ QStringList myAccountAssetRootNode::getAllStockCodeList() {
         int numAsset = account->children.size();
         for (int j = 0; j < numAsset; j++) {
             myAssetNode *asset = account->children.at(j);
-            list.append((asset->nodeData).value<myAssetHold>().assetData.assetCode);
+            list.append((asset->nodeData).value<myAssetNodeData>().assetData.assetCode);
         }
     }
     list.removeDuplicates();
@@ -414,7 +414,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myAssetNode *node, chan
                         .arg(assetData.amount).arg(strPrice).arg(assetData.type).arg(tmpAccount->children.count());
                 qDebug() << execWord;
                 if(query.exec(execWord)) {
-                    myAssetHold tmpHold(assetData);
+                    myAssetNodeData tmpHold(assetData);
                     QVariant data;
                     data.setValue(tmpHold);
                     myAssetNode *hold = new myAssetNode(myAssetNode::nodeHolds, data);
@@ -429,7 +429,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myAssetNode *node, chan
             } else { return false;}
         /// MODIFY ACCOUNT
         } else if (POP_MODIFY == type) {
-            QString accountCode = node->nodeData.value<myAssetAccount>().accountData.code;
+            QString accountCode = node->nodeData.value<myAccountNodeData>().accountData.code;
             filter   = STR("代号='%1'").arg(accountCode);
             execWord = STR("select count(*) from 资产帐户 WHERE %1").arg(filter);
             if (1 == myFinanceDatabase::getQueryRows(execWord)) {
@@ -445,11 +445,11 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myAssetNode *node, chan
             } else { return false;}
         /// DELETE ACCOUNT
         } else if (POP_DELETE == type) {
-            QString accountCode = node->nodeData.value<myAssetAccount>().accountData.code;
+            QString accountCode = node->nodeData.value<myAccountNodeData>().accountData.code;
             // delete holds
             int count = node->children.count();
             for (int i = count-1; i >= 0; i--) {
-                QString assetCode = node->children.at(i)->nodeData.value<myAssetHold>().assetData.assetCode;
+                QString assetCode = node->children.at(i)->nodeData.value<myAssetNodeData>().assetData.assetCode;
                 qDebug() << "delete " << i << "@total:" << node->children.count();
                 if (!deleteOneAsset(accountCode, assetCode)) {
                     return false;
@@ -475,7 +475,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myAssetNode *node, chan
                     if(query.exec(execWord)) {
                         int toRemove = -1;
                         for (int i = 0; i < rootNode.children.count(); i++) {
-                            const myAssetAccount &tmpAccount = rootNode.children.at(i)->nodeData.value<myAssetAccount>();
+                            const myAccountNodeData &tmpAccount = rootNode.children.at(i)->nodeData.value<myAccountNodeData>();
                             if (tmpAccount.accountData.code == accountCode) {
                                 toRemove = i;
                             } else if (tmpAccount.pos > pos) {
@@ -491,8 +491,8 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myAssetNode *node, chan
             } else { return false;}
         } else { return false;}
     } else if (myAssetNode::nodeHolds == node->type) {
-        QString originalAccountCode = node->nodeData.value<myAssetHold>().assetData.accountCode;
-        QString originalAssetCode = node->nodeData.value<myAssetHold>().assetData.assetCode;
+        QString originalAccountCode = node->nodeData.value<myAssetNodeData>().assetData.accountCode;
+        QString originalAssetCode = node->nodeData.value<myAssetNodeData>().assetData.assetCode;
         /// MODIFY ASSET
         if (POP_MODIFY == type) {
             myAssetData assetData = data.value<myAssetData>();
@@ -539,7 +539,7 @@ bool myAccountAssetRootNode::deleteOneAsset(const QString &accountCode, const QS
                 myAssetNode *tmpAccount = getAccountNode(accountCode);
                 int toRemove = -1;
                 for (int i = 0; i < tmpAccount->children.count(); i++) {
-                    const myAssetHold &tmpHold = tmpAccount->children.at(i)->nodeData.value<myAssetHold>();
+                    const myAssetNodeData &tmpHold = tmpAccount->children.at(i)->nodeData.value<myAssetNodeData>();
                     if (tmpHold.assetData.assetCode == assetCode) {
                         toRemove = i;
                     } else if (tmpHold.pos > pos) {
@@ -564,7 +564,7 @@ bool myAccountAssetRootNode::doInsertAccount(myAccountData data) {
                 .arg(data.code).arg(data.name).arg(data.type).arg(data.note).arg(rootNode.children.count());
         qDebug() << execWord;
         if(query.exec(execWord)) {
-            myAssetAccount tmpAccount(data);
+            myAccountNodeData tmpAccount(data);
             QVariant tmpData;
             tmpData.setValue(tmpAccount);
             myAssetNode *account = new myAssetNode(myAssetNode::nodeAccount, tmpData);
@@ -591,7 +591,7 @@ bool myAccountAssetRootNode::setAccountPosition(const QString &accountCode, int 
         qDebug() << execWord;
         if(query.exec(execWord)) {
             for (int i = 0; i < rootNode.children.count(); i++) {
-                myAssetAccount tmpAccount = rootNode.children.at(i)->nodeData.value<myAssetAccount>();
+                myAccountNodeData tmpAccount = rootNode.children.at(i)->nodeData.value<myAccountNodeData>();
                 if (tmpAccount.accountData.name == accountCode) {
                     tmpAccount.pos = pos;
                     break;
@@ -613,7 +613,7 @@ bool myAccountAssetRootNode::setAssetPosition(const QString &accountCode, const 
         if(query.exec(execWord)) {
             myAssetNode *tmpAccount = getAccountNode(accountCode);
             for (int i = 0; i < tmpAccount->children.count(); i++) {
-                myAssetHold tmpHold = tmpAccount->children.at(i)->nodeData.value<myAssetHold>();
+                myAssetNodeData tmpHold = tmpAccount->children.at(i)->nodeData.value<myAssetNodeData>();
                 if (tmpHold.assetData.accountCode == assetCode) {
                     tmpHold.pos = pos;
                     tmpAccount->children.at(i)->nodeData.setValue(tmpHold);
@@ -650,7 +650,7 @@ void myAccountAssetRootNode::sortPositionAccount() {
         left.append(i);
     }
     for (int i = 0; i < numOfAccount; i++) {
-        const myAssetAccount &tmpHold = (rootNode.children.at(i)->nodeData).value<myAssetAccount>();
+        const myAccountNodeData &tmpHold = (rootNode.children.at(i)->nodeData).value<myAccountNodeData>();
         posList.append(tmpHold.pos);
         for (int j = 0; j < left.count(); j++) {
             if (tmpHold.pos == left.at(j)) {
@@ -661,7 +661,7 @@ void myAccountAssetRootNode::sortPositionAccount() {
     }
 
     for (int i = 0; i < numOfAccount; i++) {
-        myAssetAccount tmpAccount = (rootNode.children.at(i)->nodeData).value<myAssetAccount>();
+        myAccountNodeData tmpAccount = (rootNode.children.at(i)->nodeData).value<myAccountNodeData>();
         if (tmpAccount.pos < 0 || tmpAccount.pos > numOfAccount - 1 || posList.count(tmpAccount.pos)>1 ) {
             int tmpPos = tmpAccount.pos;
             tmpAccount.pos = left.back();
@@ -681,7 +681,7 @@ void myAccountAssetRootNode::sortPositionAccount() {
     QList<myAssetNode *> tmpChild;
     for (int i = 0; i < numOfAccount; i++) {
         for (int j = 0; j < numOfAccount; j++) {
-            if (i == (rootNode.children.at(j)->nodeData).value<myAssetAccount>().pos) {
+            if (i == (rootNode.children.at(j)->nodeData).value<myAccountNodeData>().pos) {
                 tmpChild.append(rootNode.children.at(j));
                 break;
             }
@@ -702,7 +702,7 @@ void myAccountAssetRootNode::sortPositionAsset(myAssetNode *accountNode) {
         left.append(i);
     }
     for (int i = 0; i < numOfAsset; i++) {
-        const myAssetHold &tmpHold = (accountNode->children.at(i)->nodeData).value<myAssetHold>();
+        const myAssetNodeData &tmpHold = (accountNode->children.at(i)->nodeData).value<myAssetNodeData>();
         posList.append(tmpHold.pos);
         for (int j = 0; j < left.count(); j++) {
             if (tmpHold.pos == left.at(j)) {
@@ -713,7 +713,7 @@ void myAccountAssetRootNode::sortPositionAsset(myAssetNode *accountNode) {
     }
 
     for (int i = 0; i < numOfAsset; i++) {
-        myAssetHold tmpHold = (accountNode->children.at(i)->nodeData).value<myAssetHold>();
+        myAssetNodeData tmpHold = (accountNode->children.at(i)->nodeData).value<myAssetNodeData>();
         if (tmpHold.pos < 0 || tmpHold.pos > numOfAsset - 1 || posList.count(tmpHold.pos)>1 ) {
             int tmpPos = tmpHold.pos;
             tmpHold.pos = left.back();
@@ -735,7 +735,7 @@ void myAccountAssetRootNode::sortPositionAsset(myAssetNode *accountNode) {
     QList<myAssetNode *> tmpChild;
     for (int i = 0; i < numOfAsset; i++) {
         for (int j = 0; j < numOfAsset; j++) {
-            myAssetHold tmpHold = (accountNode->children.at(j)->nodeData).value<myAssetHold>();
+            myAssetNodeData tmpHold = (accountNode->children.at(j)->nodeData).value<myAssetNodeData>();
             if (i == tmpHold.pos) {
                 tmpChild.append(accountNode->children.at(j));
                 break;

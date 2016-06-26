@@ -78,7 +78,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             case myAssetNode::nodeRoot:
                 return QVariant();
             case myAssetNode::nodeAccount: {
-                myAssetAccount account = node->nodeData.value<myAssetAccount>();
+                myAccountNodeData account = node->nodeData.value<myAccountNodeData>();
                 QString code;
                 if (account.accountData.name.contains(STR("银行"))) {
                     code = "**** **** " + account.accountData.code.right(4);
@@ -88,7 +88,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                 return QString("%1 %2").arg(code).arg(account.accountData.name);
             }
             case myAssetNode::nodeHolds: {
-                myAssetHold holds = node->nodeData.value<myAssetHold>();
+                myAssetNodeData holds = node->nodeData.value<myAssetNodeData>();
                 return QString("%1 %2").arg(holds.assetData.assetCode).arg(holds.assetData.assetName);
             }
             default:
@@ -102,7 +102,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             case myAssetNode::nodeAccount:
                 return QVariant();
             case myAssetNode::nodeHolds: {
-                myAssetHold holds = node->nodeData.value<myAssetHold>();
+                myAssetNodeData holds = node->nodeData.value<myAssetNodeData>();
                 if (holds.assetData.assetCode == "cash" || holds.assetData.type == STR("货币基金")) {
                     QString strPrice = QString::number(holds.assetData.price, 'f', 2);
                     return QString("%1").arg(strPrice);
@@ -116,7 +116,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             }
         /// 第3列
         } else if (index.column() == 2 && myAssetNode::nodeHolds == node->type && stockPrice.isInit()) {
-            myAssetHold holds = node->nodeData.value<myAssetHold>();
+            myAssetNodeData holds = node->nodeData.value<myAssetNodeData>();
             if (holds.assetData.assetCode == "cash" || holds.assetData.type == STR("货币基金")) {
                 return QVariant();
             } else {
@@ -126,7 +126,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
         /// 第4列
         } else if (index.column() == 3 && stockPrice.isInit()) {
             if (myAssetNode::nodeHolds == node->type) {
-                myAssetHold holds = node->nodeData.value<myAssetHold>();
+                myAssetNodeData holds = node->nodeData.value<myAssetNodeData>();
                 if (holds.assetData.assetCode == "cash" || holds.assetData.type == STR("货币基金")) {
                     QString strValue = QString::number(holds.assetData.price, 'f', 2);
                     return QString("%1").arg(strValue);
@@ -138,7 +138,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             } else if (myAssetNode::nodeAccount == node->type) {
                 float totalValue = 0.0f;
                 for ( int i = 0; i != node->children.size(); ++i ) {
-                    myAssetHold holds = (node->children.at(i)->nodeData).value<myAssetHold>();
+                    myAssetNodeData holds = (node->children.at(i)->nodeData).value<myAssetNodeData>();
                     if (holds.assetData.assetCode == "cash" || holds.assetData.type == STR("货币基金")) {
                         totalValue += holds.assetData.price;
                     } else {
@@ -163,7 +163,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
 
         if (index.column() == 0) {
             if (myAssetNode::nodeAccount == node->type) {
-                return QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(node->nodeData.value<myAssetAccount>().logo));
+                return QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(node->nodeData.value<myAccountNodeData>().logo));
             }
         }
 #endif
@@ -178,7 +178,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             return QVariant();
 
         if (index.column() == 3 && myAssetNode::nodeHolds == node->type && stockPrice.isInit()) {
-            myAssetHold holds = node->nodeData.value<myAssetHold>();
+            myAssetNodeData holds = node->nodeData.value<myAssetNodeData>();
             if (holds.assetData.assetCode == "cash" || holds.assetData.type == STR("货币基金")) {
                 return QColor(Qt::gray);
             } else {
@@ -268,7 +268,7 @@ bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) 
         if (account) {
             asset = myAccountAssetRootNode::getAssetNode(account, MY_CASH);
             if (asset) {    /// update MY_CASH
-                originalAssetData = asset->nodeData.value<myAssetHold>().assetData;
+                originalAssetData = asset->nodeData.value<myAssetNodeData>().assetData;
             } else { }      /// insert MY_CASH
             float money = originalAssetData.price + exchangeData.money;
             moneyData.initMoneyAsset(exchangeData.accountMoney, money);
@@ -284,7 +284,7 @@ bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) 
     if (account) {
         asset = myAccountAssetRootNode::getAssetNode(account, exchangeData.assetData.assetCode);
         if (asset) {    /// update MY_ASSET
-            originalAssetData = asset->nodeData.value<myAssetHold>().assetData;
+            originalAssetData = asset->nodeData.value<myAssetNodeData>().assetData;
         } else { }      /// insert MY_ASSET
 
         if (exchangeData.assetData.assetCode != MY_CASH) {
@@ -340,7 +340,7 @@ float myAssetModel::doGetTotalAsset() {
         for (int i = 0; i < root.getAccountCount(); i++) {
             myAssetNode *tmpAccount = root.getAccountNode(i);
             for (int j = 0; j < tmpAccount->children.count(); j++) {
-                const myAssetHold &holds = tmpAccount->children.at(j)->nodeData.value<myAssetHold>();
+                const myAssetNodeData &holds = tmpAccount->children.at(j)->nodeData.value<myAssetNodeData>();
                 if (holds.assetData.assetCode == "cash" ) {
                     totalValue += holds.assetData.price;
                 } else if (holds.assetData.type == STR("货币基金")) {
@@ -363,8 +363,8 @@ float myAssetModel::doGetSecurityAsset() {
         for (int i = 0; i < root.getAccountCount(); i++) {
             myAssetNode *tmpAccount = root.getAccountNode(i);
             for (int j = 0; j < tmpAccount->children.count(); j++) {
-                if (tmpAccount->nodeData.value<myAssetAccount>().accountData.type == STR("券商")) {
-                    const myAssetHold &holds = tmpAccount->children.at(j)->nodeData.value<myAssetHold>();
+                if (tmpAccount->nodeData.value<myAccountNodeData>().accountData.type == STR("券商")) {
+                    const myAssetNodeData &holds = tmpAccount->children.at(j)->nodeData.value<myAssetNodeData>();
                     if (holds.assetData.assetCode == "cash" ) {
                         securityAsset += holds.assetData.price;
                     } else {
@@ -382,7 +382,7 @@ float myAssetModel::doGetSecurityAsset() {
 void myAssetModel::qDebugNodeData()
 {
     for (int i = 0; i < root.getAccountCount(); i++) {
-        myAssetAccount account = root.getAccountNode(i)->nodeData.value<myAssetAccount>();
+        myAccountNodeData account = root.getAccountNode(i)->nodeData.value<myAccountNodeData>();
         QString code = account.accountData.code;
         QString name = account.accountData.name;
         QString type = account.accountData.type;
@@ -391,7 +391,7 @@ void myAssetModel::qDebugNodeData()
         qDebug() << code << name << type << "has hold count:" << assetCount;
 
         for (int j = 0; j < assetCount; j++) {
-            myAssetHold holds   = root.getAccountNode(i)->children.at(j)->nodeData.value<myAssetHold>();
+            myAssetNodeData holds   = root.getAccountNode(i)->children.at(j)->nodeData.value<myAssetNodeData>();
             QString code        = holds.assetData.assetCode;
             QString name        = holds.assetData.assetName;
             QString accountCode = holds.assetData.accountCode;
@@ -423,13 +423,13 @@ bool myAssetModel::doUpDown(bool isUp, const myAssetNode *node) {
     int pos = -1;
     int pos2 = -1;
     if (myAssetNode::nodeAccount == node->type) {
-        pos = node->nodeData.value<myAssetAccount>().pos;
+        pos = node->nodeData.value<myAccountNodeData>().pos;
         if (   (0 == pos && isUp == true)
             || (node->parent->children.count()-1 == pos && isUp == false)) {
             return false;
         }
     } else if (myAssetNode::nodeHolds == node->type) {
-        pos = node->nodeData.value<myAssetHold>().pos;
+        pos = node->nodeData.value<myAssetNodeData>().pos;
         if (   (0 == pos && isUp == true)
             || (node->parent->children.count()-1 == pos && isUp == false)) {
             return false;
@@ -446,11 +446,11 @@ bool myAssetModel::doUpDown(bool isUp, const myAssetNode *node) {
 
     bool ans = true;
     if (myAssetNode::nodeAccount == node->type) {
-        root.setAccountPosition(node->nodeData.value<myAssetAccount>().accountData.code, pos2);
-        root.setAccountPosition(node->parent->children.at(pos)->nodeData.value<myAssetAccount>().accountData.code, pos);
+        root.setAccountPosition(node->nodeData.value<myAccountNodeData>().accountData.code, pos2);
+        root.setAccountPosition(node->parent->children.at(pos)->nodeData.value<myAccountNodeData>().accountData.code, pos);
     } else if (myAssetNode::nodeHolds == node->type) {
-        const myAssetHold &hold1 = node->nodeData.value<myAssetHold>();
-        const myAssetHold &hold2 = node->parent->children.at(pos)->nodeData.value<myAssetHold>();
+        const myAssetNodeData &hold1 = node->nodeData.value<myAssetNodeData>();
+        const myAssetNodeData &hold2 = node->parent->children.at(pos)->nodeData.value<myAssetNodeData>();
         root.setAssetPosition(hold1.assetData.accountCode, hold1.assetData.assetCode, pos2);
         root.setAssetPosition(hold2.assetData.accountCode, hold2.assetData.assetCode, pos);
     } else { return false;}

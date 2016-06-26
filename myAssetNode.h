@@ -9,9 +9,9 @@
 
 #include "myDatabaseDatatype.h"
 
-struct myAssetAccount {
-    myAssetAccount();
-    myAssetAccount(myAccountData data);
+struct myAccountNodeData {
+    myAccountNodeData();
+    myAccountNodeData(myAccountData data);
 
     myAccountData accountData;
 
@@ -20,9 +20,9 @@ struct myAssetAccount {
     int pos;
 };
 
-struct myAssetHold {
-    myAssetHold();
-    myAssetHold(myAssetData data);
+struct myAssetNodeData {
+    myAssetNodeData();
+    myAssetNodeData(myAssetData data);
 
     myAssetData assetData;
 
@@ -31,8 +31,8 @@ struct myAssetHold {
     int pos;
 };
 
-Q_DECLARE_METATYPE(myAssetAccount)
-Q_DECLARE_METATYPE(myAssetHold)
+Q_DECLARE_METATYPE(myAccountNodeData)
+Q_DECLARE_METATYPE(myAssetNodeData)
 
 enum exchangeAbnomal {
     NORMAL = 0,

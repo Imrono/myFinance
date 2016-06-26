@@ -28,7 +28,7 @@ myExchangeFormMoneyUp::myExchangeFormMoneyUp(const myAccountAssetRootNode *rootN
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode->getAccountNode(i);
-        const myAssetAccount accountData = accountNode->nodeData.value<myAssetAccount>();
+        const myAccountNodeData accountData = accountNode->nodeData.value<myAccountNodeData>();
         if (!accountData.accountData.name.contains(STR("ÒøÐÐ")))
             continue;
 
@@ -71,7 +71,7 @@ void myExchangeFormMoneyUp::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
     if (accountNode) {
-        tmpData.accountMoney      = accountNode->nodeData.value<myAssetAccount>().accountData.code;
+        tmpData.accountMoney      = accountNode->nodeData.value<myAccountNodeData>().accountData.code;
     }
     tmpData.money                 = ui->moneySpinBox->value();
 
@@ -115,7 +115,7 @@ void myExchangeFormMoneyUp::on_moneyAccount_currentIndexChanged(int index) {
     // 1. data.accountMoney & data.account2 update
     accountNode = rootNode->getAccountNode(nodeIdx);
     if (accountNode) {
-        const myAssetAccount accountData = accountNode->nodeData.value<myAssetAccount>();
+        const myAccountNodeData accountData = accountNode->nodeData.value<myAccountNodeData>();
         data.accountMoney = accountData.accountData.code;
         data.assetData.accountCode = accountData.accountData.code;
 
@@ -179,7 +179,7 @@ void myExchangeFormMoneyUp::on_codeLineEdit_textChanged(const QString &str) {
     if (accountNode) {
         for (int i = 0; i < accountNode->children.count(); i++) {
             myAssetNode *tmpAssetNode = accountNode->children.at(i);
-            myAssetHold holds = tmpAssetNode->nodeData.value<myAssetHold>();
+            myAssetNodeData holds = tmpAssetNode->nodeData.value<myAssetNodeData>();
             if (data.assetData.assetCode == holds.assetData.assetCode) {
                 assetNode = tmpAssetNode;
                 break;
@@ -198,7 +198,7 @@ float myExchangeFormMoneyUp::getAssetCodeValue(const QString &code) {
     if (accountNode) {
         for (int i = 0; i < accountNode->children.count(); i++) {
             myAssetNode *tmpAssetNode = accountNode->children.at(i);
-            myAssetHold holds = tmpAssetNode->nodeData.value<myAssetHold>();
+            myAssetNodeData holds = tmpAssetNode->nodeData.value<myAssetNodeData>();
             if (code == holds.assetData.assetCode) {
                 total = holds.assetData.price;
                 break;

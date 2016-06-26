@@ -45,7 +45,7 @@ float myExchangeFormTabBase::getTotalMoney(int index) {
     int numAsset = accountNode->children.size();
     for (int i = 0; i < numAsset; i++) {
         myAssetNode *asset = accountNode->children.at(i);
-        const myAssetHold &assetHold = (asset->nodeData).value<myAssetHold>();
+        const myAssetNodeData &assetHold = (asset->nodeData).value<myAssetNodeData>();
         if (assetHold.assetData.assetCode == MY_CASH) {
             qDebug() << assetHold.assetData.accountCode << " " << assetHold.assetData.assetCode << " " << assetHold.assetData.price;
             tmpTotalMoney = assetHold.assetData.price;

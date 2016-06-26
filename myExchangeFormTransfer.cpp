@@ -20,9 +20,9 @@ myExchangeFormTransfer::myExchangeFormTransfer(const myAccountAssetRootNode *roo
         myAssetNode *accountNode = rootNode->getAccountNode(i);
         for (int j = 0; j < accountNode->children.count(); j++) {
             myAssetNode *holdNode = accountNode->children.at(j);
-            QString assetCode = holdNode->nodeData.value<myAssetHold>().assetData.assetCode;
+            QString assetCode = holdNode->nodeData.value<myAssetNodeData>().assetData.assetCode;
             if (assetCode.contains("cash")) {
-                const myAssetAccount &accountData = accountNode->nodeData.value<myAssetAccount>();
+                const myAccountNodeData &accountData = accountNode->nodeData.value<myAccountNodeData>();
                 QIcon   icon =QIcon( QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
                 if (accountData.accountData.name.contains(STR("ÒøÐÐ"))) {
@@ -50,7 +50,7 @@ void myExchangeFormTransfer::on_moneyAccountOut_currentIndexChanged(int index) {
     int nodeIdx = outIdx2AccountIdx.find(index).value();
     // 1. data.accountMoney & data.account2 update
     accountNodeOut = rootNode->getAccountNode(nodeIdx);
-    const myAssetAccount accountData = accountNodeOut->nodeData.value<myAssetAccount>();
+    const myAccountNodeData accountData = accountNodeOut->nodeData.value<myAccountNodeData>();
     data.accountMoney = accountData.accountData.code;
 
     totalMoneyOut = getTotalMoney(nodeIdx);
@@ -67,13 +67,13 @@ void myExchangeFormTransfer::on_moneyAccountIn_currentIndexChanged(int index) {
     int nodeIdx = inIdx2AccountIdx.find(index).value();
     // 1. accountIn update
     accountNodeIn = rootNode->getAccountNode(nodeIdx);
-    const myAssetAccount accountData = accountNodeIn->nodeData.value<myAssetAccount>();
+    const myAccountNodeData accountData = accountNodeIn->nodeData.value<myAccountNodeData>();
     data.assetData.accountCode = accountData.accountData.code;
     for (int j = 0; j < accountNodeIn->children.count(); j++) {
         myAssetNode *holdNode = accountNodeIn->children.at(j);
-        QString assetCode = holdNode->nodeData.value<myAssetHold>().assetData.assetCode;
+        QString assetCode = holdNode->nodeData.value<myAssetNodeData>().assetData.assetCode;
         if (assetCode.contains("cash")) {
-            data.assetData.assetName = holdNode->nodeData.value<myAssetHold>().assetData.assetName;
+            data.assetData.assetName = holdNode->nodeData.value<myAssetNodeData>().assetData.assetName;
             break;
         }
     }
@@ -102,11 +102,11 @@ void myExchangeFormTransfer::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
     if (accountNodeOut)
-        tmpData.accountMoney = accountNodeOut->nodeData.value<myAssetAccount>().accountData.code;
+        tmpData.accountMoney = accountNodeOut->nodeData.value<myAccountNodeData>().accountData.code;
     tmpData.money    = -ui->moneyTransferSpinBox->value() - data.fee;
 
     if (accountNodeIn)
-        tmpData.assetData.accountCode = accountNodeIn->nodeData.value<myAssetAccount>().accountData.code;
+        tmpData.assetData.accountCode = accountNodeIn->nodeData.value<myAccountNodeData>().accountData.code;
     tmpData.assetData.assetCode   = MY_CASH;
     tmpData.assetData.assetName   = data.assetData.assetName;
     tmpData.assetData.amount      = 1;

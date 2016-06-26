@@ -41,7 +41,7 @@ myExchangeFormStock::myExchangeFormStock(const myAccountAssetRootNode *rootNode,
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
         myAssetNode *accountNode = rootNode->getAccountNode(i);
-        const myAssetAccount accountData = accountNode->nodeData.value<myAssetAccount>();
+        const myAccountNodeData accountData = accountNode->nodeData.value<myAccountNodeData>();
         if (!accountData.accountData.type.contains(STR("券商")))
             continue;
 
@@ -66,7 +66,7 @@ void myExchangeFormStock::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
     if (accountNode)
-        tmpData.accountMoney = accountNode->nodeData.value<myAssetAccount>().accountData.code;;
+        tmpData.accountMoney = accountNode->nodeData.value<myAccountNodeData>().accountData.code;;
     tmpData.money  = ui->moneySpinBox->value();
 
     tmpData.assetData.accountCode = data.accountMoney;
@@ -246,7 +246,7 @@ void myExchangeFormStock::on_codeLineEdit_textEdited(const QString &str) {
         QString defaultStr;
         for (int i = 0; i < accountNode->children.count(); i++) {
             assetNode = accountNode->children.at(i);
-            myAssetHold holds = assetNode->nodeData.value<myAssetHold>();
+            myAssetNodeData holds = assetNode->nodeData.value<myAssetNodeData>();
             if (data.assetData.assetCode == holds.assetData.assetCode) {
                 remainStock = holds.assetData.amount;
                 defaultStr =STR("现共有：%1").arg(remainStock);
@@ -332,7 +332,7 @@ void myExchangeFormStock::on_moneyAccount_currentIndexChanged(int index) {
     int nodeIdx = exchangeIdx2AccountIdx.find(index).value();
     // 1. data.accountMoney & data.account2 update
     accountNode = rootNode->getAccountNode(nodeIdx);
-    const myAssetAccount accountData = accountNode->nodeData.value<myAssetAccount>();
+    const myAccountNodeData accountData = accountNode->nodeData.value<myAccountNodeData>();
     data.accountMoney = accountData.accountData.code;
     data.assetData.accountCode = accountData.accountData.code;
     // 2. totalMoney
@@ -346,7 +346,7 @@ void myExchangeFormStock::on_moneyAccount_currentIndexChanged(int index) {
     qDebug() << "#moneyAccount_currentIndexChanged# isModifyExchange:" << isModifyExchange
              << " totalMoney:" << totalMoney;
     // 3. aommisionRate
-    commisionRate = accountNode->nodeData.value<myAssetAccount>().accountData.note.toDouble();
+    commisionRate = accountNode->nodeData.value<myAccountNodeData>().accountData.note.toDouble();
     ui->feeRateSpinBox->setValue(commisionRate*1000);
     qDebug() << STR("佣金") << commisionRate;
     // 4. fee & money
