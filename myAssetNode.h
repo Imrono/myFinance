@@ -9,28 +9,35 @@
 
 #include "myDatabaseDatatype.h"
 
+// IN_PARA: myIndexShell *node
+#define GET_ASSET_NODE_DATA(assetNode) \
+    static_cast<myAssetNode *>(node)->dbAssetData
+#define GET_ACCOUNT_NODE_DATA(assetNode) \
+    static_cast<myAccountNode *>(node)->dbAccountData
+#define GET_ROOT_NODE_DATA(assetNode) \
+    static_cast<myRootNode *>(node)->rootNodeData
+
+
 struct myAccountNodeData {
     myAccountNodeData();
     myAccountNodeData(myAccountData data);
 
     myAccountData accountData;
-
     QString logo;
-
     int pos;
 };
-
 struct myAssetNodeData {
     myAssetNodeData();
     myAssetNodeData(myAssetData data);
 
     myAssetData assetData;
-
     float currentPrice;
-
     int pos;
 };
-
+struct myRootNodeData {
+    myRootNodeData() : numOfAccount(0) {}
+    int numOfAccount;
+};
 Q_DECLARE_METATYPE(myAccountNodeData)
 Q_DECLARE_METATYPE(myAssetNodeData)
 
@@ -56,7 +63,7 @@ enum changeType {
 };
 
 class myAccountAssetRootNode;
-class myAssetNode
+class myIndexShell
 {
 public:
     enum nodeType {
@@ -64,18 +71,37 @@ public:
         nodeHolds   = 1,
         nodeRoot    = 2
     };
+    myIndexShell() : parent(nullptr) {}
+    myIndexShell(nodeType type, myIndexShell *parent)
+        : type(type), parent(parent) {}
+    ~myIndexShell() {}
 
-    myAssetNode();
-    myAssetNode(nodeType type, const QVariant &nodeData);
-    ~myAssetNode();
+    myIndexShell *parent;
+    QList<myIndexShell *> children;
+    void addChild(myIndexShell *childNode) {
+        children.append(childNode);
+    }
 
-    void addChild(myAssetNode *childNode);
-
+//private:
     nodeType type;
-    QVariant nodeData;
-    myAssetNode *parent;
-
-    QList<myAssetNode *> children;
+};
+class myRootNode : public myIndexShell {
+public:
+    myRootNode(nodeType type, const myRootNodeData& data, myIndexShell *parent)
+        : myIndexShell(type, parent), rootNodeData(data) {}
+    myRootNodeData rootNodeData;
+};
+class myAccountNode : public myIndexShell {
+public:
+    myAccountNode(nodeType type, const myAccountNodeData& data, myIndexShell *parent)
+        : myIndexShell(type, parent), dbAccountData(data) {}
+    myAccountNodeData dbAccountData;
+};
+class myAssetNode : public myIndexShell {
+public:
+    myAssetNode(nodeType type, const myAssetNodeData& data, myIndexShell *parent)
+        : myIndexShell(type, parent), dbAssetData(data) {}
+    myAssetNodeData dbAssetData;
 };
 
 ///
@@ -84,18 +110,25 @@ public:
 /// 2. sort the data
 ///
 class myAccountAssetRootNode {
+    friend class myIndexShell;
+    friend class myRootNode;
+    friend class myAccountNode;
+    friend class myAssetNode;
 public:
-    myAccountAssetRootNode();
-    ~myAccountAssetRootNode();
+    myAccountAssetRootNode()
+        : rootNode(myIndexShell::nodeRoot, myRootNodeData(), nullptr) {}
+    ~myAccountAssetRootNode() {
+        callback();
+    }
 
     bool initial(bool isFetchAccount = true, bool isFetchAsset = true);
     bool callback(bool isRemoveAccount = true, bool isRemoveAsset = true);
 
-    myAssetNode *getRootNode() const { return const_cast<myAssetNode *>(&rootNode);}
-    myAssetNode *getAccountNode(const QString &accountCode) const;
-    myAssetNode *getAccountNode(int i) const;
+    myRootNode *getRootNode() const { return const_cast<myRootNode *>(&rootNode);}
+    myAccountNode *getAccountNode(const QString &accountCode) const;
+    myAccountNode *getAccountNode(int i) const;
     int getAccountCount() const { return rootNode.children.count();}
-    static myAssetNode *getAssetNode(const myAssetNode *account, const QString &assetCode);
+    static myAssetNode *getAssetNode(const myAccountNode * const account, const QString &assetCode);
 
     QStringList getAllStockCodeList();
 
@@ -109,7 +142,7 @@ public:
     bool setAssetPosition(const QString &accountCode, const QString &assetCode, int pos);
 
 private:
-    myAssetNode rootNode;
+    myRootNode rootNode;
 
     bool fetchAccount();
     bool fetchAsset();

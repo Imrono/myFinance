@@ -45,7 +45,7 @@ public:
     bool doUpDown(bool isUp, const myAssetNode *node);
 
     const myAccountAssetRootNode &getRootNode() { return root;}
-    myAssetNode *nodeFromIndex(const QModelIndex &index) const;
+    myIndexShell *nodeFromIndex(const QModelIndex &index) const;
 
 signals:
     void priceDataReflashed();

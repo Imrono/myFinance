@@ -68,17 +68,17 @@ int myAssetModel::columnCount(const QModelIndex &parent) const {
 
 QVariant myAssetModel::data(const QModelIndex &index, int role) const {
     if (Qt::DisplayRole == role) {
-        myAssetNode *node = nodeFromIndex(index);
+        myIndexShell *node = nodeFromIndex(index);
         if (!node)
             return QVariant();
 
         /// 第1列
         if (index.column() == 0) {
             switch (node->type) {
-            case myAssetNode::nodeRoot:
+            case myIndexShell::nodeRoot:
                 return QVariant();
-            case myAssetNode::nodeAccount: {
-                myAccountNodeData account = node->nodeData.value<myAccountNodeData>();
+            case myIndexShell::nodeAccount: {
+                const myAccountNodeData &account = GET_ACCOUNT_NODE_DATA(node);
                 QString code;
                 if (account.accountData.name.contains(STR("银行"))) {
                     code = "**** **** " + account.accountData.code.right(4);
@@ -87,8 +87,8 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                 }
                 return QString("%1 %2").arg(code).arg(account.accountData.name);
             }
-            case myAssetNode::nodeHolds: {
-                myAssetNodeData holds = node->nodeData.value<myAssetNodeData>();
+            case myIndexShell::nodeHolds: {
+                const myAssetNodeData &holds = GET_ASSET_NODE_DATA(node);
                 return QString("%1 %2").arg(holds.assetData.assetCode).arg(holds.assetData.assetName);
             }
             default:
@@ -97,12 +97,12 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
         /// 第2列
         } else if (index.column() == 1) {
             switch (node->type) {
-            case myAssetNode::nodeRoot:
+            case myIndexShell::nodeRoot:
                 return QVariant();
-            case myAssetNode::nodeAccount:
+            case myIndexShell::nodeAccount:
                 return QVariant();
-            case myAssetNode::nodeHolds: {
-                myAssetNodeData holds = node->nodeData.value<myAssetNodeData>();
+            case myIndexShell::nodeHolds: {
+                const myAssetNodeData &holds = GET_ASSET_NODE_DATA(node);
                 if (holds.assetData.assetCode == "cash" || holds.assetData.type == STR("货币基金")) {
                     QString strPrice = QString::number(holds.assetData.price, 'f', 2);
                     return QString("%1").arg(strPrice);
@@ -115,8 +115,8 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                 return QString("Unknown");
             }
         /// 第3列
-        } else if (index.column() == 2 && myAssetNode::nodeHolds == node->type && stockPrice.isInit()) {
-            myAssetNodeData holds = node->nodeData.value<myAssetNodeData>();
+        } else if (index.column() == 2 && myIndexShell::nodeHolds == node->type && stockPrice.isInit()) {
+            const myAssetNodeData &holds = GET_ASSET_NODE_DATA(node);
             if (holds.assetData.assetCode == "cash" || holds.assetData.type == STR("货币基金")) {
                 return QVariant();
             } else {
@@ -125,8 +125,8 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             }
         /// 第4列
         } else if (index.column() == 3 && stockPrice.isInit()) {
-            if (myAssetNode::nodeHolds == node->type) {
-                myAssetNodeData holds = node->nodeData.value<myAssetNodeData>();
+            if (myIndexShell::nodeHolds == node->type) {
+                const myAssetNodeData &holds = GET_ASSET_NODE_DATA(node);
                 if (holds.assetData.assetCode == "cash" || holds.assetData.type == STR("货币基金")) {
                     QString strValue = QString::number(holds.assetData.price, 'f', 2);
                     return QString("%1").arg(strValue);
@@ -135,10 +135,10 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                     float totalValue = static_cast<float>(holds.assetData.amount) * price;
                     return QString("%1").arg(totalValue);
                 }
-            } else if (myAssetNode::nodeAccount == node->type) {
+            } else if (myIndexShell::nodeAccount == node->type) {
                 float totalValue = 0.0f;
                 for ( int i = 0; i != node->children.size(); ++i ) {
-                    myAssetNodeData holds = (node->children.at(i)->nodeData).value<myAssetNodeData>();
+                    const myAssetNodeData &holds = GET_ASSET_NODE_DATA(node->children.at(i));
                     if (holds.assetData.assetCode == "cash" || holds.assetData.type == STR("货币基金")) {
                         totalValue += holds.assetData.price;
                     } else {
@@ -162,7 +162,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             return QVariant();
 
         if (index.column() == 0) {
-            if (myAssetNode::nodeAccount == node->type) {
+            if (myIndexShell::nodeAccount == node->type) {
                 return QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(node->nodeData.value<myAccountNodeData>().logo));
             }
         }
@@ -177,8 +177,8 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
         if (!node)
             return QVariant();
 
-        if (index.column() == 3 && myAssetNode::nodeHolds == node->type && stockPrice.isInit()) {
-            myAssetNodeData holds = node->nodeData.value<myAssetNodeData>();
+        if (index.column() == 3 && myIndexShell::nodeHolds == node->type && stockPrice.isInit()) {
+            const myAssetNodeData &holds = GET_ASSET_NODE_DATA(node);
             if (holds.assetData.assetCode == "cash" || holds.assetData.type == STR("货币基金")) {
                 return QColor(Qt::gray);
             } else {
@@ -215,12 +215,12 @@ QVariant myAssetModel::headerData(int section, Qt::Orientation orientation, int 
     return QVariant();
 }
 
-myAssetNode *myAssetModel::nodeFromIndex(const QModelIndex &index) const
+myIndexShell *myAssetModel::nodeFromIndex(const QModelIndex &index) const
 {
     if (index.isValid()) {
-        return static_cast<myAssetNode *>(index.internalPointer());
+        return static_cast<myIndexShell *>(index.internalPointer());
     } else {
-        return const_cast<myAssetNode *>(root.getRootNode());
+        return const_cast<myIndexShell *>(static_cast<myIndexShell *>(root.getRootNode()));
     }
 }
 
@@ -407,7 +407,7 @@ void myAssetModel::qDebugNodeData()
 bool myAssetModel::doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data) {
     qDebug() << "myAssetModel";
     bool ans = root.doChangeAssetDirectly(node, type, data);
-    doReflashData(myAssetNode::nodeAccount == type, myAssetNode::nodeHolds == type);
+    doReflashData(myIndexShell::nodeAccount == type, myIndexShell::nodeHolds == type);
     return ans;
 }
 bool myAssetModel::doInsertAccount(myAccountData data) {
@@ -422,13 +422,13 @@ bool myAssetModel::doInsertAccount(myAccountData data) {
 bool myAssetModel::doUpDown(bool isUp, const myAssetNode *node) {
     int pos = -1;
     int pos2 = -1;
-    if (myAssetNode::nodeAccount == node->type) {
+    if (myIndexShell::nodeAccount == node->type) {
         pos = node->nodeData.value<myAccountNodeData>().pos;
         if (   (0 == pos && isUp == true)
             || (node->parent->children.count()-1 == pos && isUp == false)) {
             return false;
         }
-    } else if (myAssetNode::nodeHolds == node->type) {
+    } else if (myIndexShell::nodeHolds == node->type) {
         pos = node->nodeData.value<myAssetNodeData>().pos;
         if (   (0 == pos && isUp == true)
             || (node->parent->children.count()-1 == pos && isUp == false)) {
@@ -445,16 +445,16 @@ bool myAssetModel::doUpDown(bool isUp, const myAssetNode *node) {
     }
 
     bool ans = true;
-    if (myAssetNode::nodeAccount == node->type) {
+    if (myIndexShell::nodeAccount == node->type) {
         root.setAccountPosition(node->nodeData.value<myAccountNodeData>().accountData.code, pos2);
         root.setAccountPosition(node->parent->children.at(pos)->nodeData.value<myAccountNodeData>().accountData.code, pos);
-    } else if (myAssetNode::nodeHolds == node->type) {
+    } else if (myIndexShell::nodeHolds == node->type) {
         const myAssetNodeData &hold1 = node->nodeData.value<myAssetNodeData>();
         const myAssetNodeData &hold2 = node->parent->children.at(pos)->nodeData.value<myAssetNodeData>();
         root.setAssetPosition(hold1.assetData.accountCode, hold1.assetData.assetCode, pos2);
         root.setAssetPosition(hold2.assetData.accountCode, hold2.assetData.assetCode, pos);
     } else { return false;}
-    doReflashData(myAssetNode::nodeAccount == node->type, myAssetNode::nodeHolds == node->type);
+    doReflashData(myIndexShell::nodeAccount == node->type, myIndexShell::nodeHolds == node->type);
 
     return ans;
 }
