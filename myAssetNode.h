@@ -10,12 +10,16 @@
 #include "myDatabaseDatatype.h"
 
 // IN_PARA: myIndexShell *node
+#define GET_CONST_ASSET_NODE_DATA(assetNode) \
+    static_cast<const myAssetNode *>(assetNode)->dbAssetData
 #define GET_ASSET_NODE_DATA(assetNode) \
-    static_cast<myAssetNode *>(node)->dbAssetData
-#define GET_ACCOUNT_NODE_DATA(assetNode) \
-    static_cast<myAccountNode *>(node)->dbAccountData
-#define GET_ROOT_NODE_DATA(assetNode) \
-    static_cast<myRootNode *>(node)->rootNodeData
+    static_cast<myAssetNode *>(assetNode)->dbAssetData
+#define GET_ACCOUNT_NODE_DATA(accountNode) \
+    static_cast<myAccountNode *>(accountNode)->dbAccountData
+#define GET_CONST_ACCOUNT_NODE_DATA(accountNode) \
+    static_cast<const myAccountNode *>(accountNode)->dbAccountData
+#define GET_ROOT_NODE_DATA(rootNode) \
+    static_cast<myRootNode *>(rootNode)->rootNodeData
 
 
 struct myAccountNodeData {
@@ -38,8 +42,6 @@ struct myRootNodeData {
     myRootNodeData() : numOfAccount(0) {}
     int numOfAccount;
 };
-Q_DECLARE_METATYPE(myAccountNodeData)
-Q_DECLARE_METATYPE(myAssetNodeData)
 
 enum exchangeAbnomal {
     NORMAL = 0,
@@ -135,7 +137,7 @@ public:
     bool doExchange(const myAssetData &assetData);
     static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
 
-    bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
+    bool doChangeAssetDirectly(const myIndexShell *node, changeType type, void *data);
     bool doInsertAccount(myAccountData data);
 
     bool setAccountPosition(const QString &accountCode, int pos);
@@ -151,7 +153,7 @@ private:
 
     void doSortPosition(bool isSortAccount = true, bool isSortAsset = true);
     void sortPositionAccount();
-    void sortPositionAsset(myAssetNode *accountNode);
+    void sortPositionAsset(myAccountNode *accountNode);
 };
 
 #endif // MYASSETNODE_H

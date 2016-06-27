@@ -167,10 +167,10 @@ void myFinanceMainWindow::on_updatePrice_clicked()
 /// treeView的右键菜单
 void myFinanceMainWindow::treeViewContextMenuSlot(const QPoint& pt) {
     QModelIndex index = ui->treeView->indexAt(pt);
-    myAssetNode *node = assetModel->nodeFromIndex(index);
+    myIndexShell *node = assetModel->nodeFromIndex(index);
     treeViewContextMenu.treeViewContextMenu(node);
 }
-void myFinanceMainWindow::doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data, const QString &info) {
+void myFinanceMainWindow::doChangeAssetDirectly(const myIndexShell *node, changeType type, void* data, const QString &info) {
     if (!assetModel->doChangeAssetDirectly(node, type, data)) {
         ui->treeView->expandAll();
         QMessageBox::warning(this, info+"failed", info+"failed", QMessageBox::Ok, QMessageBox::Ok);
@@ -178,7 +178,7 @@ void myFinanceMainWindow::doChangeAssetDirectly(const myAssetNode *node, changeT
     ui->treeView->expandAll();
 }
 
-void myFinanceMainWindow::doUpDown(const myAssetNode *node, bool isUp) {
+void myFinanceMainWindow::doUpDown(const myIndexShell *node, bool isUp) {
     if (!assetModel->doUpDown(isUp, node)) {
         ui->treeView->expandAll();
         QMessageBox::warning(this, "doUpDown failed", "doUpDown failed", QMessageBox::Ok, QMessageBox::Ok);

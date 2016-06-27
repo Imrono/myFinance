@@ -41,11 +41,11 @@ void myExchangeFormTabBase::exchangeWindowFeeChanged(double fee) {
 
 float myExchangeFormTabBase::getTotalMoney(int index) {
     float tmpTotalMoney = 0.0f;
-    myAssetNode *accountNode = rootNode->getAccountNode(index);
+    myAccountNode *accountNode = rootNode->getAccountNode(index);
     int numAsset = accountNode->children.size();
     for (int i = 0; i < numAsset; i++) {
-        myAssetNode *asset = accountNode->children.at(i);
-        const myAssetNodeData &assetHold = (asset->nodeData).value<myAssetNodeData>();
+        const myAssetNode *asset = static_cast<const myAssetNode *>(accountNode->children.at(i));
+        const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(asset);
         if (assetHold.assetData.assetCode == MY_CASH) {
             qDebug() << assetHold.assetData.accountCode << " " << assetHold.assetData.assetCode << " " << assetHold.assetData.price;
             tmpTotalMoney = assetHold.assetData.price;

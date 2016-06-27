@@ -27,7 +27,7 @@ private:
     QString getCurrentAssetName() {
         QString name;
         if (assetNode) {
-            name = assetNode->nodeData.value<myAssetNodeData>().assetData.assetName;
+            name = GET_CONST_ASSET_NODE_DATA(assetNode).assetData.assetName;
         }
         return name;
     }
@@ -116,8 +116,8 @@ private:
 
     float totalMoney;
     float remainMoney;
-    myAssetNode *accountNode;
-    myAssetNode *assetNode;
+    const myAccountNode *accountNode;
+    const myAssetNode   *assetNode;
 
     int benefitIdx;
     float benefits;

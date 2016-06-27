@@ -17,7 +17,7 @@ public:
     myFinanceTreeVeiwContextMenu(QWidget *parent);
     ~myFinanceTreeVeiwContextMenu();
 
-    void treeViewContextMenu(const myAssetNode *node);
+    void treeViewContextMenu(const myIndexShell *node);
 
 private:
     enum upDownMenu {
@@ -43,7 +43,7 @@ private:
     QAction *stockBonus;
     QAction *intrests;
 
-    const myAssetNode *currentNode;
+    const myIndexShell *currentNode;
     myFinanceMainWindow *parent;
 
 private slots:

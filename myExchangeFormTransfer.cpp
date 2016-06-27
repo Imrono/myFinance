@@ -17,12 +17,12 @@ myExchangeFormTransfer::myExchangeFormTransfer(const myAccountAssetRootNode *roo
     outIdx2AccountIdx.clear();
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
-        myAssetNode *accountNode = rootNode->getAccountNode(i);
+        const myAccountNode *accountNode = rootNode->getAccountNode(i);
         for (int j = 0; j < accountNode->children.count(); j++) {
-            myAssetNode *holdNode = accountNode->children.at(j);
-            QString assetCode = holdNode->nodeData.value<myAssetNodeData>().assetData.assetCode;
+            const myAssetNode *holdNode = static_cast<const myAssetNode *>(accountNode->children.at(j));
+            QString assetCode = GET_CONST_ASSET_NODE_DATA(holdNode).assetData.assetCode;
             if (assetCode.contains("cash")) {
-                const myAccountNodeData &accountData = accountNode->nodeData.value<myAccountNodeData>();
+                const myAccountNodeData &accountData = GET_CONST_ACCOUNT_NODE_DATA(accountNode);
                 QIcon   icon =QIcon( QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
                 if (accountData.accountData.name.contains(STR("ÒøÐÐ"))) {
@@ -50,7 +50,7 @@ void myExchangeFormTransfer::on_moneyAccountOut_currentIndexChanged(int index) {
     int nodeIdx = outIdx2AccountIdx.find(index).value();
     // 1. data.accountMoney & data.account2 update
     accountNodeOut = rootNode->getAccountNode(nodeIdx);
-    const myAccountNodeData accountData = accountNodeOut->nodeData.value<myAccountNodeData>();
+    const myAccountNodeData &accountData = GET_CONST_ACCOUNT_NODE_DATA(accountNodeOut);
     data.accountMoney = accountData.accountData.code;
 
     totalMoneyOut = getTotalMoney(nodeIdx);
@@ -67,13 +67,13 @@ void myExchangeFormTransfer::on_moneyAccountIn_currentIndexChanged(int index) {
     int nodeIdx = inIdx2AccountIdx.find(index).value();
     // 1. accountIn update
     accountNodeIn = rootNode->getAccountNode(nodeIdx);
-    const myAccountNodeData accountData = accountNodeIn->nodeData.value<myAccountNodeData>();
+    const myAccountNodeData &accountData = GET_CONST_ACCOUNT_NODE_DATA(accountNodeIn);
     data.assetData.accountCode = accountData.accountData.code;
     for (int j = 0; j < accountNodeIn->children.count(); j++) {
-        myAssetNode *holdNode = accountNodeIn->children.at(j);
-        QString assetCode = holdNode->nodeData.value<myAssetNodeData>().assetData.assetCode;
+        const myAssetNode *holdNode = static_cast<const myAssetNode *>(accountNodeIn->children.at(j));
+        QString assetCode = GET_CONST_ASSET_NODE_DATA(holdNode).assetData.assetCode;
         if (assetCode.contains("cash")) {
-            data.assetData.assetName = holdNode->nodeData.value<myAssetNodeData>().assetData.assetName;
+            data.assetData.assetName = GET_CONST_ASSET_NODE_DATA(holdNode).assetData.assetName;
             break;
         }
     }
@@ -102,11 +102,11 @@ void myExchangeFormTransfer::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
     if (accountNodeOut)
-        tmpData.accountMoney = accountNodeOut->nodeData.value<myAccountNodeData>().accountData.code;
+        tmpData.accountMoney = GET_CONST_ACCOUNT_NODE_DATA(accountNodeOut).accountData.code;
     tmpData.money    = -ui->moneyTransferSpinBox->value() - data.fee;
 
     if (accountNodeIn)
-        tmpData.assetData.accountCode = accountNodeIn->nodeData.value<myAccountNodeData>().accountData.code;
+        tmpData.assetData.accountCode = GET_CONST_ACCOUNT_NODE_DATA(accountNodeIn).accountData.code;
     tmpData.assetData.assetCode   = MY_CASH;
     tmpData.assetData.assetName   = data.assetData.assetName;
     tmpData.assetData.amount      = 1;
@@ -114,10 +114,10 @@ void myExchangeFormTransfer::recordExchangeData(myExchangeData &tmpData) {
     tmpData.assetData.type        = data.assetData.type;
 }
 void myExchangeFormTransfer::setUI(const myExchangeData &exchangeData) {
-    myAssetNode *accountNode1 = rootNode->getAccountNode(exchangeData.accountMoney);
-    myAssetNode *accountNode2 = rootNode->getAccountNode(exchangeData.assetData.accountCode);
+    const myAccountNode *accountNode1 = rootNode->getAccountNode(exchangeData.accountMoney);
+    const myAccountNode *accountNode2 = rootNode->getAccountNode(exchangeData.assetData.accountCode);
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
-        myAssetNode *accountNode = rootNode->getAccountNode(i);
+        const myAccountNode *accountNode = rootNode->getAccountNode(i);
         if (accountNode1 == accountNode) {
             int localIndex = outIdx2AccountIdx.find(i).value();
             ui->moneyAccountOut->setCurrentIndex(localIndex);
