@@ -671,9 +671,10 @@ void myAccountAssetRootNode::sortPositionAsset(myAccountNode *accountNode) {
                 for (int j = 0; j < posList.count(); j++) {
                     if (posList.at(j) == assetHold.pos) {
                         posList.removeAt(j);
+                        break;
                     }
                 }
-                posList.append(assetHold.pos);
+                posList.append(tmpPos);
                 left.pop_back();
                 assetHold.pos = tmpPos;
             } else {} //sql error
@@ -685,8 +686,8 @@ void myAccountAssetRootNode::sortPositionAsset(myAccountNode *accountNode) {
     QList<myIndexShell *> tmpChild;
     for (int i = 0; i < numOfAsset; i++) {
         for (int j = 0; j < numOfAsset; j++) {
-            const myAssetNodeData &tmpAssetHold = GET_CONST_ASSET_NODE_DATA(accountNode->children.at(j));
-            if (i == tmpAssetHold.pos) {
+            const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(accountNode->children.at(j));
+            if (i == assetHold.pos) {
                 tmpChild.append(accountNode->children.at(j));
                 break;
             }
