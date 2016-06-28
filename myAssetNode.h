@@ -24,7 +24,7 @@
 
 struct myAccountNodeData {
     myAccountNodeData();
-    myAccountNodeData(myAccountData data);
+    myAccountNodeData(const myAccountData &data);
 
     myAccountData accountData;
     QString logo;
@@ -32,7 +32,7 @@ struct myAccountNodeData {
 };
 struct myAssetNodeData {
     myAssetNodeData();
-    myAssetNodeData(myAssetData data);
+    myAssetNodeData(const myAssetData &data);
 
     myAssetData assetData;
     float currentPrice;

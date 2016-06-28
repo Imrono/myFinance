@@ -5,13 +5,18 @@
 #include <QSplashScreen>
 #include <QElapsedTimer>
 
+#include "myGlobal.h"
 #include "myFinanceDatabase.h"
 #include "myStockCodeName.h"
 #include "AssetCode2Type.h"
 
+#include <QDebug>
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    qDebug() << MY_FT_RED("WELLCOM") << MY_FT_YELLOW("TO") << MY_FT_GREEN("myFinance") << MY_FT_BLUE("PROGRAM");
+    QString mySqlDebugTest = "mySqlDebugTest";
+    MY_DEBUG_SQL(mySqlDebugTest);
 
     QPixmap pixmap(":/SplashScreen/resource/SplashScreen/gold10years.jpg");
     QSplashScreen screen(pixmap);
