@@ -22,7 +22,7 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
     QString execWord;
     if (isDelete) {
         execWord = STR("DELETE FROM 资产变化 WHERE id=%1").arg(exchangeData.id);
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
             qDebug() << query.lastError().text();
             return false;
@@ -41,7 +41,7 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
                     .arg(exchangeTime).arg(exchangeType).arg(exchangeData.accountMoney).arg(exchangeData.money)
                     .arg(exchangeData.assetData.accountCode).arg(exchangeData.assetData.assetCode).arg(exchangeData.assetData.assetName)
                     .arg(exchangeData.assetData.price).arg(exchangeData.assetData.amount).arg(exchangeData.id);
-            qDebug() << execWord;
+            MY_DEBUG_SQL(execWord);
 
             if(!query.exec(execWord)) {
                 qDebug() << query.lastError().text();
@@ -61,7 +61,7 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
                     .arg(exchangeTime).arg(exchangeType).arg(exchangeData.accountMoney).arg(exchangeData.money)
                     .arg(exchangeData.assetData.accountCode).arg(exchangeData.assetData.assetCode).arg(exchangeData.assetData.assetName)
                     .arg(exchangeData.assetData.price).arg(exchangeData.assetData.amount);
-            qDebug() << execWord;
+            MY_DEBUG_SQL(execWord);
 
             if(!query.exec(execWord)) {
                 qDebug() << query.lastError().text();

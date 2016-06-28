@@ -5,6 +5,7 @@
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlRecord>
 #include "myFinanceDatabase.h"
+#include "myGlobal.h"
 
 #include <QVariant>
 #include <QDebug>
@@ -48,7 +49,7 @@ bool myAccountAssetRootNode::doExchange(const myAssetData &assetData) {
         } else {                ///DELETE
             execWord = STR("delete from 资产 WHERE %1").arg(filter);
         }
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(query.exec(execWord)) {
             /// UPDATE MEMORY DATA
             myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, assetData.assetCode);
@@ -66,7 +67,7 @@ bool myAccountAssetRootNode::doExchange(const myAssetData &assetData) {
         execWord = STR("INSERT INTO 资产 VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
                 .arg(assetData.assetCode).arg(assetData.assetName).arg(assetData.accountCode).arg(assetData.amount)
                 .arg(assetData.price).arg(assetData.type).arg(account->children.count());
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(query.exec(execWord)) {
             /// INSERT MEMORY DATA
             myAssetNodeData tmpAssetHold(assetData);
@@ -137,7 +138,7 @@ bool myAccountAssetRootNode::checkExchange(const myExchangeData &data, QString &
     // 2 ASSET CHECK
     filter   = STR("资产帐户代号='%1' AND 代号='%2'").arg(data.assetData.accountCode).arg(data.assetData.assetCode);
     execWord = STR("select 数量, 单位成本 from 资产 WHERE %1").arg(filter);
-    qDebug() << execWord;
+    MY_DEBUG_SQL(execWord);
     if(query.exec(execWord)) {
         execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
         int numRows = myFinanceDatabase::getQueryRows(execWord);
@@ -371,7 +372,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
                 execWord = STR("INSERT INTO 资产 VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
                         .arg(tmpAssetHold.assetCode).arg(tmpAssetHold.assetName).arg(tmpAssetHold.accountCode)
                         .arg(tmpAssetHold.amount).arg(strPrice).arg(tmpAssetHold.type).arg(tmpAccount->children.count());
-                qDebug() << execWord;
+                MY_DEBUG_SQL(execWord);
                 if(query.exec(execWord)) {
                     myAssetNodeData tmpHold(tmpAssetHold);
                     myAssetNode *hold = new myAssetNode(myIndexShell::nodeHolds, tmpHold, tmpAccount);
@@ -392,7 +393,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
                 execWord = STR("UPDATE 资产帐户 SET 代号='%1', 名称='%2', 类别='%3', 备注='%4' WHERE %5")
                         .arg(tmpAccountInfo.code).arg(tmpAccountInfo.name).arg(tmpAccountInfo.type).arg(tmpAccountInfo.note)
                         .arg(filter);
-                qDebug() << execWord;
+                MY_DEBUG_SQL(execWord);
                 if(!query.exec(execWord)) {
                     qDebug() << query.lastError().text();
                     return false;
@@ -413,20 +414,20 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
             // delete account
             filter   = STR("代号='%1'").arg(accountCode);
             execWord = STR("select count(*) from 资产帐户 WHERE %1").arg(filter);
-            qDebug() << execWord;
+            MY_DEBUG_SQL(execWord);
             if(!query.exec(execWord)) {
                 return false;
             }
             query.next();
             if (1 == query.value(0).toInt()) {
                 execWord = STR("select * from 资产帐户 WHERE %1").arg(filter);
-                qDebug() << execWord;
+                MY_DEBUG_SQL(execWord);
                 if(query.exec(execWord)) {
                     query.next();
                     int pos  = query.value(4).toInt();
 
                     execWord = STR("delete from 资产帐户 WHERE %1").arg(filter);
-                    qDebug() << execWord;
+                    MY_DEBUG_SQL(execWord);
                     if(query.exec(execWord)) {
                         int toRemove = -1;
                         for (int i = 0; i < rootNode.children.count(); i++) {
@@ -456,7 +457,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
             filter   = STR("资产帐户代号='%1' AND 代号='%2'")
                             .arg(originalAccountCode).arg(originalAssetCode);
             execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
-            qDebug() << execWord;
+            MY_DEBUG_SQL(execWord);
             if (1 == myFinanceDatabase::getQueryRows(execWord)) {
                 QString strPrice = QString::number(tmpAssetHold.price, 'f', 3);
                 execWord = STR("UPDATE 资产 SET 代号='%1', 名称='%2', 资产帐户代号='%3', 数量=%4, 单位成本=%5, 类别='%6' "
@@ -464,7 +465,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
                         .arg(tmpAssetHold.assetCode).arg(tmpAssetHold.assetName).arg(tmpAssetHold.accountCode)
                         .arg(tmpAssetHold.amount).arg(strPrice).arg(tmpAssetHold.type)
                         .arg(filter);
-                qDebug() << execWord;
+                MY_DEBUG_SQL(execWord);
                 if(!query.exec(execWord)) {
                     qDebug() << query.lastError().text();
                     return false;
@@ -482,7 +483,7 @@ bool myAccountAssetRootNode::deleteOneAsset(const QString &accountCode, const QS
     QSqlQuery query;
     QString filter   = STR("资产帐户代号='%1' AND 代号='%2'").arg(accountCode).arg(assetCode);
     QString execWord = STR("select * from 资产 WHERE %1").arg(filter);
-    qDebug() << execWord;
+    MY_DEBUG_SQL(execWord);
     if(query.exec(execWord)) {
         execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
         if (1 == myFinanceDatabase::getQueryRows(execWord)) {
@@ -490,7 +491,7 @@ bool myAccountAssetRootNode::deleteOneAsset(const QString &accountCode, const QS
             int pos = query.value(6).toInt();
 
             execWord = STR("delete from 资产 WHERE %1").arg(filter);
-            qDebug() << execWord;
+            MY_DEBUG_SQL(execWord);
             if(query.exec(execWord)) {
                 myAccountNode *account = getAccountNode(accountCode);
                 int toRemove = -1;
@@ -518,7 +519,7 @@ bool myAccountAssetRootNode::doInsertAccount(myAccountData data) {
     if (0 == myFinanceDatabase::getQueryRows(execWord)) {
         execWord = STR("INSERT INTO 资产帐户 VALUES ('%1', '%2', '%3', '%4', %5)")
                 .arg(data.code).arg(data.name).arg(data.type).arg(data.note).arg(rootNode.children.count());
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(query.exec(execWord)) {
             myAccountNodeData tmpAccountInfo(data);
             myAccountNode *account = new myAccountNode(myIndexShell::nodeAccount, tmpAccountInfo, &rootNode);
@@ -540,7 +541,7 @@ bool myAccountAssetRootNode::setAccountPosition(const QString &accountCode, int 
     if(1 == myFinanceDatabase::getQueryRows(execWord)) {
         execWord = STR("UPDATE 资产帐户 SET pos='%1' WHERE %2")
                 .arg(pos).arg(filter);
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(query.exec(execWord)) {
             for (int i = 0; i < rootNode.children.count(); i++) {
                 myAccountNodeData &accountInfo = GET_ACCOUNT_NODE_DATA(rootNode.children.at(i));
@@ -561,7 +562,7 @@ bool myAccountAssetRootNode::setAssetPosition(const QString &accountCode, const 
     QString execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
         if (1 == myFinanceDatabase::getQueryRows(execWord)) {
         execWord = STR("UPDATE 资产 SET pos='%1' WHERE %2").arg(pos).arg(filter);
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(query.exec(execWord)) {
             const myAccountNode *account = getAccountNode(accountCode);
             for (int i = 0; i < account->children.count(); i++) {
