@@ -18,16 +18,16 @@ myExchangeFormExpenses::myExchangeFormExpenses(const myAccountAssetRootNode *roo
                 continue;
         }
         for (int j = 0; j < accountNode->children.count(); j++) {
-            const myAssetNode *holdNode = static_cast<const myAssetNode *>(accountNode->children.at(j));
-            QString assetCode = GET_CONST_ASSET_NODE_DATA(holdNode).assetData.assetCode;
+            const myAssetNode *asset = static_cast<const myAssetNode *>(accountNode->children.at(j));
+            QString assetCode = GET_CONST_ASSET_NODE_DATA(asset).assetData.assetCode;
             if (assetCode.contains("cash")) {
-                const myAccountNodeData &accountData = GET_CONST_ACCOUNT_NODE_DATA(accountNode);
-                QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
+                const myAccountNodeData &accountInfo = GET_CONST_ACCOUNT_NODE_DATA(accountNode);
+                QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountInfo.logo));
                 QString code;
-                if (accountData.accountData.name.contains(STR("银行"))) {
-                    code = "**** **** " + accountData.accountData.code.right(4);
+                if (accountInfo.accountData.name.contains(STR("银行"))) {
+                    code = "**** **** " + accountInfo.accountData.code.right(4);
                 } else {
-                    code = accountData.accountData.code;
+                    code = accountInfo.accountData.code;
                 }
                 spendIdx2AccountIdx.insert(localCount, i);
                 ui->moneyAccountExpend->addItem(icon, code);

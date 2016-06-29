@@ -41,7 +41,7 @@ private:
     float remainMoney;
     float totalMoney;
     float bonusTax;
-    const myAccountNode *accountNode;
+    const myAccountNode *currentAccount;
 
     ///METHOD
     void updateBuySell();

@@ -19,21 +19,21 @@ myExchangeFormIncome::myExchangeFormIncome(const myAccountAssetRootNode *rootNod
     incomeIdx2AccountIdx.clear();
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
-        const myAccountNode *accountNode = rootNode->getAccountNode(i);
-        if (GET_CONST_ACCOUNT_NODE_DATA(accountNode).accountData.type.contains(STR("券商"))) {
+        const myAccountNode *account = rootNode->getAccountNode(i);
+        if (GET_CONST_ACCOUNT_NODE_DATA(account).accountData.type.contains(STR("券商"))) {
                 continue;
         }
-        for (int j = 0; j < accountNode->children.count(); j++) {
-            const myAssetNode *holdNode = static_cast<const myAssetNode *>(accountNode->children.at(j));
-            QString assetCode = GET_CONST_ASSET_NODE_DATA(holdNode).assetData.assetCode;
+        for (int j = 0; j < account->children.count(); j++) {
+            const myAssetNode *asset = static_cast<const myAssetNode *>(account->children.at(j));
+            QString assetCode = GET_CONST_ASSET_NODE_DATA(asset).assetData.assetCode;
             if (assetCode.contains("cash")) {
-                const myAccountNodeData &accountData = GET_CONST_ACCOUNT_NODE_DATA(accountNode);
-                QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
+                const myAccountNodeData &accountInfo = GET_CONST_ACCOUNT_NODE_DATA(account);
+                QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountInfo.logo));
                 QString code;
-                if (accountData.accountData.name.contains(STR("银行"))) {
-                    code = "**** **** " + accountData.accountData.code.right(4);
+                if (accountInfo.accountData.name.contains(STR("银行"))) {
+                    code = "**** **** " + accountInfo.accountData.code.right(4);
                 } else {
-                    code = accountData.accountData.code;
+                    code = accountInfo.accountData.code;
                 }
                 incomeIdx2AccountIdx.insert(localCount, i);
                 ui->moneyAccountIncome->addItem(icon, code);
