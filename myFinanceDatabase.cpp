@@ -1,4 +1,5 @@
 ﻿#include "myFinanceDatabase.h"
+#include "myGlobal.h"
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlDriver>
@@ -55,7 +56,7 @@ bool myFinanceDatabase::initialDB() {
                                "类别 varchar(16), "
                                "pos int(4) DEFAULT -1, "
                                "primary key (代号, 资产帐户代号));");
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
             return false;
         }
@@ -70,7 +71,7 @@ bool myFinanceDatabase::initialDB() {
                        "名称 varchar(16), "
                        "单价 decimal(14,3) DEFAULT 0, "
                        "数量 int(11) DEFAULT 0);");
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
             return false;
         }
@@ -80,7 +81,7 @@ bool myFinanceDatabase::initialDB() {
                        "类别 varchar(16), "
                        "备注 varchar(32), "
                        "pos int(4) DEFAULT -1);");
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
             return false;
         }
@@ -90,7 +91,7 @@ bool myFinanceDatabase::initialDB() {
                        "类别 varchar(16), "
                        "备注 varchar(32), "
                        "pos int(4) DEFAULT -1);");
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
             return false;
         }
@@ -100,7 +101,7 @@ bool myFinanceDatabase::initialDB() {
                        "备注 varchar(32), "
                        "pos int(4) DEFAULT -1)"
                        "收支 varchar(16);");
-        qDebug() << execWord;
+        MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
             return false;
         }
@@ -113,7 +114,7 @@ bool myFinanceDatabase::initialDB() {
 int myFinanceDatabase::getQueryRows(const QString &execWord) {
     int numRows = -1;
     QSqlQuery query;
-    qDebug() << execWord;
+    MY_DEBUG_SQL(execWord);
     if(query.exec(execWord)) {
         query.next();
         numRows = query.value(0).toInt();

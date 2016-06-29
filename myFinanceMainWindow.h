@@ -13,7 +13,6 @@
 #include "myExchangeListModel.h"
 
 #include "myStockCodeName.h"
-#include "assetChangeDelegate.h"
 #include "myDatabaseDatatype.h"
 #include "myFinanceTreeVeiwContextMenu.h"
 
@@ -75,8 +74,8 @@ private slots:
 
 public:
     /// treeView
-    void doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data, const QString &info);
-    void doUpDown(const myAssetNode *node, bool isUp);
+    void doChangeAssetDirectly(const myIndexShell *node, changeType type, void *data, const QString &info);
+    void doUpDown(const myIndexShell *node, bool isUp);
 };
 
 #endif // MYFINANCEMAINWINDOW_H

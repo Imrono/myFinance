@@ -26,8 +26,8 @@ private:
     float getAssetCodeValue(const QString &code);
     QString getCurrentAssetName() {
         QString name;
-        if (assetNode) {
-            name = assetNode->nodeData.value<myAssetHold>().assetData.assetName;
+        if (currentAsset) {
+            name = GET_CONST_ASSET_NODE_DATA(currentAsset).assetData.assetName;
         }
         return name;
     }
@@ -37,8 +37,6 @@ private slots:
     void on_moneyAccount_currentIndexChanged(int index);
 
     void on_radioSubscribing_clicked();
-
-    void on_radioPurchasing_clicked();
 
     void on_radioRedeming_clicked();
 
@@ -52,21 +50,19 @@ private slots:
 
     void on_moneySpinBoxTotal_valueChanged(double value);
 
-    void on_benefitTypeBox_currentIndexChanged(int index);
-
-    void on_currentSpinBox_valueChanged(double value);
-
     void on_typeBox_currentIndexChanged(int index);
 
     void on_nameLineEdit_textChanged(const QString &str);
 
-    void on_calcBenefitButton_clicked();
+    void on_doDividendButton_clicked();
+
+    void on_checkBoxSoldAll_clicked();
 
 private:
     enum OperationType {
         SUBSCRIBING = 0,
-        PURCHASING  = 1,
-        REDEMING    = 2
+        //PURCHASING  = 1,
+        REDEMING    = 1
     };
 
     enum UPDATE_MONEY {
@@ -116,8 +112,8 @@ private:
 
     float totalMoney;
     float remainMoney;
-    myAssetNode *accountNode;
-    myAssetNode *assetNode;
+    const myAccountNode *currentAccount;
+    const myAssetNode   *currentAsset;
 
     int benefitIdx;
     float benefits;

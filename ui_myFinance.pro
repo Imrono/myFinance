@@ -22,7 +22,6 @@ SOURCES += main.cpp\
     myFinanceDatabase.cpp \
     myInsertModifyAccount.cpp \
     myInsertModifyAsset.cpp \
-    assetChangeDelegate.cpp \
     myDatabaseDatatype.cpp \
     myModifyExchange.cpp \
     myGlobal.cpp \
@@ -50,7 +49,6 @@ HEADERS  += myFinanceMainWindow.h \
     myFinanceDatabase.h \
     myInsertModifyAccount.h \
     myInsertModifyAsset.h \
-    assetChangeDelegate.h \
     myModifyExchange.h \
     myGlobal.h \
     myMoneyIncomeExpenses.h \

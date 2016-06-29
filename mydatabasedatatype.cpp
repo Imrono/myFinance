@@ -64,7 +64,7 @@ myAccountData::myAccountData() {
 
 }
 
-myAccountData::myAccountData(myAssetAccount data) {
+myAccountData::myAccountData(myAccountNodeData data) {
     *this = data.accountData;
 }
 
@@ -77,7 +77,7 @@ myAssetData::myAssetData() {
     type        = "";
 }
 
-myAssetData::myAssetData(myAssetHold data) {
+myAssetData::myAssetData(myAssetNodeData data) {
     *this = data.assetData;
 }
 

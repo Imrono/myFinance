@@ -32,8 +32,8 @@ private:
     float remainMoneyIn;
     float totalMoneyIn;
 
-    myAssetNode *accountNodeOut;
-    myAssetNode *accountNodeIn;
+    const myAccountNode *accountOut;
+    const myAccountNode *accountIn;
 
 private slots:
     void on_moneyAccountOut_currentIndexChanged(int index);

@@ -39,13 +39,13 @@ public:
     float doGetSecurityAsset();
 
     void doReflash();
-    bool doChangeAssetDirectly(const myAssetNode *node, changeType type, QVariant data);
+    bool doChangeAssetDirectly(const myIndexShell *node, changeType type, void *data);
     bool doInsertAccount(myAccountData data);
 
-    bool doUpDown(bool isUp, const myAssetNode *node);
+    bool doUpDown(bool isUp, const myIndexShell *node);
 
     const myAccountAssetRootNode &getRootNode() { return root;}
-    myAssetNode *nodeFromIndex(const QModelIndex &index) const;
+    myIndexShell *nodeFromIndex(const QModelIndex &index) const;
 
 signals:
     void priceDataReflashed();

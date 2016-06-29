@@ -33,11 +33,11 @@ struct myExchangeDetail {
 
 };
 
-struct myAssetAccount;
-struct myAssetHold;
+struct myAccountNodeData;
+struct myAssetNodeData;
 struct myAccountData {
     myAccountData();
-    myAccountData(myAssetAccount data);
+    myAccountData(myAccountNodeData data);
     QString code;
     QString name;
     QString type;
@@ -46,7 +46,7 @@ struct myAccountData {
 };
 struct myAssetData {
     myAssetData();
-    myAssetData(myAssetHold data);
+    myAssetData(myAssetNodeData data);
     myAssetData &operator =(const myAssetData &data);
     bool operator ==(const myAssetData &data);
     myAssetData operator +(const myAssetData &data);
