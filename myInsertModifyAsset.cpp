@@ -23,7 +23,7 @@ myInsertModifyAsset::myInsertModifyAsset(QString accountCode, QString accountNam
     grpMarket->setId(ui->radioSH, SH);       //radioBuy的Id设为0
     grpMarket->setId(ui->radioSZ, SZ);       //radioBuy的Id设为1
     grpMarket->setId(ui->radioOther, OTHER); //radioBuy的Id设为2
-    ui->radioSH->setChecked(true);
+    ui->radioSH->click();
 
     if (setAllDisable)
         setAllDisabled();
