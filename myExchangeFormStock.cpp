@@ -1,4 +1,4 @@
-#include "myExchangeFormStock.h"
+ï»¿#include "myExchangeFormStock.h"
 #include "ui_myExchangeFormStock.h"
 #include "AssetCode2Type.h"
 
@@ -16,18 +16,18 @@ myExchangeFormStock::myExchangeFormStock(const myAccountAssetRootNode *rootNode,
     grpBuySell = new QButtonGroup(this);
     grpBuySell->addButton(ui->radioBuy);
     grpBuySell->addButton(ui->radioSell);
-    grpBuySell->setExclusive(true);         //ÉèÎª»¥³â
-    grpBuySell->setId(ui->radioBuy,  BUY);  //radioBuyµÄIdÉèÎª0
-    grpBuySell->setId(ui->radioSell, SELL); //radioBuyµÄIdÉèÎª1
+    grpBuySell->setExclusive(true);         //è®¾ä¸ºäº’æ–¥
+    grpBuySell->setId(ui->radioBuy,  BUY);  //radioBuyçš„Idè®¾ä¸º0
+    grpBuySell->setId(ui->radioSell, SELL); //radioBuyçš„Idè®¾ä¸º1
 
     grpMarket = new QButtonGroup(this);
     grpMarket->addButton(ui->radioSH);
     grpMarket->addButton(ui->radioSZ);
     grpMarket->addButton(ui->radioOther);
-    grpMarket->setExclusive(true);           //ÉèÎª»¥³â
-    grpMarket->setId(ui->radioSH, SH);       //radioBuyµÄIdÉèÎª0
-    grpMarket->setId(ui->radioSZ, SZ);       //radioBuyµÄIdÉèÎª1
-    grpMarket->setId(ui->radioOther, OTHER); //radioBuyµÄIdÉèÎª2
+    grpMarket->setExclusive(true);           //è®¾ä¸ºäº’æ–¥
+    grpMarket->setId(ui->radioSH, SH);       //radioBuyçš„Idè®¾ä¸º0
+    grpMarket->setId(ui->radioSZ, SZ);       //radioBuyçš„Idè®¾ä¸º1
+    grpMarket->setId(ui->radioOther, OTHER); //radioBuyçš„Idè®¾ä¸º2
 
     ui->radioOther->click();
     ui->radioBuy->click();
@@ -36,18 +36,18 @@ myExchangeFormStock::myExchangeFormStock(const myAccountAssetRootNode *rootNode,
     updateBuySell();
     updateExchangeFee();
 
-    // ¿Ø¼þComboBox -> ACCOUNT
+    // æŽ§ä»¶ComboBox -> ACCOUNT
     exchangeIdx2AccountIdx.clear();
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
         const myAccountNode *account = rootNode->getAccountNode(i);
         const myAccountNodeData &accountInfo = GET_CONST_ACCOUNT_NODE_DATA(account);
-        if (!accountInfo.accountData.type.contains(STR("È¯ÉÌ")))
+        if (!accountInfo.accountData.type.contains(STR("åˆ¸å•†")))
             continue;
 
         QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountInfo.logo));
         QString code;
-        if (accountInfo.accountData.name.contains(STR("ÒøÐÐ"))) {
+        if (accountInfo.accountData.name.contains(STR("é“¶è¡Œ"))) {
             code = "**** **** " + accountInfo.accountData.code.right(4);
         } else {
             code = accountInfo.accountData.code;
@@ -90,9 +90,9 @@ void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
         ui->spinBoxPrice->setValue(exchangeData.assetData.price);
         ui->amountLineEdit->setValue(qAbs(exchangeData.assetData.amount));
     }
-    if (STR("Ö¤È¯ÂòÈë") == exchangeData.exchangeType) {
+    if (STR("è¯åˆ¸ä¹°å…¥") == exchangeData.exchangeType) {
         ui->radioBuy->click();
-    } else if (STR("Ö¤È¯Âô³ö") == exchangeData.exchangeType) {
+    } else if (STR("è¯åˆ¸å–å‡º") == exchangeData.exchangeType) {
         ui->radioSell->click();
     } else {}
 
@@ -116,8 +116,8 @@ void myExchangeFormStock::updateBuySell() {
     buySellFlag = grpBuySell->checkedId() == SELL ? 1.0f : -1.0f;
     data.assetData.amount = -buySellFlag*qAbs(data.assetData.amount);
 
-    // market, price, amount, fee ¾ö¶¨ money
-    // market, price*amount, buy/sell ¾ö¶¨ fee
+    // market, price, amount, fee å†³å®š money
+    // market, price*amount, buy/sell å†³å®š fee
     if (grpMarket->checkedId() != OTHER) {
         updateExchangeFee();
     }
@@ -170,9 +170,9 @@ void myExchangeFormStock::updateExchangeFee() {
     double fee = 0.0f;
     double amount = qAbs(static_cast<double>(data.assetData.amount));
 
-    double fee1 = 0.0f; //Ó¶½ð
-    double fee2 = 0.0f; //¹ý»§·Ñ
-    double fee3 = 0.0f; //Ó¡»¨Ë°
+    double fee1 = 0.0f; //ä½£é‡‘
+    double fee2 = 0.0f; //è¿‡æˆ·è´¹
+    double fee3 = 0.0f; //å°èŠ±ç¨Ž
 
     if (OTHER != grpMarket->checkedId()) {
         fee1 = data.assetData.price * amount * commisionRate;
@@ -182,7 +182,7 @@ void myExchangeFormStock::updateExchangeFee() {
     }
 
     if (SH == grpMarket->checkedId()) {
-        fee2 = data.assetData.price * amount * 0.02f*0.001f;  //0.02¡ë
+        fee2 = data.assetData.price * amount * 0.02f*0.001f;  //0.02â€°
     } else {}
 
     if (SELL == grpBuySell->checkedId()) {
@@ -197,7 +197,7 @@ void myExchangeFormStock::updateExchangeFee() {
 void myExchangeFormStock::on_codeLineEdit_textEdited(const QString &str) {
     data.assetData.assetCode = str;
 
-    // ÉÏº££¬ÉîÛÚÍ¨¹ý¹ÉÆ±´úÂë×Ô¶¯ÅÐ¶Ï
+    // ä¸Šæµ·ï¼Œæ·±åœ³é€šè¿‡è‚¡ç¥¨ä»£ç è‡ªåŠ¨åˆ¤æ–­
     int pointIndex = data.assetData.assetCode.indexOf(QString("."));
     int len = data.assetData.assetCode.size();
     if (len - pointIndex > 2 &&
@@ -229,11 +229,11 @@ void myExchangeFormStock::on_codeLineEdit_textEdited(const QString &str) {
         data.assetData.amount = 1;
         ui->amountLineEdit->setValue(qAbs(data.assetData.amount));
         ui->amountLineEdit->setDisabled(true);
-        ui->labelPrice->setText(STR("×Ê½ð£º"));
+        ui->labelPrice->setText(STR("èµ„é‡‘ï¼š"));
     } else {
         if (!ui->amountLineEdit->isEnabled()) {
             ui->amountLineEdit->setEnabled(true);
-            ui->labelPrice->setText(STR("µ¥¼Û£º"));
+            ui->labelPrice->setText(STR("å•ä»·ï¼š"));
         }
     }
 
@@ -249,7 +249,7 @@ void myExchangeFormStock::on_codeLineEdit_textEdited(const QString &str) {
             const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(assetNode);
             if (data.assetData.assetCode == assetHold.assetData.assetCode) {
                 remainStock = assetHold.assetData.amount;
-                defaultStr =STR("ÏÖ¹²ÓÐ£º%1").arg(remainStock);
+                defaultStr =STR("çŽ°å…±æœ‰ï¼š%1").arg(remainStock);
                 break;
             }
         }
@@ -260,7 +260,7 @@ void myExchangeFormStock::on_codeLineEdit_textEdited(const QString &str) {
 void myExchangeFormStock::on_nameLineEdit_editingFinished() {
     QString str = ui->nameLineEdit->text();
     int count = stockCode->codeName.count();
-    qDebug() << STR("Ãû³ÆEditLine") << str << "(" << count << ")";
+    qDebug() << STR("åç§°EditLine") << str << "(" << count << ")";
 
     QMap<QString,QString>::const_iterator it = stockCode->codeName.begin();
     for (; it != stockCode->codeName.end(); ++it) {
@@ -305,13 +305,13 @@ void myExchangeFormStock::on_spinBoxPrice_valueChanged(double value) {
 void myExchangeFormStock::on_radioBuy_clicked() {
     qDebug() << "#radioBuy_clicked#";
     updateBuySell();
-    data.exchangeType = STR("Ö¤È¯ÂòÈë");
+    data.exchangeType = STR("è¯åˆ¸ä¹°å…¥");
     setExchangeWindowType(data.exchangeType);
 }
 void myExchangeFormStock::on_radioSell_clicked() {
     qDebug() << "#radioSell_clicked#";
     updateBuySell();
-    data.exchangeType = STR("Ö¤È¯Âô³ö");
+    data.exchangeType = STR("è¯åˆ¸å–å‡º");
     setExchangeWindowType(data.exchangeType);
 }
 
@@ -348,7 +348,7 @@ void myExchangeFormStock::on_moneyAccount_currentIndexChanged(int index) {
     // 3. aommisionRate
     commisionRate = accountInfo.accountData.note.toDouble();
     ui->feeRateSpinBox->setValue(commisionRate*1000);
-    qDebug() << STR("Ó¶½ð") << commisionRate;
+    qDebug() << STR("ä½£é‡‘") << commisionRate;
     // 4. fee & money
     updateExchangeFee();
     ui->moneySpinBox->setValue(calcMoney());

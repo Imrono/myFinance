@@ -1,4 +1,4 @@
-#include "myExchangeFormMoneyUp.h"
+ï»¿#include "myExchangeFormMoneyUp.h"
 #include "ui_myExchangeFormMoneyUp.h"
 #include "AssetCode2Type.h"
 
@@ -16,18 +16,18 @@ myExchangeFormMoneyUp::myExchangeFormMoneyUp(const myAccountAssetRootNode *rootN
     grpOperation = new QButtonGroup(this);
     grpOperation->addButton(ui->radioSubscribing);
     grpOperation->addButton(ui->radioRedeming);
-    grpOperation->setExclusive(true);         //ÉèÎª»¥³â
+    grpOperation->setExclusive(true);         //è®¾ä¸ºäº’æ–¥
     grpOperation->setId(ui->radioSubscribing, SUBSCRIBING);
     grpOperation->setId(ui->radioRedeming,    REDEMING);
     ui->radioSubscribing->click();
 
-    // ¿Ø¼þComboBox -> ACCOUNT
+    // æŽ§ä»¶ComboBox -> ACCOUNT
     exchangeIdx2AccountIdx.clear();
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
         const myAccountNode *account = rootNode->getAccountNode(i);
         const myAccountNodeData &accountInfo = GET_CONST_ACCOUNT_NODE_DATA(account);
-        if (!accountInfo.accountData.name.contains(STR("ÒøÐÐ")))
+        if (!accountInfo.accountData.name.contains(STR("é“¶è¡Œ")))
             continue;
 
         QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountInfo.logo));
@@ -38,13 +38,13 @@ myExchangeFormMoneyUp::myExchangeFormMoneyUp(const myAccountAssetRootNode *rootN
         localCount++;
     }
 
-    // ¿Ø¼þComboBox -> ASSET TYPE
-    ui->typeBox->addItem(STR("R1£¨½÷É÷ÐÍ£©"));
-    ui->typeBox->addItem(STR("R2£¨ÎÈ½¡ÐÍ£©"));
-    ui->typeBox->addItem(STR("R3£¨Æ½ºâÐÍ£©"));
-    ui->typeBox->addItem(STR("R4£¨½øÈ¡ÐÍ£©"));
-    ui->typeBox->addItem(STR("R5£¨¼¤½øÐÍ£©"));
-    ui->typeBox->addItem(STR("»õ±Ò»ù½ð"));
+    // æŽ§ä»¶ComboBox -> ASSET TYPE
+    ui->typeBox->addItem(STR("R1ï¼ˆè°¨æ…Žåž‹ï¼‰"));
+    ui->typeBox->addItem(STR("R2ï¼ˆç¨³å¥åž‹ï¼‰"));
+    ui->typeBox->addItem(STR("R3ï¼ˆå¹³è¡¡åž‹ï¼‰"));
+    ui->typeBox->addItem(STR("R4ï¼ˆè¿›å–åž‹ï¼‰"));
+    ui->typeBox->addItem(STR("R5ï¼ˆæ¿€è¿›åž‹ï¼‰"));
+    ui->typeBox->addItem(STR("è´§å¸åŸºé‡‘"));
     ui->typeBox->setCurrentIndex(0);
 }
 
@@ -82,9 +82,9 @@ void myExchangeFormMoneyUp::setUI(const myExchangeData &exchangeData) {
     ui->nameLineEdit->setText(exchangeData.assetData.assetCode);
     ui->codeLineEdit->setText(exchangeData.assetData.assetName);
     ui->usedSpinBox->setValue(exchangeData.assetData.price);
-    if (STR("ÈÏ¹º") == exchangeData.exchangeType) {
+    if (STR("è®¤è´­") == exchangeData.exchangeType) {
         ui->radioSubscribing->click();
-    } else if (STR("Êê»Ø") == exchangeData.exchangeType) {
+    } else if (STR("èµŽå›ž") == exchangeData.exchangeType) {
         ui->radioRedeming->click();
     } else {}
 
@@ -121,7 +121,7 @@ void myExchangeFormMoneyUp::on_moneyAccount_currentIndexChanged(int index) {
 void myExchangeFormMoneyUp::on_radioSubscribing_clicked() {
     ui->checkBoxSoldAll->setDisabled(true);
     buySellFlag = 1.0f;
-    data.exchangeType = STR("ÈÏ¹º");
+    data.exchangeType = STR("è®¤è´­");
     setExchangeWindowType(data.exchangeType);
     updateBuySell(FROM_RADIO_SUBSCRIBING);
 }
@@ -129,7 +129,7 @@ void myExchangeFormMoneyUp::on_radioSubscribing_clicked() {
 void myExchangeFormMoneyUp::on_radioRedeming_clicked() {
     ui->checkBoxSoldAll->setEnabled(true);
     buySellFlag = -1.0f;
-    data.exchangeType = STR("Êê»Ø");
+    data.exchangeType = STR("èµŽå›ž");
     setExchangeWindowType(data.exchangeType);
     updateBuySell(FROM_RADIO_REDEMING);
 }
@@ -215,12 +215,12 @@ void myExchangeFormMoneyUp::on_nameLineEdit_textChanged(const QString &str) {
 }
 
 void myExchangeFormMoneyUp::on_doDividendButton_clicked() {
-    qDebug() << STR("Àí²Æ ¼ÆËã·Öºì clicked()");
-    // 1. ¶ÁÈ¡·ÖºìÊý¾Ý
+    qDebug() << STR("ç†è´¢ è®¡ç®—åˆ†çº¢ clicked()");
+    // 1. è¯»å–åˆ†çº¢æ•°æ®
 
-    // 2. Ð´ÈëÊý¾Ý¿â²¢¸üÐÂMainWindow
+    // 2. å†™å…¥æ•°æ®åº“å¹¶æ›´æ–°MainWindow
 
-    // 3. ¸üÐÂµ±Ç°½çÃæ
+    // 3. æ›´æ–°å½“å‰ç•Œé¢
 
 }
 

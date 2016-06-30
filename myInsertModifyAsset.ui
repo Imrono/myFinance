@@ -151,12 +151,9 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QSpinBox" name="spinBoxAmount">
+       <widget class="QDoubleSpinBox" name="spinBoxAmount">
         <property name="maximum">
-         <number>1000000</number>
-        </property>
-        <property name="singleStep">
-         <number>100</number>
+         <double>9999999.990000000223517</double>
         </property>
        </widget>
       </item>
@@ -167,7 +164,6 @@
  </widget>
  <tabstops>
   <tabstop>lineEditAssetCode</tabstop>
-  <tabstop>spinBoxAmount</tabstop>
   <tabstop>spinBoxPrice</tabstop>
   <tabstop>lineEditType</tabstop>
   <tabstop>lineEditAssetName</tabstop>

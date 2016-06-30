@@ -1,13 +1,18 @@
-#include "myStockPrice.h"
+﻿#include "myStockPrice.h"
 #include <QRegExp>
 
 #include <QtDebug>
+#include <QMessageBox>
 
 myStockPrice::myStockPrice() : manager (nullptr), isInitialized(false)
+  , replyTimeout(nullptr), reply(nullptr)
 {
     manager = new QNetworkAccessManager();
     connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
+    replyTimeout = new QTimer(this);
+    connect(replyTimeout, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+    replyTimeout->setSingleShot(true);
 }
 myStockPrice::~myStockPrice()
 {
@@ -31,11 +36,15 @@ void myStockPrice::getStockPrice(const QStringList &list) {
         }
     }
     ntRequest.setUrl(QUrl(urlSina));
-    manager->get(ntRequest);
+    reply = manager->get(ntRequest);
+    //replyTimeout->start(6000);
+    //qDebug() << "### start TIMER 6s for stock price get ###";
 }
 
 
 void myStockPrice::replyFinished(QNetworkReply* data) {
+    replyTimeout->stop();
+
     QByteArray stockPrice = data->readLine();
     isInitialized = false;
     stockPriceRt.clear();
@@ -92,4 +101,10 @@ void myStockPrice::replyFinished(QNetworkReply* data) {
     // 通知Model刷新数据
     isInitialized = true;
     emit updatePriceFinish();
+}
+void myStockPrice::handleTimeout() {
+    qDebug() << "### stock price get TIMER timeout!! ###";
+    replyTimeout->stop();
+    reply->abort();
+    QMessageBox::warning(nullptr, "timeout", STR("获取股票价格超时"), QMessageBox::Ok, QMessageBox::Ok);
 }

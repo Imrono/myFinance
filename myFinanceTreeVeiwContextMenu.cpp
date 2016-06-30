@@ -1,4 +1,4 @@
-#include "myFinanceTreeVeiwContextMenu.h"
+ï»¿#include "myFinanceTreeVeiwContextMenu.h"
 
 #include <QModelIndex>
 #include <QMessageBox>
@@ -27,19 +27,19 @@ myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : pa
     stockBonus    = new QAction(parent);
     intrests      = new QAction(parent);
 
-    deleteAccount->setText(STR("É¾³ýÕÊ»§"));
-    modifyAccount->setText(STR("¸üÐÂÕÊ»§"));
-    insertAsset->setText(STR("Ìí¼Ó×Ê²ú"));
-    deleteAsset->setText(STR("É¾³ý×Ê²ú"));
-    modifyAsset->setText(STR("¸üÐÂ×Ê²ú"));
-    buyAsset->setText(STR("ÂòÈë"));
-    sellAsset->setText(STR("Âô³ö"));
-    transferIn->setText(STR("×ªÈë"));
-    transferOut->setText(STR("×ª³ö"));
-    upAsset->setText(STR("ÉÏÒÆ"));
-    downAsset->setText(STR("ÏÂÒÆ"));
-    stockBonus->setText(STR("·Öºì"));
-    intrests->setText(STR("ÀûÏ¢"));
+    deleteAccount->setText(STR("åˆ é™¤å¸æˆ·"));
+    modifyAccount->setText(STR("æ›´æ–°å¸æˆ·"));
+    insertAsset->setText(STR("æ·»åŠ èµ„äº§"));
+    deleteAsset->setText(STR("åˆ é™¤èµ„äº§"));
+    modifyAsset->setText(STR("æ›´æ–°èµ„äº§"));
+    buyAsset->setText(STR("ä¹°å…¥"));
+    sellAsset->setText(STR("å–å‡º"));
+    transferIn->setText(STR("è½¬å…¥"));
+    transferOut->setText(STR("è½¬å‡º"));
+    upAsset->setText(STR("ä¸Šç§»"));
+    downAsset->setText(STR("ä¸‹ç§»"));
+    stockBonus->setText(STR("åˆ†çº¢"));
+    intrests->setText(STR("åˆ©æ¯"));
 
     connect(deleteAccount, SIGNAL(triggered()), this, SLOT(deleteAccount_clicked()));
     connect(modifyAccount, SIGNAL(triggered()), this, SLOT(modifyAccount_clicked()));
@@ -81,7 +81,7 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myIndexShell *node)
         }
         editAsset->addSeparator();
         if (assetHolds.assetData.assetCode == MY_CASH
-         || assetHolds.assetData.assetCode == STR("»õ±Ò»ù½ð")) {
+         || assetHolds.assetData.assetCode == STR("è´§å¸åŸºé‡‘")) {
             editAsset->addAction(intrests);
         } else {
             editAsset->addAction(stockBonus);
@@ -111,9 +111,9 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myIndexShell *node)
         }
     } else {}
 
-    upAsset->setText(STR("ÉÏÒÆ"));
+    upAsset->setText(STR("ä¸Šç§»"));
     editAsset->addAction(upAsset);
-    downAsset->setText(STR("ÏÂÒÆ"));
+    downAsset->setText(STR("ä¸‹ç§»"));
     editAsset->addAction(downAsset);
     if (!(upDownType & HAS_UP)) {
         upAsset->setDisabled(true);
@@ -141,12 +141,12 @@ void myFinanceTreeVeiwContextMenu::modifyAsset_clicked() {
 }
 
 void myFinanceTreeVeiwContextMenu::buyAsset_clicked() {
-    qDebug() << STR("ÓÒ¼üÂòÈë clicked");
-    doExchangeStock(STR("Ö¤È¯ÂòÈë"));
+    qDebug() << STR("å³é”®ä¹°å…¥ clicked");
+    doExchangeStock(STR("è¯åˆ¸ä¹°å…¥"));
 }
 void myFinanceTreeVeiwContextMenu::sellAsset_clicked() {
-    qDebug() << STR("ÓÒ¼üÂô³ö clicked");
-    doExchangeStock(STR("Ö¤È¯Âô³ö"));
+    qDebug() << STR("å³é”®å–å‡º clicked");
+    doExchangeStock(STR("è¯åˆ¸å–å‡º"));
 }
 void myFinanceTreeVeiwContextMenu::doExchangeStock(const QString &type) {
     myExchangeData exchangeData;
@@ -160,20 +160,20 @@ void myFinanceTreeVeiwContextMenu::doExchangeStock(const QString &type) {
 }
 
 void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
-    qDebug() << STR("ÓÒ¼ü×ªÈë clicked");
+    qDebug() << STR("å³é”®è½¬å…¥ clicked");
     myExchangeData exchangeData;
     const myAssetNodeData &holds = GET_CONST_ASSET_NODE_DATA(currentNode);
     exchangeData.assetData.accountCode = holds.assetData.accountCode;
-    exchangeData.exchangeType = STR("×ªÕÊ");
+    exchangeData.exchangeType = STR("è½¬å¸");
     parent->doExchange(myExchangeUI(exchangeData, false), true);
 }
 
 void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
-    qDebug() << STR("ÓÒ¼ü×ª³ö clicked");
+    qDebug() << STR("å³é”®è½¬å‡º clicked");
     myExchangeData exchangeData;
     const myAssetNodeData &holds = GET_CONST_ASSET_NODE_DATA(currentNode);
     exchangeData.accountMoney = holds.assetData.accountCode;
-    exchangeData.exchangeType = STR("×ªÕÊ");
+    exchangeData.exchangeType = STR("è½¬å¸");
     parent->doExchange(myExchangeUI(exchangeData, false), true);
 }
 
@@ -193,7 +193,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
         const myAccountNodeData &accountInfo = GET_CONST_ACCOUNT_NODE_DATA(currentNode);
         /// INSERT ASSET
         if (POP_INSERT == type) {
-            info = STR("Ìí¼Ó×Ê²ú");
+            info = STR("æ·»åŠ èµ„äº§");
             myInsertModifyAsset dial(accountInfo.accountData.code, accountInfo.accountData.name, parent);
             dial.setWindowTitle(info);
             if(dial.exec() == QDialog::Accepted) {
@@ -205,7 +205,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
             }
         /// MODIFY ACCOUNT
         } else if (POP_MODIFY == type) {
-            info = STR("¸üÐÂÕÊ»§");
+            info = STR("æ›´æ–°å¸æˆ·");
             myAccountData originAccountData(accountInfo);
             myInsertModifyAccount dial(parent);
             dial.setWindowTitle(info);
@@ -224,7 +224,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
             }
         /// DELETE ACCOUNT
         } else if (POP_DELETE == type) {
-            info = STR("É¾³ýÕÊ»§");
+            info = STR("åˆ é™¤å¸æˆ·");
             if(QMessageBox::Ok == QMessageBox::warning(parent, info, info + "->\n" +
                                   accountInfo.accountData.code + "\n" + accountInfo.accountData.name,
                                   QMessageBox::Ok|QMessageBox::Cancel, QMessageBox::Ok)) {
@@ -240,7 +240,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
         dial.setUI(myAssetData(assetHold));
         /// MODIFY ASSET
         if (POP_MODIFY == type) {
-            info = STR("¸üÐÂ×Ê²ú");
+            info = STR("æ›´æ–°èµ„äº§");
             dial.setWindowTitle(info);
             if(dial.exec() == QDialog::Accepted) {
                 qDebug() << info + "Accepted";
@@ -257,7 +257,7 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
             }
         /// DELETE ASSET
         } else if (POP_DELETE == type) {
-            info = STR("É¾³ý×Ê²ú");
+            info = STR("åˆ é™¤èµ„äº§");
             dial.setWindowTitle(info);
             dial.setAllDisabled();
             if(dial.exec() == QDialog::Accepted) {
@@ -280,11 +280,11 @@ void myFinanceTreeVeiwContextMenu::doUpDown(bool isUp) {
 }
 
 void myFinanceTreeVeiwContextMenu::stockBonus_clicked() {
-    qDebug() << STR("ÓÒ¼ü·Öºì clicked");
+    qDebug() << STR("å³é”®åˆ†çº¢ clicked");
     stockBonus_intrests(false);
 }
 void myFinanceTreeVeiwContextMenu::intrests_clicked() {
-    qDebug() << STR("ÓÒ¼üÀûÏ¢ clicked");
+    qDebug() << STR("å³é”®åˆ©æ¯ clicked");
     stockBonus_intrests(true);
 }
 void myFinanceTreeVeiwContextMenu::stockBonus_intrests(bool isIntrest) {

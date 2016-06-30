@@ -23,20 +23,23 @@
 
 
 struct myAccountNodeData {
-    myAccountNodeData();
-    myAccountNodeData(const myAccountData &data);
+    myAccountNodeData() {}
+    myAccountNodeData(const myAccountData &data)
+        : accountData(data) {}
 
     myAccountData accountData;
     QString logo;
     int pos;
 };
 struct myAssetNodeData {
-    myAssetNodeData();
-    myAssetNodeData(const myAssetData &data);
+    myAssetNodeData() {}
+    myAssetNodeData(const myAssetData &data)
+        : assetData(data) {}
 
     myAssetData assetData;
     float currentPrice;
     int pos;
+    int category;
 };
 struct myRootNodeData {
     myRootNodeData() : numOfAccount(0) {}

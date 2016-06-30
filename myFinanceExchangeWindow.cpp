@@ -65,7 +65,12 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
 
     for (int i = 0; i < _myTabs.count(); i++) {
         _myTabs[i]->setDateTime(dateTime);
-        ui->tabWidget->addTab(_myTabs[i], _myTabs[i]->getTabText());
+        if (STR("证券交易") == _myTabs[i]->getTabText()) {
+            QIcon icon(STR(":/resource/icon/exchangeTab/mySecurity.png"));
+            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
+        } else {
+            ui->tabWidget->addTab(_myTabs[i], _myTabs[i]->getTabText());
+        }
         qDebug() << _myTabs[i]->getTabText() << "ADDED to Exchange Window";
     }
     ui->tabWidget->setCurrentIndex(dataSource);

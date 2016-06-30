@@ -1,4 +1,4 @@
-#include "myExchangeFormExpenses.h"
+Ôªø#include "myExchangeFormExpenses.h"
 #include "ui_myExchangeFormExpenses.h"
 
 myExchangeFormExpenses::myExchangeFormExpenses(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent) :
@@ -7,14 +7,14 @@ myExchangeFormExpenses::myExchangeFormExpenses(const myAccountAssetRootNode *roo
 {
     ui->setupUi(this);
 
-    ui->lineEditExpendCode->setText(STR("¿‡±"));
-    ui->lineEditExpendName->setText(STR("√˚≥∆"));
+    ui->lineEditExpendCode->setText(STR("Á±ªÂà´"));
+    ui->lineEditExpendName->setText(STR("ÂêçÁß∞"));
 
     spendIdx2AccountIdx.clear();
     int localCount = 0;
     for (int i = 0; i < rootNode->getAccountCount(); i++) {
         const myAccountNode *accountNode = rootNode->getAccountNode(i);
-        if (GET_CONST_ACCOUNT_NODE_DATA(accountNode).accountData.type.contains(STR("»Ø…Ã"))) {
+        if (GET_CONST_ACCOUNT_NODE_DATA(accountNode).accountData.type.contains(STR("Âà∏ÂïÜ"))) {
                 continue;
         }
         for (int j = 0; j < accountNode->children.count(); j++) {
@@ -24,7 +24,7 @@ myExchangeFormExpenses::myExchangeFormExpenses(const myAccountAssetRootNode *roo
                 const myAccountNodeData &accountInfo = GET_CONST_ACCOUNT_NODE_DATA(accountNode);
                 QIcon   icon = QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountInfo.logo));
                 QString code;
-                if (accountInfo.accountData.name.contains(STR("“¯––"))) {
+                if (accountInfo.accountData.name.contains(STR("Èì∂Ë°å"))) {
                     code = "**** **** " + accountInfo.accountData.code.right(4);
                 } else {
                     code = accountInfo.accountData.code;

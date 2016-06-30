@@ -1,4 +1,4 @@
-#include "myDatabaseDatatype.h"
+﻿#include "myDatabaseDatatype.h"
 
 myExchangeData::myExchangeData() : assetData() {
     id       = -1;

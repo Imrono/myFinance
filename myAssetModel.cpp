@@ -107,8 +107,9 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                     QString strPrice = QString::number(assetHold.assetData.price, 'f', 2);
                     return QString("%1").arg(strPrice);
                 } else {
-                    QString strPrice = QString::number(assetHold.assetData.price, 'f', 3);
-                    return QString("%1@%2").arg(assetHold.assetData.amount).arg(strPrice);
+                    QString strPrice  = QString::number(assetHold.assetData.price,  'f', 3);
+                    QString strAmount = QString::number(assetHold.assetData.amount, 'f', 2);
+                    return QString("%1@%2").arg(strAmount).arg(strPrice);
                 }
             }
             default:
@@ -164,7 +165,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
         if (index.column() == 0) {
             if (myIndexShell::nodeAccount == node->type) {
                 const myAccountNodeData &accountInfo = GET_ACCOUNT_NODE_DATA(node);
-                return QIcon(QString(":/icon/finance/resource/icon/finance/%1").arg(accountInfo.logo));
+                return QIcon(STR(":/icon/finance/resource/icon/finance/%1").arg(accountInfo.logo));
             }
         }
 #endif

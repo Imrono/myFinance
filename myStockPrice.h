@@ -8,6 +8,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QTimer>
 
 #include "myAssetNode.h"
 
@@ -74,6 +75,8 @@ signals:
 private:
     QNetworkAccessManager *manager;
     QNetworkRequest ntRequest;
+    QNetworkReply *reply;
+    QTimer *replyTimeout;
     bool isInitialized;
 
     QStringList stockList;
@@ -81,6 +84,7 @@ private:
 
 private slots:
     void replyFinished(QNetworkReply* data);
+    void handleTimeout();
 
 };
 

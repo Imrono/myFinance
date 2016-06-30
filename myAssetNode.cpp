@@ -10,15 +10,6 @@
 #include <QVariant>
 #include <QDebug>
 
-myAssetNodeData::myAssetNodeData() {}
-myAssetNodeData::myAssetNodeData(const myAssetData &data) {
-    assetData = data;
-}
-myAccountNodeData::myAccountNodeData() {}
-myAccountNodeData::myAccountNodeData(const myAccountData &data) {
-    this->accountData = data;
-}
-
 myAssetNode *myAccountAssetRootNode::getAssetNode(const myAccountNode * const account, const QString &assetCode) {
     if (myIndexShell::nodeAccount == account->type) {
         foreach (myIndexShell *assetNode, account->children) {
@@ -288,10 +279,11 @@ bool myAccountAssetRootNode::fetchAsset() {
             tmpAssetHold.assetData.assetCode   = query.value(0).toString();
             tmpAssetHold.assetData.assetName   = query.value(1).toString();
             tmpAssetHold.assetData.accountCode = query.value(2).toString();
-            tmpAssetHold.assetData.amount      = query.value(3).toInt();
+            tmpAssetHold.assetData.amount      = query.value(3).toFloat();
             tmpAssetHold.assetData.price       = query.value(4).toFloat();
             tmpAssetHold.assetData.type        = query.value(5).toString();
             tmpAssetHold.pos                   = query.value(6).toInt();
+            tmpAssetHold.category              = query.value(7).toInt();
 
             myAccountNode *account = getAccountNode(tmpAssetHold.assetData.accountCode);
             if (nullptr == account) {
@@ -457,13 +449,13 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
             filter   = STR("资产帐户代号='%1' AND 代号='%2'")
                             .arg(originalAccountCode).arg(originalAssetCode);
             execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
-            MY_DEBUG_SQL(execWord);
             if (1 == myFinanceDatabase::getQueryRows(execWord)) {
-                QString strPrice = QString::number(tmpAssetHold.price, 'f', 3);
+                QString strPrice  = QString::number(tmpAssetHold.price,  'f', 3);
+                QString strAmount = QString::number(tmpAssetHold.amount, 'f', 3);
                 execWord = STR("UPDATE 资产 SET 代号='%1', 名称='%2', 资产帐户代号='%3', 数量=%4, 单位成本=%5, 类别='%6' "
                                                   "WHERE %7")
                         .arg(tmpAssetHold.assetCode).arg(tmpAssetHold.assetName).arg(tmpAssetHold.accountCode)
-                        .arg(tmpAssetHold.amount).arg(strPrice).arg(tmpAssetHold.type)
+                        .arg(strAmount).arg(strPrice).arg(tmpAssetHold.type)
                         .arg(filter);
                 MY_DEBUG_SQL(execWord);
                 if(!query.exec(execWord)) {

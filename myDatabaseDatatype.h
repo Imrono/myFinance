@@ -1,4 +1,4 @@
-#ifndef MYDATABASEDATATYPE
+ï»¿#ifndef MYDATABASEDATATYPE
 #define MYDATABASEDATATYPE
 #include "myGlobal.h"
 
@@ -56,7 +56,7 @@ struct myAssetData {
     QString accountCode;
     QString assetCode;
     QString assetName;
-    int     amount;
+    double  amount; //double keeps the precise of int
     float   price;
     QString type;
     static bool isSameAssetData(const myAssetData &data1, const myAssetData &data2);
@@ -73,7 +73,7 @@ struct myExchangeData {
 
     int       id;
     QDateTime time;
-    float     fee;      //ÎªÕıÊı£¬ÓÃ¼õ·¨
+    float     fee;      //ä¸ºæ­£æ•°ï¼Œç”¨å‡æ³•
 
     QString   accountMoney;
     float     money;
@@ -119,15 +119,15 @@ private:
 
     void setTypeOfExchange (const myExchangeData &data) {
         numOfTabs = 1;
-        if (data.exchangeType.contains(STR("Ö¤È¯"))) {
+        if (data.exchangeType.contains(STR("è¯åˆ¸"))) {
             tabType = myExchangeUI::TAB_STOCK;
-        } else if (data.exchangeType == STR("×ªÕÊ")) {
+        } else if (data.exchangeType == STR("è½¬å¸")) {
             tabType = myExchangeUI::TAB_TRANS;
-        } else if (data.exchangeType == STR("ÊÕÈë")) {
+        } else if (data.exchangeType == STR("æ”¶å…¥")) {
             tabType = myExchangeUI::TAB_INCOM;
-        } else if (data.exchangeType == STR("Ö§³ö")) {
+        } else if (data.exchangeType == STR("æ”¯å‡º")) {
             tabType = myExchangeUI::TAB_EXPES;
-        } else if (data.exchangeType == STR("Àí²Æ")) {
+        } else if (data.exchangeType == STR("ç†è´¢")) {
             tabType = myExchangeUI::TAB_FUNDS;
         } else {
             tabType = myExchangeUI::TAB_NONE;

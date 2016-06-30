@@ -1,4 +1,4 @@
-#include "myExchangeFormTransfer.h"
+ï»¿#include "myExchangeFormTransfer.h"
 #include "ui_myExchangeFormTransfer.h"
 #include "AssetCode2Type.h"
 
@@ -25,7 +25,7 @@ myExchangeFormTransfer::myExchangeFormTransfer(const myAccountAssetRootNode *roo
                 const myAccountNodeData &accountData = GET_CONST_ACCOUNT_NODE_DATA(account);
                 QIcon   icon =QIcon( QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
-                if (accountData.accountData.name.contains(STR("ÒøÐÐ"))) {
+                if (accountData.accountData.name.contains(STR("é“¶è¡Œ"))) {
                     code = "**** **** " + accountData.accountData.code.right(4);
                 } else {
                     code = accountData.accountData.code;

@@ -1,4 +1,4 @@
-#include "myExchangeFormTabBase.h"
+﻿#include "myExchangeFormTabBase.h"
 #include "myFinanceExchangeWindow.h"
 
 myExchangeFormTabBase::myExchangeFormTabBase(const myAccountAssetRootNode *rootNode, QString tabName, int tabType, QWidget *parent, bool isModifyExchange)

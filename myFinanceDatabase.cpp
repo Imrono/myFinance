@@ -51,7 +51,7 @@ bool myFinanceDatabase::initialDB() {
                                "代号 varchar(16), "
                                "名称 varchar(16), "
                                "资产帐户代号 varchar(32), "
-                               "数量 int(11) DEFAULT 0, "
+                               "数量 decimal(14,3) DEFAULT 0, "
                                "单位成本 decimal(14,3) DEFAULT 0, "
                                "类别 varchar(16), "
                                "pos int(4) DEFAULT -1, "
@@ -70,7 +70,7 @@ bool myFinanceDatabase::initialDB() {
                        "代号 varchar(16), "
                        "名称 varchar(16), "
                        "单价 decimal(14,3) DEFAULT 0, "
-                       "数量 int(11) DEFAULT 0);");
+                       "数量 decimal(14,3) DEFAULT 0);");
         MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
             return false;

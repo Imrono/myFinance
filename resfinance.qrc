@@ -13,4 +13,7 @@
     <qresource prefix="/SplashScreen">
         <file>resource/SplashScreen/gold10years.jpg</file>
     </qresource>
+    <qresource prefix="/">
+        <file>resource/icon/exchangeTab/mySecurity.png</file>
+    </qresource>
 </RCC>
