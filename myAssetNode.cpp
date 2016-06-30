@@ -55,9 +55,9 @@ bool myAccountAssetRootNode::doExchange(const myAssetData &assetData) {
             return false;
         }
     } else if (0 == numRows) {  ///INSERT
-        execWord = STR("INSERT INTO 资产 VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
+        execWord = STR("INSERT INTO 资产 VALUES ('%1', '%2', '%3', %4, %5, '%6', %7, %8)")
                 .arg(assetData.assetCode).arg(assetData.assetName).arg(assetData.accountCode).arg(assetData.amount)
-                .arg(assetData.price).arg(assetData.type).arg(account->children.count());
+                .arg(assetData.price).arg(assetData.type).arg(account->children.count()).arg(-1);
         MY_DEBUG_SQL(execWord);
         if(query.exec(execWord)) {
             /// INSERT MEMORY DATA
@@ -361,9 +361,9 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
             if (0 == myFinanceDatabase::getQueryRows(execWord)) {
                 myAccountNode *tmpAccount = getAccountNode(tmpAssetHold.accountCode);
                 QString strPrice = QString::number(tmpAssetHold.price, 'f', 3);
-                execWord = STR("INSERT INTO 资产 VALUES ('%1', '%2', '%3', %4, %5, '%6', %7)")
+                execWord = STR("INSERT INTO 资产 VALUES ('%1', '%2', '%3', %4, %5, '%6', %7, %8)")
                         .arg(tmpAssetHold.assetCode).arg(tmpAssetHold.assetName).arg(tmpAssetHold.accountCode)
-                        .arg(tmpAssetHold.amount).arg(strPrice).arg(tmpAssetHold.type).arg(tmpAccount->children.count());
+                        .arg(tmpAssetHold.amount).arg(strPrice).arg(tmpAssetHold.type).arg(tmpAccount->children.count()).arg(-1);
                 MY_DEBUG_SQL(execWord);
                 if(query.exec(execWord)) {
                     myAssetNodeData tmpHold(tmpAssetHold);

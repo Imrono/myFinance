@@ -1,5 +1,9 @@
 ﻿#include "myDatabaseDatatype.h"
 
+int getShowCategory(const myAssetData &tmpAssetHold) {
+    return -1;
+}
+
 myExchangeData::myExchangeData() : assetData() {
     id       = -1;
     time     = QDateTime();

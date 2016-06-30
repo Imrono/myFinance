@@ -56,8 +56,7 @@ myExchangeFormMoneyUp::~myExchangeFormMoneyUp()
 void myExchangeFormMoneyUp::exchangeWindowFeeChanged(double fee) {
     qDebug() << "$$myExchangeFormMoneyUp::exchangeWindowFeeChanged " << fee << "$$";
     myExchangeFormTabBase::exchangeWindowFeeChanged(fee);
-    data.money = data.assetData.price - data.fee;
-    ui->moneySpinBox->setValue(data.money);
+    updateBuySell(FROM_FEE_CHANGE);
 }
 
 void myExchangeFormMoneyUp::recordExchangeData(myExchangeData &tmpData) {
@@ -137,19 +136,16 @@ void myExchangeFormMoneyUp::on_radioRedeming_clicked() {
 void myExchangeFormMoneyUp::on_keepsSpinBox_valueChanged(double value) {
     totalAssetValue = value;
     ui->remainSpinBox->setValue(totalAssetValue + buySellFlag*data.assetData.price);
-
-    updateBuySell(FROM_KEEPS_ASSET);
 }
 
 void myExchangeFormMoneyUp::on_remainSpinBox_valueChanged(double value) {
     remainAssetValue = value;
-    updateBuySell(FROM_REAMIN_ASSET);
 }
 
 void myExchangeFormMoneyUp::on_usedSpinBox_valueChanged(double value) {
     data.assetData.price = buySellFlag * value;
     data.money = -buySellFlag * value - data.fee;
-    //ui->remainSpinBox->setValue(totalAssetValue + buySellFlag*data.assetData.price);
+    ui->remainSpinBox->setValue(totalAssetValue + buySellFlag*data.assetData.price);
     updateBuySell(FROM_EXCHANGE_ASSET);
 }
 
@@ -190,28 +186,28 @@ float myExchangeFormMoneyUp::getAssetCodeValue(const QString &code) {
 }
 
 void myExchangeFormMoneyUp::updateBuySell(int caller) {
-    qDebug() << updateMoney2String(caller) << " triggered buy&sell";
+    qDebug() << updateMoney2String(caller) << " myExchangeFormMoneyUp::updateBuySell";
 
-
+    ui->moneySpinBox->setValue(-buySellFlag * data.assetData.price - data.fee);
 }
 
 void myExchangeFormMoneyUp::on_moneySpinBoxTotal_valueChanged(double value) {
     totalMoney = value;
     remainMoney = totalMoney + data.money;
     ui->moneySpinBoxRemain->setValue(remainMoney);
-    qDebug() << "#moneySpinBox_valueChanged# remainMoney:" << remainMoney
+    qDebug() << "#moneySpinBoxTotal_valueChanged# remainMoney:" << remainMoney
              << " data.money:" << data.money << " totalMoney:" << totalMoney;
 }
 
 void myExchangeFormMoneyUp::on_typeBox_currentIndexChanged(int index) {
     Q_UNUSED(index);
     data.assetData.type = ui->typeBox->currentText();
-    qDebug() << STR("#typeBox_currentIndexChanged -> ") << data.assetData.type << "#";
+    qDebug() << STR("#typeBox_currentIndexChanged -> %1#").arg(data.assetData.type);
 }
 
 void myExchangeFormMoneyUp::on_nameLineEdit_textChanged(const QString &str) {
     data.assetData.assetName = str;
-    qDebug() << STR("#nameLineEdit_textChanged -> ") << data.assetData.assetName << "#";
+    qDebug() << STR("#nameLineEdit_textChanged -> %1 #").arg(data.assetData.assetName);
 }
 
 void myExchangeFormMoneyUp::on_doDividendButton_clicked() {
@@ -233,4 +229,12 @@ void myExchangeFormMoneyUp::on_checkBoxSoldAll_clicked() {
         ui->usedSpinBox->setValue(0.0f);
         return;
     }
+}
+
+void myExchangeFormMoneyUp::on_moneySpinBox_valueChanged(double val) {
+    data.money = val;
+    remainMoney = totalMoney + data.money;
+    ui->moneySpinBoxRemain->setValue(remainMoney);
+    qDebug() << "#moneySpinBox_valueChanged# remainMoney:" << remainMoney
+             << " data.money:" << data.money << " totalMoney:" << totalMoney;
 }

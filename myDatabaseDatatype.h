@@ -11,6 +11,15 @@
 #define OTHER_ASSET     "myOtherAsset"
 #define MONEY_EPS  0.0001f
 
+enum SHOW_CATEGORY {
+    STOCK_CATEGORY        = 0,
+    MONEY_MANAGE_CATEGORY = 1,
+    FUND_CATEGORY         = 2
+};
+
+struct myAssetData;
+int getShowCategory(const myAssetData &tmpAssetHold);
+
 enum BuyAndSell {
     BUY  = 0,
     SELL = 1

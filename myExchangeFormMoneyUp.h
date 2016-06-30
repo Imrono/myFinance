@@ -58,6 +58,8 @@ private slots:
 
     void on_checkBoxSoldAll_clicked();
 
+    void on_moneySpinBox_valueChanged(double val);
+
 private:
     enum OperationType {
         SUBSCRIBING = 0,
@@ -72,7 +74,8 @@ private:
         FROM_RADIO_REDEMING    = 2,
         FROM_KEEPS_ASSET       = 3,
         FROM_REAMIN_ASSET      = 4,
-        FROM_EXCHANGE_ASSET    = 5
+        FROM_EXCHANGE_ASSET    = 5,
+        FROM_FEE_CHANGE        = 6
     };
     const QString updateMoney2String(unsigned source) {
         switch (source) {
@@ -88,6 +91,8 @@ private:
             return "FROM_REAMIN_ASSET     ";
         case FROM_EXCHANGE_ASSET:
             return "FROM_EXCHANGE_ASSET   ";
+        case FROM_FEE_CHANGE:
+            return "FROM_FEE_CHANGE       ";
         default:
             return "unknow";
         }
