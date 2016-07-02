@@ -1,4 +1,5 @@
 ﻿#include "myDatabaseDatatype.h"
+#include <QDebug>
 
 int getShowCategory(const myAssetData &tmpAssetHold) {
     return -1;
@@ -43,6 +44,17 @@ bool myExchangeData::operator ==(const myExchangeData &data) {
     ans = ((money - data.money) < MONEY_EPS)  && ans;
     ans = assetData == data.assetData         && ans;
     return ans;
+}
+void myExchangeData::DEBUG_TRACE() {
+    qDebug() << "data.time "     << time << ","
+             << "data.type "     << exchangeType << ","
+             << "data.accountMoney " << accountMoney << ","
+             << "data.money "    << money << "\n"
+             << "data.account2 " << assetData.accountCode << ","
+             << "data.code "     << assetData.assetCode << ","
+             << "data.name "     << assetData.assetName << ","
+             << "data.amount "   << assetData.amount << ","
+             << "data.price "    << assetData.price;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -1,22 +1,13 @@
-﻿#include "myExchangeFormMoneyUp.h"
-#include "ui_myExchangeFormMoneyUp.h"
-#include "AssetCode2Type.h"
+﻿#include "myExchangeFormFund.h"
+#include "ui_myExchangeFormFund.h"
 
-#include "myFinanceExchangeWindow.h"
-#include "myFinanceMainWindow.h"
-#include "myDividendsDialog_2.h"
-
-myExchangeFormMoneyUp::myExchangeFormMoneyUp(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent) :
-    myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_MONUP, parent),
-    grandparent(static_cast<myFinanceExchangeWindow *>(parent)->getParent()),
-    currentAccount(nullptr), currentAsset(nullptr), caller(-1),
-    totalAssetValue(0.0f), remainAssetValue(0.0f),
-    benefits(0.0f),
-    ui(new Ui::myExchangeFormMoneyUp)
+myExchangeFormFund::myExchangeFormFund(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent, bool isModifyExchange) :
+    myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_STOCK, parent, isModifyExchange),
+    totalAssetValue(0.0f), remainAssetValue(0.0f), currentAccount(nullptr), currentAsset(nullptr),
+    ui(new Ui::myExchangeFormFund)
 {
     ui->setupUi(this);
-
-    data.assetData.amount = 1;
+    ui->netValueSpinBox->setValue(1.0f);
 
     grpOperation = new QButtonGroup(this);
     grpOperation->addButton(ui->radioSubscribing);
@@ -53,18 +44,18 @@ myExchangeFormMoneyUp::myExchangeFormMoneyUp(const myAccountAssetRootNode *rootN
     ui->typeBox->setCurrentIndex(0);
 }
 
-myExchangeFormMoneyUp::~myExchangeFormMoneyUp()
+myExchangeFormFund::~myExchangeFormFund()
 {
     delete ui;
 }
 
-void myExchangeFormMoneyUp::exchangeWindowFeeChanged(double fee) {
-    qDebug() << "$$myExchangeFormMoneyUp::exchangeWindowFeeChanged " << fee << "$$";
+void myExchangeFormFund::exchangeWindowFeeChanged(double fee) {
+    qDebug() << "$$myExchangeFormFund::exchangeWindowFeeChanged " << fee << "$$";
     myExchangeFormTabBase::exchangeWindowFeeChanged(fee);
     ui->moneySpinBox->setValue(getMoneyUsed());
 }
 
-void myExchangeFormMoneyUp::recordExchangeData(myExchangeData &tmpData) {
+void myExchangeFormFund::recordExchangeData(myExchangeData &tmpData) {
     myExchangeFormTabBase::recordExchangeData(tmpData);
 
     if (currentAccount) {
@@ -75,12 +66,12 @@ void myExchangeFormMoneyUp::recordExchangeData(myExchangeData &tmpData) {
     tmpData.assetData.accountCode = data.accountMoney;
     tmpData.assetData.assetCode   = ui->codeLineEdit->text();
     tmpData.assetData.assetName   = ui->nameLineEdit->text();
-    tmpData.assetData.amount      = 1;
+    tmpData.assetData.amount      = data.assetData.amount;
     tmpData.assetData.price       = ui->usedSpinBox->value();
     tmpData.assetData.type        = data.assetData.type;
 }
 
-void myExchangeFormMoneyUp::setUI(const myExchangeData &exchangeData) {
+void myExchangeFormFund::setUI(const myExchangeData &exchangeData) {
     int index = ui->moneyAccount->findText(exchangeData.assetData.accountCode);
     ui->moneyAccount->setCurrentIndex(exchangeIdx2AccountIdx.find(index).value());
     ui->nameLineEdit->setText(exchangeData.assetData.assetCode);
@@ -95,7 +86,7 @@ void myExchangeFormMoneyUp::setUI(const myExchangeData &exchangeData) {
     myExchangeFormTabBase::setUI(exchangeData);
 }
 
-void myExchangeFormMoneyUp::checkAndSetDisable(const myExchangeData &exchangeData) {
+void myExchangeFormFund::checkAndSetDisable(const myExchangeData &exchangeData) {
     setUI(exchangeData);
     if (exchangeData.accountMoney == exchangeData.assetData.accountCode && exchangeData.accountMoney != "")
         ui->moneyAccount->setDisabled(true);
@@ -105,7 +96,119 @@ void myExchangeFormMoneyUp::checkAndSetDisable(const myExchangeData &exchangeDat
         ui->nameLineEdit->setDisabled(true);
 }
 
-void myExchangeFormMoneyUp::on_moneyAccount_currentIndexChanged(int index) {
+void myExchangeFormFund::updateBuySell() {
+    ui->remainSpinBox->setValue(totalAssetValue + getAssetValue());
+    ui->moneySpinBox->setValue(getMoneyUsed());
+}
+void myExchangeFormFund::on_radioSubscribing_clicked() {
+    ui->checkBoxSoldAll->setDisabled(true);
+    buySellFlag = 1.0f;
+    data.exchangeType = STR("认购");
+    setExchangeWindowType(data.exchangeType);
+    data.assetData.amount = buySellFlag*qAbs(data.assetData.amount);
+
+    updateBuySell();
+}
+void myExchangeFormFund::on_radioRedeming_clicked() {
+    ui->checkBoxSoldAll->setEnabled(true);
+    buySellFlag = -1.0f;
+    data.exchangeType = STR("赎回");
+    setExchangeWindowType(data.exchangeType);
+    data.assetData.amount = buySellFlag*qAbs(data.assetData.amount);
+
+    updateBuySell();
+}
+
+void myExchangeFormFund::on_netValueSpinBox_valueChanged(double value) {
+    data.assetData.price = value;
+    double amount = 0.0f;
+    if (currentAsset) {
+        const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(currentAsset);
+        if (data.assetData.assetCode == assetHold.assetData.assetCode) {
+            amount = assetHold.assetData.amount;
+        }
+    }
+
+    ui->keepsSpinBox->setValue(data.assetData.price * amount);
+}
+void myExchangeFormFund::on_keepsSpinBox_valueChanged(double value) {
+    totalAssetValue = value;
+
+    ui->remainSpinBox->setValue(totalAssetValue + getAssetValue());
+}
+void myExchangeFormFund::on_usedSpinBox_valueChanged(double value) {
+    data.assetData.amount = value/data.assetData.price * buySellFlag;
+    qDebug() << STR("#myExchangeFormFund::on_usedSpinBox_valueChanged data.assetData.amount=%1").arg(data.assetData.amount);
+
+    updateBuySell();
+}
+void myExchangeFormFund::on_remainSpinBox_valueChanged(double value) {
+    remainAssetValue = value;
+}
+
+void myExchangeFormFund::on_moneySpinBoxTotal_valueChanged(double value) {
+    totalMoney = value;
+
+    ui->moneySpinBoxRemain->setValue(totalMoney + data.money);
+    qDebug() << "#myExchangeFormFund::moneySpinBoxTotal_valueChanged# remainMoney:" << remainMoney
+             << " data.money:" << data.money << " totalMoney:" << totalMoney;
+}
+void myExchangeFormFund::on_moneySpinBox_valueChanged(double value) {
+    data.money = value;
+
+    ui->moneySpinBoxRemain->setValue(totalMoney + data.money);
+    qDebug() << "#myExchangeFormFund::moneySpinBox_valueChanged# remainMoney:" << remainMoney
+             << " data.money:" << data.money << " totalMoney:" << totalMoney;
+}
+void myExchangeFormFund::on_moneySpinBoxRemain_valueChanged(double value) {
+    remainMoney = value;
+}
+
+void myExchangeFormFund::on_codeLineEdit_textEdited(const QString &str) {
+    data.assetData.assetCode = str;
+
+    currentAsset = nullptr;
+    if (currentAccount) {
+        for (int i = 0; i < currentAccount->children.count(); i++) {
+            const myAssetNode *asset = static_cast<const myAssetNode *>(currentAccount->children.at(i));
+            const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(asset);
+            if (data.assetData.assetCode == assetHold.assetData.assetCode) {
+                currentAsset = asset;
+                break;
+            }
+        }
+    }
+    ui->nameLineEdit->setText(getCurrentAssetName());
+
+    totalAssetValue = getAssetCodeValue(data.assetData.assetCode);
+    ui->keepsSpinBox->setValue(totalAssetValue);
+}
+void myExchangeFormFund::on_nameLineEdit_textChanged(const QString &str) {
+    data.assetData.assetName = str;
+    qDebug() << STR("#nameLineEdit_textChanged -> %1 #").arg(data.assetData.assetName);
+}
+float myExchangeFormFund::getAssetCodeValue(const QString &code) {
+    float total = 0.0f;
+    if (currentAccount) {
+        for (int i = 0; i < currentAccount->children.count(); i++) {
+            const myAssetNode *asset = static_cast<const myAssetNode *>(currentAccount->children.at(i));
+            const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(asset);
+            if (code == assetHold.assetData.assetCode) {
+                total = assetHold.assetData.price * assetHold.assetData.amount;
+                break;
+            }
+        }
+    }
+    return total;
+}
+
+void myExchangeFormFund::on_typeBox_currentIndexChanged(int index) {
+    Q_UNUSED(index);
+    data.assetData.type = ui->typeBox->currentText();
+    qDebug() << STR("#typeBox_currentIndexChanged -> %1#").arg(data.assetData.type);
+}
+
+void myExchangeFormFund::on_moneyAccount_currentIndexChanged(int index) {
     int nodeIdx = exchangeIdx2AccountIdx.find(index).value();
     // data.accountMoney & data.account2 update
     currentAccount = rootNode->getAccountNode(nodeIdx);
@@ -122,129 +225,7 @@ void myExchangeFormMoneyUp::on_moneyAccount_currentIndexChanged(int index) {
     }
 }
 
-void myExchangeFormMoneyUp::updateBuySell() {
-    ui->remainSpinBox->setValue(totalAssetValue + getAssetValue());
-    ui->moneySpinBox->setValue(getMoneyUsed());
-}
-void myExchangeFormMoneyUp::on_radioSubscribing_clicked() {
-    ui->checkBoxSoldAll->setDisabled(true);
-    buySellFlag = 1.0f;
-    data.exchangeType = STR("认购");
-    data.assetData.price = buySellFlag * qAbs(data.assetData.price);
-
-    updateBuySell();
-}
-void myExchangeFormMoneyUp::on_radioRedeming_clicked() {
-    ui->checkBoxSoldAll->setEnabled(true);
-    buySellFlag = -1.0f;
-    data.exchangeType = STR("赎回");
-    setExchangeWindowType(data.exchangeType);
-    data.assetData.price = buySellFlag * qAbs(data.assetData.price);
-
-    updateBuySell();
-}
-
-void myExchangeFormMoneyUp::on_keepsSpinBox_valueChanged(double value) {
-    totalAssetValue = value;
-
-    ui->remainSpinBox->setValue(totalAssetValue + getAssetValue());
-}
-void myExchangeFormMoneyUp::on_usedSpinBox_valueChanged(double value) {
-    data.assetData.price = buySellFlag * qAbs(value);
-
-    updateBuySell();
-}
-void myExchangeFormMoneyUp::on_remainSpinBox_valueChanged(double value) {
-    remainAssetValue = value;
-}
-
-void myExchangeFormMoneyUp::on_moneySpinBoxTotal_valueChanged(double value) {
-    totalMoney = value;
-
-    ui->moneySpinBoxRemain->setValue(totalMoney + data.money);
-    qDebug() << "#myExchangeFormMoneyUp::moneySpinBoxTotal_valueChanged# remainMoney:" << remainMoney
-             << " data.money:" << data.money << " totalMoney:" << totalMoney;
-}
-void myExchangeFormMoneyUp::on_moneySpinBox_valueChanged(double value) {
-    data.money = value;
-
-    ui->moneySpinBoxRemain->setValue(totalMoney + data.money);
-    qDebug() << "#myExchangeFormMoneyUp::moneySpinBox_valueChanged# remainMoney:" << remainMoney
-             << " data.money:" << data.money << " totalMoney:" << totalMoney;
-}
-void myExchangeFormMoneyUp::on_moneySpinBoxRemain_valueChanged(double value) {
-    remainMoney = value;
-}
-
-void myExchangeFormMoneyUp::on_codeLineEdit_textChanged(const QString &str) {
-    data.assetData.assetCode = str;
-
-    currentAsset = nullptr;
-    if (currentAccount) {
-        for (int i = 0; i < currentAccount->children.count(); i++) {
-            const myAssetNode *asset = static_cast<const myAssetNode *>(currentAccount->children.at(i));
-            const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(asset);
-            if (data.assetData.assetCode == assetHold.assetData.assetCode) {
-                currentAsset = asset;
-                break;
-            }
-        }
-    }
-    ui->nameLineEdit->setText(getCurrentAssetName());
-    ui->keepsSpinBox->setValue(getAssetCodeValue(data.assetData.assetCode));
-}
-
-float myExchangeFormMoneyUp::getAssetCodeValue(const QString &code) {
-    float total = 0.0f;
-    if (currentAccount) {
-        for (int i = 0; i < currentAccount->children.count(); i++) {
-            const myAssetNode *asset = static_cast<const myAssetNode *>(currentAccount->children.at(i));
-            const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(asset);
-            if (code == assetHold.assetData.assetCode) {
-                total = assetHold.assetData.price;
-                break;
-            }
-        }
-    }
-    return total;
-}
-
-void myExchangeFormMoneyUp::on_typeBox_currentIndexChanged(int index) {
-    Q_UNUSED(index);
-    data.assetData.type = ui->typeBox->currentText();
-    qDebug() << STR("#typeBox_currentIndexChanged -> %1#").arg(data.assetData.type);
-}
-
-void myExchangeFormMoneyUp::on_nameLineEdit_textChanged(const QString &str) {
-    data.assetData.assetName = str;
-    qDebug() << STR("#nameLineEdit_textChanged -> %1 #").arg(data.assetData.assetName);
-}
-
-void myExchangeFormMoneyUp::on_doDividendButton_clicked() {
-    qDebug() << STR("理财 计算分红 clicked()");
-
-    if (currentAsset) {
-        myDividends divident;
-        const myAssetData &assetHold = GET_CONST_ASSET_NODE_DATA(currentAsset);
-        // 1. 读取分红数据
-        myDividendsDialog_2 dial(GET_CONST_ASSET_NODE_DATA(currentAsset), this);
-        if(dial.exec() != QDialog::Accepted)
-            return;
-        divident = dial.getDividentData();
-
-        // 2. 写入数据库并更新MainWindow
-        grandparent->doDividend(divident, assetHold, true, false);
-
-        // 3. 更新当前界面
-        on_codeLineEdit_textChanged(data.assetData.assetCode);
-
-    } else {
-        qDebug() << "#myExchangeFormMoneyUp::on_doDividendButton_clicked() currentAsset == nullptr#";
-        return;
-    }
-}
-
-void myExchangeFormMoneyUp::on_checkBoxSoldAll_clicked() {
+void myExchangeFormFund::on_checkBoxSoldAll_clicked() {
     if (ui->checkBoxSoldAll->isChecked()) {
         ui->usedSpinBox->setReadOnly(true);
         ui->usedSpinBox->setValue(totalAssetValue);

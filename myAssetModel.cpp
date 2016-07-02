@@ -240,20 +240,20 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
 }
 
 /////////////////////////////////////////////////////////////////////
-bool myAssetModel::doDividend(const myDividends &divident, const myAssetData &nodeAssetData, myExchangeData &exchangeData) {
+bool myAssetModel::doDividend(const myDividends &divident, const myAssetData &assetHold, myExchangeData &exchangeData) {
     qDebug() << "### myAssetModel::doDividend ###";
     float divide = (divident.shareBonus + divident.shareSplit) / static_cast<float>(divident.base);
     float bonse  = divident.capitalBonus / static_cast<float>(divident.base);
     exchangeData.time.setDate(divident.time);
-    exchangeData.accountMoney = nodeAssetData.accountCode;
-    exchangeData.assetData    = nodeAssetData;
+    exchangeData.accountMoney = assetHold.accountCode;
+    exchangeData.assetData    = assetHold;
 
     if (myDividends::INTRESTS == divident.type) {
         exchangeData.money           = 0.0f;
         exchangeData.assetData.price = bonse;
     } else if (myDividends::STOCK_DIVIDEND == divident.type) {
-        exchangeData.money            = bonse * nodeAssetData.amount;
-        exchangeData.assetData.amount = divide * nodeAssetData.amount;
+        exchangeData.money            = bonse * assetHold.amount;
+        exchangeData.assetData.amount = divide * assetHold.amount;
     } else { }
     return doExchange(exchangeData);
 }

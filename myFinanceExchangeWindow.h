@@ -22,7 +22,9 @@
 #include "myExchangeFormIncome.h"
 #include "myExchangeFormExpenses.h"
 #include "myExchangeFormMoneyUp.h"
+#include "myExchangeFormFund.h"
 
+class myFinanceMainWindow;
 namespace Ui {
 class myFinanceExchangeWindow;
 }
@@ -44,6 +46,8 @@ public:
     void setExchangeWindowUiFee(double fee);
     void getCommonExchangeData(myExchangeData &tmpData);
 
+    myFinanceMainWindow *getParent() { return parent;}
+
 private slots:
     void on_tabWidget_currentChanged(int index);
 
@@ -56,6 +60,7 @@ private slots:
 private:
 
     Ui::myFinanceExchangeWindow *ui;
+    myFinanceMainWindow *parent;
     QList<myExchangeFormTabBase *> _myTabs;
     myExchangeFormTabBase *_currentTab;
     QDateTime dateTime;

@@ -287,9 +287,9 @@ void myFinanceTreeVeiwContextMenu::intrests_clicked() {
     qDebug() << STR("右键利息 clicked");
     stockBonus_intrests(true);
 }
-void myFinanceTreeVeiwContextMenu::stockBonus_intrests(bool isIntrest) {
+void myFinanceTreeVeiwContextMenu::stockBonus_intrests(bool isInterest) {
     const myAssetNodeData &holds = GET_CONST_ASSET_NODE_DATA(currentNode);
-    myDividendsDialog dial(holds.assetData, isIntrest, parent);
+    myDividendsDialog dial(holds.assetData, isInterest, parent);
     if(dial.exec() == QDialog::Accepted) {
         myDividends dividendsData = dial.getDividendsData();
         qDebug() << "base" << dividendsData.base
@@ -298,6 +298,6 @@ void myFinanceTreeVeiwContextMenu::stockBonus_intrests(bool isIntrest) {
                  << "capitalBonus" << dividendsData.capitalBonus
                  << "time" << dividendsData.time.toString()
                  << "type" << dividendsData.type;
-        parent->doDividend(dividendsData, holds.assetData, isIntrest);
+        parent->doDividend(dividendsData, holds.assetData, isInterest);
     }
 }

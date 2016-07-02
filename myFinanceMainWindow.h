@@ -29,7 +29,7 @@ public:
     ~myFinanceMainWindow();
 
     void doExchange(const myExchangeUI& uiSetup, bool isSetDisable = false);
-    void doDividend(const myDividends &divident, const myAssetData &dbAssetData, bool isIntrest);
+    void doDividend(const myDividends &divident, const myAssetData &assetHold, bool isInterest, bool isRecordExchange = true);
     myAssetModel *getAssetModel() { return assetModel;}
 
 private slots:

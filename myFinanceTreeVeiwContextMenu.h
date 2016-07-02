@@ -65,7 +65,7 @@ private slots:
     void doUpDown(bool isUp);
     void doExchangeStock(const QString &type);
 
-    void stockBonus_intrests(bool isIntrest);
+    void stockBonus_intrests(bool isInterest);
 };
 
 #endif // MYFINANCETREEVEIWCONTEXTMENU_H

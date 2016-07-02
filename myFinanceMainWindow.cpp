@@ -264,14 +264,16 @@ void myFinanceMainWindow::deleteExchange_clicked() {
     ui->treeView->expandAll();
 }
 
-void myFinanceMainWindow::doDividend(const myDividends &divident, const myAssetData &dbAssetData, bool isIntrest) {
+void myFinanceMainWindow::doDividend(const myDividends &divident, const myAssetData &assetHold, bool isInterest, bool isRecordExchange) {
     myExchangeData exchangeData;
-    if (isIntrest) {
+    if (isInterest) {
         exchangeData.exchangeType = STR("利息");
     } else {
         exchangeData.exchangeType = STR("分红");
     }
-    assetModel->doDividend(divident, dbAssetData, exchangeData);
-    exchangeModel->doExchange(exchangeData);
+    assetModel->doDividend(divident, assetHold, exchangeData);
+    if (isRecordExchange)
+        exchangeModel->doExchange(exchangeData);
+
     ui->treeView->expandAll();
 }

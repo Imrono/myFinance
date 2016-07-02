@@ -10,7 +10,7 @@
 #include <QtDebug>
 
 myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchangeUI &exchangeUI, bool isPartial, bool isModifyExchange) :
-    QDialog(parent), ui(new Ui::myFinanceExchangeWindow),
+    QDialog(parent), ui(new Ui::myFinanceExchangeWindow), parent(static_cast<myFinanceMainWindow *>(parent)),
     isRollback(false), stockCode(myStockCodeName::getInstance()),
     _currentTab(nullptr), dataSource(0)
 {
@@ -36,6 +36,7 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
     if (myExchangeUI::MAX_TAB_COUNT == exchangeUI.getNumOfTabs()) {
         _myTabs.append(new myExchangeFormStock   (rootNode, STR("证券交易"), this));
         _myTabs.append(new myExchangeFormMoneyUp (rootNode, STR("理财")    , this));
+        _myTabs.append(new myExchangeFormFund    (rootNode, STR("基金")    , this));
         _myTabs.append(new myExchangeFormTransfer(rootNode, STR("转帐")    , this));
         _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
         _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
@@ -50,7 +51,7 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
             _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_EXPES)
             _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
-        if (exchangeUI.getTabType() == myExchangeUI::TAB_FUNDS)
+        if (exchangeUI.getTabType() == myExchangeUI::TAB_MONUP)
             _myTabs.append(new myExchangeFormExpenses(rootNode, STR("理财")    , this));
         if (_myTabs.count() == 0) {
             qDebug() << "ERROR: NO TAB IS ADDED";

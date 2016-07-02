@@ -47,6 +47,7 @@ struct myAssetNodeData;
 struct myAccountData {
     myAccountData();
     myAccountData(myAccountNodeData data);
+    void DEBUG_TRACE();
     QString code;
     QString name;
     QString type;
@@ -61,6 +62,7 @@ struct myAssetData {
     myAssetData operator +(const myAssetData &data);
     void reset();
     void initMoneyAsset(const QString &accountCode, const float money);
+    void DEBUG_TRACE();
 
     QString accountCode;
     QString assetCode;
@@ -71,14 +73,15 @@ struct myAssetData {
     static bool isSameAssetData(const myAssetData &data1, const myAssetData &data2);
 };
 
-Q_DECLARE_METATYPE(myAccountData)
-Q_DECLARE_METATYPE(myAssetData)
+//Q_DECLARE_METATYPE(myAccountData)
+//Q_DECLARE_METATYPE(myAssetData)
 
 struct myExchangeData {
     myExchangeData();
     myExchangeData operator -();
     myExchangeData &operator =(const myExchangeData &data);
     bool operator ==(const myExchangeData &data);
+    void DEBUG_TRACE();
 
     int       id;
     QDateTime time;
@@ -101,8 +104,9 @@ public:
         TAB_TRANS = 1,
         TAB_INCOM = 2,
         TAB_EXPES = 3,
-        TAB_FUNDS = 4,
-        MAX_TAB_COUNT = 5
+        TAB_MONUP = 4,
+        TAB_FUNDS = 5,
+        MAX_TAB_COUNT = 6
     };
 
     myExchangeUI() {
@@ -137,6 +141,8 @@ private:
         } else if (data.exchangeType == STR("支出")) {
             tabType = myExchangeUI::TAB_EXPES;
         } else if (data.exchangeType == STR("理财")) {
+            tabType = myExchangeUI::TAB_MONUP;
+        } else if (data.exchangeType == STR("基金")) {
             tabType = myExchangeUI::TAB_FUNDS;
         } else {
             tabType = myExchangeUI::TAB_NONE;
@@ -148,7 +154,8 @@ struct myDividends {
     enum dividendType {
         UNSPECIFIED    = -1,
         STOCK_DIVIDEND = 0,
-        INTRESTS       = 1
+        INTRESTS       = 1,
+        NO_RECORD      = 2
     };
 
     myDividends();

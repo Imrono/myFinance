@@ -3,7 +3,7 @@
 
 myExchangeFormTabBase::myExchangeFormTabBase(const myAccountAssetRootNode *rootNode, QString tabName, int tabType, QWidget *parent, bool isModifyExchange)
     : parent(static_cast<myFinanceExchangeWindow *>(parent)), QWidget(parent), tabType(tabType),
-      isModifyExchange(isModifyExchange),
+      isModifyExchange(isModifyExchange), totalMoney(0.0f), remainMoney(0.0f),
       usedMoneyBeforeModify(0.0f), usedFeeBeforeModify(0.0f),
       rootNode(rootNode), tabName(tabName)
 {
@@ -57,17 +57,4 @@ float myExchangeFormTabBase::getTotalMoney(int index) {
 
 const myExchangeData &myExchangeFormTabBase::getExchangeData() {
     return data;
-}
-
-void myExchangeFormTabBase::traceExchangeData() {
-    qDebug() << "##CURRENT TAB: " << tabName << "##";
-    qDebug() << "data.time "     << data.time << ","
-             << "data.type "     << data.exchangeType << ","
-             << "data.accountMoney " << data.accountMoney << ","
-             << "data.money "    << data.money << "\n"
-             << "data.account2 " << data.assetData.accountCode << ","
-             << "data.code "     << data.assetData.assetCode << ","
-             << "data.name "     << data.assetData.assetName << ","
-             << "data.amount "   << data.assetData.amount << ","
-             << "data.price "    << data.assetData.price;
 }

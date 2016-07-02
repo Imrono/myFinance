@@ -36,10 +36,8 @@ private:
     ///DATA
     const myStockCodeName *stockCode;
     QMap<int, int> exchangeIdx2AccountIdx;
-    double buySellFlag;
     double commisionRate;
-    float remainMoney;
-    float totalMoney;
+
     float bonusTax;
     const myAccountNode *currentAccount;
 

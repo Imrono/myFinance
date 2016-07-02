@@ -5,6 +5,7 @@
 
 #include "myExchangeFormTabBase.h"
 
+class myFinanceMainWindow;
 namespace Ui {
 class myExchangeFormMoneyUp;
 }
@@ -41,14 +42,14 @@ private slots:
     void on_radioRedeming_clicked();
 
     void on_keepsSpinBox_valueChanged(double value);
-
+    void on_usedSpinBox_valueChanged(double value);
     void on_remainSpinBox_valueChanged(double value);
 
-    void on_usedSpinBox_valueChanged(double value);
+    void on_moneySpinBoxTotal_valueChanged(double value);
+    void on_moneySpinBox_valueChanged(double value);
+    void on_moneySpinBoxRemain_valueChanged(double value);
 
     void on_codeLineEdit_textChanged(const QString &str);
-
-    void on_moneySpinBoxTotal_valueChanged(double value);
 
     void on_typeBox_currentIndexChanged(int index);
 
@@ -57,8 +58,6 @@ private slots:
     void on_doDividendButton_clicked();
 
     void on_checkBoxSoldAll_clicked();
-
-    void on_moneySpinBox_valueChanged(double val);
 
 private:
     enum OperationType {
@@ -103,6 +102,7 @@ private:
         REMAIN_TYPE = 1
     };
 
+    myFinanceMainWindow *grandparent;
     Ui::myExchangeFormMoneyUp *ui;
 
     QButtonGroup *grpOperation;
@@ -111,17 +111,16 @@ private:
 
     ///DATA
     QMap<int, int> exchangeIdx2AccountIdx;
-    float buySellFlag;  //buy 1.0, sell -1.0
     float remainAssetValue;
     float totalAssetValue;
 
-    float totalMoney;
-    float remainMoney;
     const myAccountNode *currentAccount;
     const myAssetNode   *currentAsset;
 
     int benefitIdx;
     float benefits;
+
+    void updateBuySell();
 };
 
 #endif // MYEXCHANGEFORMMONEYUP_H

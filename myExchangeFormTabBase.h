@@ -33,18 +33,25 @@ protected:
     void setExchangeWindowFee(double fee);
 
     float getTotalMoney(int index);
-
-    void traceExchangeData();
+    float getAssetValue() {
+        return data.assetData.amount*data.assetData.price;
+    }
+    float getMoneyUsed() {
+        return -data.assetData.amount*data.assetData.price - data.fee;
+    }
 
     /// DATA
     bool isModifyExchange;
 
     myFinanceExchangeWindow *parent;
     const myAccountAssetRootNode *rootNode;
-    myExchangeData data;
     int tabType;
-
     QString tabName;
+
+    myExchangeData data;
+    float buySellFlag;  //buy 1.0, sell -1.0
+    float totalMoney;
+    float remainMoney;
 
     /// MODIFY DATA
     float usedMoneyBeforeModify;

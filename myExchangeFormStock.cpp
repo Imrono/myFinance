@@ -4,8 +4,7 @@
 
 myExchangeFormStock::myExchangeFormStock(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent, bool isModifyExchange) :
     myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_STOCK, parent, isModifyExchange),
-    stockCode(myStockCodeName::getInstance()),
-    totalMoney(0.0f), remainMoney(0.0f), isShowRemainStock(true),
+    stockCode(myStockCodeName::getInstance()), isShowRemainStock(true),
     currentAccount(nullptr), bonusTax(0.0f),
     ui(new Ui::myExchangeFormStock)
 {
