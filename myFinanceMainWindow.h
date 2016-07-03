@@ -59,6 +59,16 @@ private:
     QAction *modifyExchange;
     QAction *deleteExchange;
 
+    // mainToolBar
+    QAction *exchange;
+    QAction *newAccount;
+    QAction *reflashData;
+    QAction *updatePrice;
+
+    // statusBar
+    QString statueStr_1;
+    QString statueStr_2;
+
 private slots:
     void priceDataReflashed();
     void codeDataReady();

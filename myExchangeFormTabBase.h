@@ -37,6 +37,8 @@ protected:
         return data.assetData.amount*data.assetData.price;
     }
     float getMoneyUsed() {
+        /// data.assetData.amount 卖出为'-'，买入为'+'
+        /// data.money            卖出为'+'，买入为'-'
         return -data.assetData.amount*data.assetData.price - data.fee;
     }
 

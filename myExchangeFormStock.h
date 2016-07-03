@@ -46,12 +46,6 @@ private:
     void updateMarketInfo();
     void updateExchangeFee();
 
-    float calcMoney() {
-        /// data.assetData.amount 卖出为'-'，买入为'+'
-        /// data.money            卖出为'+'，买入为'-'
-        return -static_cast<float>(data.assetData.amount) * data.assetData.price - data.fee - bonusTax;
-    }
-
 private slots:
     void on_codeLineEdit_textEdited(const QString &str);
     void on_nameLineEdit_textChanged(const QString &name);

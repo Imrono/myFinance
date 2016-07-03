@@ -26,7 +26,7 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     //ui->treeView->header()->resizeSections(QHeaderView::ResizeToContents);
     ui->treeView->header()->resizeSections(QHeaderView::Fixed);
     ui->treeView->header()->resizeSection(0, 180);
-    ui->treeView->header()->resizeSection(1, 90);
+    ui->treeView->header()->resizeSection(1, 100);
     ui->treeView->header()->resizeSection(2, 50);
     ui->treeView->expandAll();
 
@@ -38,11 +38,12 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     ui->statusBar->addWidget(&statusLabel);
     if (!stockCode->getIsDataReady()) { //正在更新
         ui->reflash->setEnabled(false);
-        statusLabel.setText(STR("正在读取股票代码"));
+        statueStr_1 = STR("正在读取股票代码");
     } else {
         ui->reflash->setEnabled(true);
-        statusLabel.setText("ready");
+        statueStr_1 = STR("股票代码获取成功");
     }
+    statusLabel.setText(statueStr_1+statueStr_2);
 
     /// treeView
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -64,6 +65,23 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listView, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(listViewContextMenu(const QPoint&)));
+
+    // mainToolBar
+    exchange = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myExchange.png"), STR("资产变化"), this);
+    connect(exchange, SIGNAL(triggered()), this, SLOT(on_exchange_clicked()));
+    ui->mainToolBar->addAction(exchange);
+
+    newAccount = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myNewAccount.png"), STR("新建帐户"), this);
+    connect(newAccount, SIGNAL(triggered()), this, SLOT(on_new_account_clicked()));
+    ui->mainToolBar->addAction(newAccount);
+
+    reflashData = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myReflashData.png"), STR("刷新"), this);
+    connect(reflashData, SIGNAL(triggered()), this, SLOT(on_reflash_clicked()));
+    ui->mainToolBar->addAction(reflashData);
+
+    updatePrice = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myUpdatePrice.png"), STR("更新价格"), this);;
+    connect(updatePrice, SIGNAL(triggered()), this, SLOT(on_updatePrice_clicked()));
+    ui->mainToolBar->addAction(updatePrice);
 }
 
 myFinanceMainWindow::~myFinanceMainWindow()
@@ -79,26 +97,12 @@ myFinanceMainWindow::~myFinanceMainWindow()
     }
 }
 
-void myFinanceMainWindow::priceDataReflashed() {
-    ui->treeView->header()->resizeSection(0, 180);
-    ui->treeView->header()->resizeSection(1, 90);
-    ui->treeView->header()->resizeSection(2, 50);
-
-    ui->treeView->expandAll();
-    ui->dateTimePrice->setDateTime(QDateTime::currentDateTime());
-    float totalAsset = assetModel->doGetTotalAsset();
-    QString strAsset = QString::number(totalAsset, 'f', 2);
-    ui->lineEditTotalAsset->setText(strAsset);
-    float securityAsset = assetModel->doGetSecurityAsset();
-    strAsset = QString::number(securityAsset, 'f', 2);
-    ui->lineEditSecurity->setText(strAsset);
-    qDebug() << STR("价格更新 finished");
-}
 void myFinanceMainWindow::codeDataReady() {
     if (stockCode->getIsDataReady()) {
         ui->reflash->setEnabled(true);
     }
-    statusLabel.setText("ready");
+    statueStr_1 = STR("股票代码获取成功");
+    statusLabel.setText(statueStr_1+statueStr_2);
 }
 
 void myFinanceMainWindow::on_exchange_clicked()
@@ -162,7 +166,26 @@ void myFinanceMainWindow::on_updatePrice_clicked()
     ui->treeView->expandAll();
     qDebug() << STR("更新价格 clicked assetModel->doUpdatePrice requested");
 }
+void myFinanceMainWindow::priceDataReflashed() {
+    ui->treeView->header()->resizeSection(0, 180);
+    ui->treeView->header()->resizeSection(1, 100);
+    ui->treeView->header()->resizeSection(2, 50);
 
+    ui->treeView->expandAll();
+    QDateTime dateTime = QDateTime::currentDateTime();
+    ui->dateTimePrice->setDateTime(dateTime);
+    float totalAsset = assetModel->doGetTotalAsset();
+    QString strTotalAsset = QString::number(totalAsset, 'f', 2);
+    ui->lineEditTotalAsset->setText(strTotalAsset);
+    float securityAsset = assetModel->doGetSecurityAsset();
+    QString strSecurityAsset = QString::number(securityAsset, 'f', 2);
+    ui->lineEditSecurity->setText(strSecurityAsset);
+    statueStr_2 = STR("<b>【更新时间：%1●总资产：%2●证券账户：%3】</b>")
+            .arg(dateTime.toString(STR("yyyy-MM-dd hh:mm:ss")))
+            .arg(strSecurityAsset).arg(strSecurityAsset);
+    statusLabel.setText(statueStr_1+statueStr_2);
+    qDebug() << STR("价格更新 finished") << statueStr_2;
+}
 ///////////////////////////////////////////////////////////////////////////////////////////
 /// treeView的右键菜单
 void myFinanceMainWindow::treeViewContextMenuSlot(const QPoint& pt) {

@@ -103,12 +103,17 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                 return QVariant();
             case myIndexShell::nodeHolds: {
                 const myAssetNodeData &assetHold = GET_ASSET_NODE_DATA(node);
-                if (assetHold.assetData.assetCode == "cash" || assetHold.assetData.type == STR("货币基金")) {
+                if (assetHold.assetData.assetCode == MY_CASH || assetHold.assetData.type == STR("货币基金")) {
                     QString strPrice = QString::number(assetHold.assetData.price, 'f', 2);
                     return QString("%1").arg(strPrice);
                 } else {
                     QString strPrice  = QString::number(assetHold.assetData.price,  'f', 3);
-                    QString strAmount = QString::number(assetHold.assetData.amount, 'f', 2);
+                    QString strAmount;
+                    if (assetHold.assetData.type == STR("股票")) {
+                        strAmount = QString::number(assetHold.assetData.amount, 'f', 0);
+                    } else {
+                        strAmount = QString::number(assetHold.assetData.amount, 'f', 2);
+                    }
                     return QString("%1@%2").arg(strAmount).arg(strPrice);
                 }
             }
@@ -230,9 +235,10 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
     QMap<QString, sinaRealTimeData>::const_iterator it = priceMap->find(assetCode);
     float currentPrice = 0.0f;
     while (it != priceMap->end() && it.key() == assetCode) {
-        currentPrice = it.value().price;
-        if (currentPrice < 0.0001f) {
+        if (currentPrice < MONEY_EPS) {
             currentPrice = it.value().lastClose;
+        } else {
+            currentPrice = it.value().price;
         }
         ++it;
     }
@@ -344,12 +350,9 @@ float myAssetModel::doGetTotalAsset() {
             const myAccountNode *tmpAccount = root.getAccountNode(i);
             for (int j = 0; j < tmpAccount->children.count(); j++) {
                 const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(tmpAccount->children.at(j));
-                if (assetHold.assetData.assetCode == "cash" ) {
-                    totalValue += assetHold.assetData.price;
-                } else if (assetHold.assetData.type == STR("货币基金")) {
+                if (assetHold.assetData.assetCode == MY_CASH || assetHold.assetData.type == STR("货币基金")) {
                     totalValue += assetHold.assetData.price * assetHold.assetData.amount;
-                }
-                else {
+                } else {
                     float price = currentPrice(stockPrice.getStockPriceRt(), assetHold.assetData.assetCode);
                     totalValue += static_cast<float>(assetHold.assetData.amount) * price;
                 }
@@ -368,11 +371,11 @@ float myAssetModel::doGetSecurityAsset() {
             for (int j = 0; j < tmpAccount->children.count(); j++) {
                 if (GET_CONST_ACCOUNT_NODE_DATA(tmpAccount).accountData.type == STR("券商")) {
                     const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(tmpAccount->children.at(j));
-                    if (assetHold.assetData.assetCode == "cash" ) {
+                    if (assetHold.assetData.assetCode == MY_CASH ) {
                         securityAsset += assetHold.assetData.price;
                     } else {
                         float price = currentPrice(stockPrice.getStockPriceRt(), assetHold.assetData.assetCode);
-                        securityAsset += static_cast<float>(assetHold.assetData.amount) * price;
+                        securityAsset += price * assetHold.assetData.amount;
                     }
                 }
             }

@@ -70,10 +70,10 @@ void myExchangeFormStock::recordExchangeData(myExchangeData &tmpData) {
 
     tmpData.assetData.accountCode = data.accountMoney;
     tmpData.assetData.assetCode   = ui->codeLineEdit->text();
-    if (data.assetData.assetCode == "cash") {
+    if (data.assetData.assetCode == MY_CASH) {
         tmpData.assetData.amount = 1;
     } else {
-        tmpData.assetData.amount = ui->amountLineEdit->text().toInt() * -buySellFlag;
+        tmpData.assetData.amount = ui->amountLineEdit->text().toInt() * buySellFlag;
     }
     tmpData.assetData.price     = ui->spinBoxPrice->text().toDouble();
     tmpData.assetData.assetName = ui->nameLineEdit->text();
@@ -112,18 +112,16 @@ void myExchangeFormStock::checkAndSetDisable(const myExchangeData &exchangeData)
 }
 
 void myExchangeFormStock::updateBuySell() {
-    buySellFlag = grpBuySell->checkedId() == SELL ? 1.0f : -1.0f;
-    data.assetData.amount = -buySellFlag*qAbs(data.assetData.amount);
+    data.assetData.amount = buySellFlag*qAbs(data.assetData.amount);
 
     // market, price, amount, fee 决定 money
     // market, price*amount, buy/sell 决定 fee
     if (grpMarket->checkedId() != OTHER) {
         updateExchangeFee();
     }
-    ui->moneySpinBox->setValue(calcMoney());
+    ui->moneySpinBox->setValue(getMoneyUsed() - bonusTax);
 
-    qDebug() << "#updateBuySell# data.buySell " << (grpBuySell->checkedId() == BUY ? "BUY" : "SELL") << ","
-             << "data.amount " << data.assetData.amount << ","
+    qDebug() << "data.amount " << data.assetData.amount << ","
              << "data.money "  << data.money  << ",";
 }
 
@@ -303,12 +301,14 @@ void myExchangeFormStock::on_spinBoxPrice_valueChanged(double value) {
 
 void myExchangeFormStock::on_radioBuy_clicked() {
     qDebug() << "#radioBuy_clicked#";
+    buySellFlag = 1.0f;
     updateBuySell();
     data.exchangeType = STR("证券买入");
     setExchangeWindowType(data.exchangeType);
 }
 void myExchangeFormStock::on_radioSell_clicked() {
     qDebug() << "#radioSell_clicked#";
+    buySellFlag = -1.0f;
     updateBuySell();
     data.exchangeType = STR("证券卖出");
     setExchangeWindowType(data.exchangeType);
@@ -350,7 +350,7 @@ void myExchangeFormStock::on_moneyAccount_currentIndexChanged(int index) {
     qDebug() << STR("佣金") << commisionRate;
     // 4. fee & money
     updateExchangeFee();
-    ui->moneySpinBox->setValue(calcMoney());
+    ui->moneySpinBox->setValue(getMoneyUsed() - bonusTax);
 }
 void myExchangeFormStock::on_moneySpinBox_valueChanged(double value) {
     data.money = value;
@@ -363,7 +363,7 @@ void myExchangeFormStock::on_moneySpinBox_valueChanged(double value) {
 void myExchangeFormStock::exchangeWindowFeeChanged(double fee) {
     qDebug() << "$$myExchangeFormStock::exchangeWindowFeeChanged " << fee << "$$";
     myExchangeFormTabBase::exchangeWindowFeeChanged(fee);
-    ui->moneySpinBox->setValue(calcMoney());
+    ui->moneySpinBox->setValue(getMoneyUsed() - bonusTax);
 }
 
 void myExchangeFormStock::on_nameLineEdit_textChanged(const QString &name) {

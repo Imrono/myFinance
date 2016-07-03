@@ -13,7 +13,16 @@
     <qresource prefix="/SplashScreen">
         <file>resource/SplashScreen/gold10years.jpg</file>
     </qresource>
-    <qresource prefix="/">
+    <qresource prefix="/icon/exchangeTab">
         <file>resource/icon/exchangeTab/mySecurity.png</file>
+        <file>resource/icon/exchangeTab/myFund.png</file>
+        <file>resource/icon/exchangeTab/myMoneyUp.png</file>
+        <file>resource/icon/exchangeTab/myTransfer.png</file>
+    </qresource>
+    <qresource prefix="/icon/toolBar">
+        <file>resource/icon/toolBar/myExchange.png</file>
+        <file>resource/icon/toolBar/myNewAccount.png</file>
+        <file>resource/icon/toolBar/myReflashData.png</file>
+        <file>resource/icon/toolBar/myUpdatePrice.png</file>
     </qresource>
 </RCC>

@@ -159,6 +159,11 @@ struct myDividends {
     };
 
     myDividends();
+    QString toString() {
+        return STR("时间：%1，转：%2，送：%3，派：%4，基数：%5，类型：%6").arg(time.toString())
+                .arg(shareSplit).arg(shareBonus).arg(capitalBonus).arg(base).arg(type);
+    }
+
     QDate time;
     float shareSplit;
     float shareBonus;

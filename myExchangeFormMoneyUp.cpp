@@ -131,6 +131,8 @@ void myExchangeFormMoneyUp::on_radioSubscribing_clicked() {
     buySellFlag = 1.0f;
     data.exchangeType = STR("认购");
     data.assetData.price = buySellFlag * qAbs(data.assetData.price);
+    ui->checkBoxSoldAll->setChecked(false);
+    ui->usedSpinBox->setReadOnly(false);
 
     updateBuySell();
 }
@@ -231,13 +233,15 @@ void myExchangeFormMoneyUp::on_doDividendButton_clicked() {
         if(dial.exec() != QDialog::Accepted)
             return;
         divident = dial.getDividentData();
+        qDebug() << divident.toString();
 
+#if 0
         // 2. 写入数据库并更新MainWindow
         grandparent->doDividend(divident, assetHold, true, false);
 
         // 3. 更新当前界面
         on_codeLineEdit_textChanged(data.assetData.assetCode);
-
+#endif
     } else {
         qDebug() << "#myExchangeFormMoneyUp::on_doDividendButton_clicked() currentAsset == nullptr#";
         return;

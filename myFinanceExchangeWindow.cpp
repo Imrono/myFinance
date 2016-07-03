@@ -38,8 +38,8 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
         _myTabs.append(new myExchangeFormMoneyUp (rootNode, STR("理财")    , this));
         _myTabs.append(new myExchangeFormFund    (rootNode, STR("基金")    , this));
         _myTabs.append(new myExchangeFormTransfer(rootNode, STR("转帐")    , this));
-        _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
-        _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
+        //_myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
+        //_myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
         _currentTab = _myTabs[dataSource];
         _currentTab->recoverTypeAndFee();
     } else if (1 == exchangeUI.getNumOfTabs()) {
@@ -47,10 +47,10 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
             _myTabs.append(new myExchangeFormStock   (rootNode, STR("证券交易"), this, isModifyExchange));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_TRANS)
             _myTabs.append(new myExchangeFormTransfer(rootNode, STR("转帐")    , this, isModifyExchange));
-        if (exchangeUI.getTabType() == myExchangeUI::TAB_INCOM)
-            _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
-        if (exchangeUI.getTabType() == myExchangeUI::TAB_EXPES)
-            _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
+        //if (exchangeUI.getTabType() == myExchangeUI::TAB_INCOM)
+        //    _myTabs.append(new myExchangeFormIncome  (rootNode, STR("收入")    , this));
+        //if (exchangeUI.getTabType() == myExchangeUI::TAB_EXPES)
+        //    _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_MONUP)
             _myTabs.append(new myExchangeFormExpenses(rootNode, STR("理财")    , this));
         if (_myTabs.count() == 0) {
@@ -67,7 +67,16 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
     for (int i = 0; i < _myTabs.count(); i++) {
         _myTabs[i]->setDateTime(dateTime);
         if (STR("证券交易") == _myTabs[i]->getTabText()) {
-            QIcon icon(STR(":/resource/icon/exchangeTab/mySecurity.png"));
+            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/mySecurity.png"));
+            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
+        } else if (STR("理财") == _myTabs[i]->getTabText()) {
+            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/myMoneyUp.png"));
+            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
+        } else if (STR("基金") == _myTabs[i]->getTabText()) {
+            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/myFund.png"));
+            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
+        } else if (STR("转帐") == _myTabs[i]->getTabText()) {
+            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/myTransfer.png"));
             ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
         } else {
             ui->tabWidget->addTab(_myTabs[i], _myTabs[i]->getTabText());

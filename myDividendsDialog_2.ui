@@ -66,6 +66,9 @@
         <property name="readOnly">
          <bool>true</bool>
         </property>
+        <property name="maximum">
+         <double>999999990000.000000000000000</double>
+        </property>
        </widget>
       </item>
       <item>
@@ -92,6 +95,9 @@
        <widget class="QDoubleSpinBox" name="originalRemainSpinBox">
         <property name="readOnly">
          <bool>true</bool>
+        </property>
+        <property name="maximum">
+         <double>9999999990000.000000000000000</double>
         </property>
        </widget>
       </item>
@@ -132,7 +138,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="dividentTotalSpinBox"/>
+       <widget class="QDoubleSpinBox" name="dividentTotalSpinBox">
+        <property name="maximum">
+         <double>9999999999000.000000000000000</double>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="horizontalSpacer_2">
@@ -155,7 +165,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="dividentRemainSpinBox"/>
+       <widget class="QDoubleSpinBox" name="dividentRemainSpinBox">
+        <property name="maximum">
+         <double>99999999999900.000000000000000</double>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
