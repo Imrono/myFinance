@@ -26,6 +26,9 @@ struct myAccountNodeData {
     myAccountNodeData() {}
     myAccountNodeData(const myAccountData &data)
         : accountData(data) {}
+    QString toString() {
+        return STR("");
+    }
 
     myAccountData accountData;
     QString logo;
@@ -35,6 +38,9 @@ struct myAssetNodeData {
     myAssetNodeData() {}
     myAssetNodeData(const myAssetData &data)
         : assetData(data) {}
+    QString toString() {
+        return STR("");
+    }
 
     myAssetData assetData;
     float currentPrice;
@@ -43,6 +49,10 @@ struct myAssetNodeData {
 };
 struct myRootNodeData {
     myRootNodeData() : numOfAccount(0) {}
+    QString toString() {
+        return STR("");
+    }
+
     int numOfAccount;
 };
 

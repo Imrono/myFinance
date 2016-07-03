@@ -48,6 +48,10 @@ struct myAccountData {
     myAccountData();
     myAccountData(myAccountNodeData data);
     void DEBUG_TRACE();
+    QString toString() {
+        return STR("");
+    }
+
     QString code;
     QString name;
     QString type;
@@ -63,6 +67,9 @@ struct myAssetData {
     void reset();
     void initMoneyAsset(const QString &accountCode, const float money);
     void DEBUG_TRACE();
+    QString toString() {
+        return STR("");
+    }
 
     QString accountCode;
     QString assetCode;
@@ -82,6 +89,9 @@ struct myExchangeData {
     myExchangeData &operator =(const myExchangeData &data);
     bool operator ==(const myExchangeData &data);
     void DEBUG_TRACE();
+    QString toString() {
+        return STR("");
+    }
 
     int       id;
     QDateTime time;
@@ -123,6 +133,9 @@ public:
     int getTabType() const { return tabType;}
     bool getIsShowRollback() const { return isShowRollback;}
     const myExchangeData &getExchangeData() const { return exchangeData;}
+    QString toString() {
+        return STR("");
+    }
 
 private:
     int numOfTabs;
