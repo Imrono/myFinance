@@ -70,6 +70,7 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     exchange = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myExchange.png"), STR("资产变化"), this);
     connect(exchange, SIGNAL(triggered()), this, SLOT(on_exchange_clicked()));
     ui->mainToolBar->addAction(exchange);
+    ui->mainToolBar->addSeparator();
 
     newAccount = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myNewAccount.png"), STR("新建帐户"), this);
     connect(newAccount, SIGNAL(triggered()), this, SLOT(on_new_account_clicked()));
