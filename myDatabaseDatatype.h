@@ -47,9 +47,9 @@ struct myAssetNodeData;
 struct myAccountData {
     myAccountData();
     myAccountData(myAccountNodeData data);
-    void DEBUG_TRACE();
     QString toString() {
-        return STR("");
+        return STR("*myAccountData* code:%1;name:%2;type:%3;note:%4")
+                .arg(code).arg(name).arg(type).arg(note);
     }
 
     QString code;
@@ -66,9 +66,11 @@ struct myAssetData {
     myAssetData operator +(const myAssetData &data);
     void reset();
     void initMoneyAsset(const QString &accountCode, const float money);
-    void DEBUG_TRACE();
     QString toString() {
-        return STR("");
+        return STR("*myAssetData* accountCode:%1;assetCode:%2;assetName:%3;"
+                   "amount:%4;price:%5;type:%6")
+                .arg(accountCode).arg(assetCode).arg(assetName)
+                .arg(amount).arg(price).arg(type);
     }
 
     QString accountCode;
@@ -80,17 +82,15 @@ struct myAssetData {
     static bool isSameAssetData(const myAssetData &data1, const myAssetData &data2);
 };
 
-//Q_DECLARE_METATYPE(myAccountData)
-//Q_DECLARE_METATYPE(myAssetData)
-
 struct myExchangeData {
     myExchangeData();
     myExchangeData operator -();
     myExchangeData &operator =(const myExchangeData &data);
     bool operator ==(const myExchangeData &data);
-    void DEBUG_TRACE();
     QString toString() {
-        return STR("");
+        return STR("*myExchangeData* id:%1;time:%2;fee:%3;accountMoney:%4;money:%5;%6;exchangeType:%7")
+                .arg(id).arg(time.toString()).arg(fee).arg(accountMoney).arg(money)
+                .arg(assetData.toString()).arg(exchangeType);
     }
 
     int       id;
@@ -134,7 +134,9 @@ public:
     bool getIsShowRollback() const { return isShowRollback;}
     const myExchangeData &getExchangeData() const { return exchangeData;}
     QString toString() {
-        return STR("");
+        return STR("*myExchangeUI* numOfTabs:%1;tabType:%2;isShowRollback:%3;%4")
+                .arg(numOfTabs).arg(tabType).arg(isShowRollback)
+                .arg(exchangeData.toString());
     }
 
 private:

@@ -23,11 +23,12 @@
 
 
 struct myAccountNodeData {
-    myAccountNodeData() {}
+    myAccountNodeData() : pos(-1) {}
     myAccountNodeData(const myAccountData &data)
-        : accountData(data) {}
+        : accountData(data), pos(-1) {}
     QString toString() {
-        return STR("");
+        return STR("*myAccountData* %1;logo:%2;pos:%3")
+                .arg(accountData.toString()).arg(logo).arg(pos);
     }
 
     myAccountData accountData;
@@ -35,11 +36,13 @@ struct myAccountNodeData {
     int pos;
 };
 struct myAssetNodeData {
-    myAssetNodeData() {}
+    myAssetNodeData()
+        : currentPrice(0.0f), pos(-1), category(0) {}
     myAssetNodeData(const myAssetData &data)
-        : assetData(data) {}
+        : currentPrice(0.0f), pos(-1), category(0), assetData(data) {}
     QString toString() {
-        return STR("");
+        return STR("*myAssetNodeData* %1;currentPrice:%2;pos:%3;category::%4")
+                .arg(assetData.toString()).arg(currentPrice).arg(pos).arg(category);
     }
 
     myAssetData assetData;
@@ -50,7 +53,7 @@ struct myAssetNodeData {
 struct myRootNodeData {
     myRootNodeData() : numOfAccount(0) {}
     QString toString() {
-        return STR("");
+        return STR("*myRootNodeData* numOfAccount:%1").arg(numOfAccount);
     }
 
     int numOfAccount;
@@ -85,7 +88,8 @@ public:
         nodeAccount = 0,
         nodeHolds   = 1,
         nodeRoot    = 2
-    };
+    } type;
+
     myIndexShell() : parent(nullptr) {}
     myIndexShell(nodeType type, myIndexShell *parent)
         : type(type), parent(parent) {}
@@ -96,9 +100,6 @@ public:
     void addChild(myIndexShell *childNode) {
         children.append(childNode);
     }
-
-//private:
-    nodeType type;
 };
 class myRootNode : public myIndexShell {
 public:
@@ -125,10 +126,6 @@ public:
 /// 2. sort the data
 ///
 class myAccountAssetRootNode {
-    friend class myIndexShell;
-    friend class myRootNode;
-    friend class myAccountNode;
-    friend class myAssetNode;
 public:
     myAccountAssetRootNode()
         : rootNode(myIndexShell::nodeRoot, myRootNodeData(), nullptr) {}
