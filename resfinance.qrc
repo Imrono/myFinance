@@ -24,5 +24,6 @@
         <file>resource/icon/toolBar/myNewAccount.png</file>
         <file>resource/icon/toolBar/myReflashData.png</file>
         <file>resource/icon/toolBar/myUpdatePrice.png</file>
+        <file>resource/icon/toolBar/myHidePrice.png</file>
     </qresource>
 </RCC>

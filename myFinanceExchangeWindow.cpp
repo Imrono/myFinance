@@ -58,9 +58,10 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
             return;
         }
         _currentTab = _myTabs[dataSource];
-        setUI(exchangeUI.getExchangeData(), exchangeUI.getIsShowRollback());
-        if (isPartial)
+        if (isPartial) {
+            setUI(exchangeUI.getExchangeData(), exchangeUI.getIsShowRollback());
             _currentTab->checkAndSetDisable(exchangeUI.getExchangeData());
+        }
         qDebug() << "## SETUP UI MODEL FINISH";
     } else {  }
 

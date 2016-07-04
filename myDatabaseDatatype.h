@@ -119,11 +119,8 @@ public:
         MAX_TAB_COUNT = 6
     };
 
-    myExchangeUI() {
-        numOfTabs = MAX_TAB_COUNT;
-        tabType = TAB_NONE;
-        isShowRollback = false;
-    }
+    myExchangeUI(TAB_TYPES type) : numOfTabs(1), tabType(type), isShowRollback(false) {}
+    myExchangeUI() : numOfTabs(MAX_TAB_COUNT), tabType(TAB_NONE), isShowRollback(false) {}
     myExchangeUI(const myExchangeData &data, bool isShowRollback)
         : isShowRollback(isShowRollback), exchangeData(data) {
         setTypeOfExchange(data);

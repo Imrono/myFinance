@@ -34,11 +34,17 @@ public:
 
 private slots:
     void on_exchange_clicked();
+    void on_exchangeStock_clicked();
+    void on_exchangeFund_clicked();
+    void on_exchangeMoneyUp_clicked();
+    void on_exchangeTransfer_clicked();
+
     void on_new_account_clicked();
 
     void on_reflash_clicked();
 
     void on_updatePrice_clicked();
+    void on_hidePrice_clicked();
 
 private:
     Ui::myFinanceMainWindow *ui;
@@ -61,9 +67,16 @@ private:
 
     // mainToolBar
     QAction *exchange;
+    QAction *exchangeStock;
+    QAction *exchangeFund;
+    QAction *exchangeMoneyUp;
+    QAction *exchangeTransfer;
+
     QAction *newAccount;
     QAction *reflashData;
+
     QAction *updatePrice;
+    QAction *hidePrice;
 
     // statusBar
     QString statueStr_1;

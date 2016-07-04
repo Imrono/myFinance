@@ -16,7 +16,6 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     treeViewContextMenu(this)
 {
     assetModel = new myAssetModel(this);
-    //delegate = new assetChangeDelegate(this);
     exchangeModel = new myExchangeListModel();
 
     ui->setupUi(this);
@@ -26,7 +25,7 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     //ui->treeView->header()->resizeSections(QHeaderView::ResizeToContents);
     ui->treeView->header()->resizeSections(QHeaderView::Fixed);
     ui->treeView->header()->resizeSection(0, 180);
-    ui->treeView->header()->resizeSection(1, 100);
+    ui->treeView->header()->resizeSection(1, 110);
     ui->treeView->header()->resizeSection(2, 50);
     ui->treeView->expandAll();
 
@@ -70,19 +69,36 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     exchange = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myExchange.png"), STR("资产变化"), this);
     connect(exchange, SIGNAL(triggered()), this, SLOT(on_exchange_clicked()));
     ui->mainToolBar->addAction(exchange);
+    exchangeStock = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/mySecurity.png"), STR("证券交易"), this);
+    connect(exchangeStock, SIGNAL(triggered()), this, SLOT(on_exchangeStock_clicked()));
+    ui->mainToolBar->addAction(exchangeStock);
+    exchangeFund = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/myFund.png"), STR("基金"), this);
+    connect(exchangeFund, SIGNAL(triggered()), this, SLOT(on_exchangeFund_clicked()));
+    ui->mainToolBar->addAction(exchangeFund);
+    exchangeMoneyUp = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/myMoneyUp.png"), STR("理财"), this);
+    connect(exchangeMoneyUp, SIGNAL(triggered()), this, SLOT(on_exchangeMoneyUp_clicked()));
+    ui->mainToolBar->addAction(exchangeMoneyUp);
+    exchangeTransfer = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/myTransfer.png"), STR("转账"), this);
+    connect(exchangeTransfer, SIGNAL(triggered()), this, SLOT(on_exchangeTransfer_clicked()));
+    ui->mainToolBar->addAction(exchangeTransfer);
     ui->mainToolBar->addSeparator();
 
     newAccount = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myNewAccount.png"), STR("新建帐户"), this);
     connect(newAccount, SIGNAL(triggered()), this, SLOT(on_new_account_clicked()));
     ui->mainToolBar->addAction(newAccount);
+    ui->mainToolBar->addSeparator();
 
     reflashData = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myReflashData.png"), STR("刷新"), this);
     connect(reflashData, SIGNAL(triggered()), this, SLOT(on_reflash_clicked()));
     ui->mainToolBar->addAction(reflashData);
+    ui->mainToolBar->addSeparator();
 
     updatePrice = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myUpdatePrice.png"), STR("更新价格"), this);;
     connect(updatePrice, SIGNAL(triggered()), this, SLOT(on_updatePrice_clicked()));
     ui->mainToolBar->addAction(updatePrice);
+    hidePrice = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myHidePrice.png"), STR("更新价格"), this);;
+    connect(hidePrice, SIGNAL(triggered()), this, SLOT(on_hidePrice_clicked()));
+    ui->mainToolBar->addAction(hidePrice);
 }
 
 myFinanceMainWindow::~myFinanceMainWindow()
@@ -109,6 +125,30 @@ void myFinanceMainWindow::codeDataReady() {
 void myFinanceMainWindow::on_exchange_clicked()
 {
     qDebug() << STR("资产变化 clicked");
+    myExchangeUI exchangeUI = myExchangeUI();
+    doExchange(exchangeUI);
+}
+void myFinanceMainWindow::on_exchangeStock_clicked()
+{
+    qDebug() << STR("证券交易 clicked");
+    myExchangeUI exchangeUI(myExchangeUI::TAB_STOCK);
+    doExchange(exchangeUI);
+}
+void myFinanceMainWindow::on_exchangeFund_clicked()
+{
+    qDebug() << STR("基金 clicked");
+    myExchangeUI exchangeUI = myExchangeUI();
+    doExchange(exchangeUI);
+}
+void myFinanceMainWindow::on_exchangeMoneyUp_clicked()
+{
+    qDebug() << STR("理财 clicked");
+    myExchangeUI exchangeUI = myExchangeUI();
+    doExchange(exchangeUI);
+}
+void myFinanceMainWindow::on_exchangeTransfer_clicked()
+{
+    qDebug() << STR("转账 clicked");
     myExchangeUI exchangeUI = myExchangeUI();
     doExchange(exchangeUI);
 }
@@ -169,7 +209,7 @@ void myFinanceMainWindow::on_updatePrice_clicked()
 }
 void myFinanceMainWindow::priceDataReflashed() {
     ui->treeView->header()->resizeSection(0, 180);
-    ui->treeView->header()->resizeSection(1, 100);
+    ui->treeView->header()->resizeSection(1, 110);
     ui->treeView->header()->resizeSection(2, 50);
 
     ui->treeView->expandAll();
@@ -187,6 +227,11 @@ void myFinanceMainWindow::priceDataReflashed() {
     statusLabel.setText(statueStr_1+statueStr_2);
     qDebug() << STR("价格更新 finished") << statueStr_2;
 }
+void myFinanceMainWindow::on_hidePrice_clicked() {
+    statueStr_2 = STR("");
+    statusLabel.setText(statueStr_1+statueStr_2);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 /// treeView的右键菜单
 void myFinanceMainWindow::treeViewContextMenuSlot(const QPoint& pt) {
