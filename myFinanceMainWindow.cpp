@@ -35,12 +35,10 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     connect(stockCode ,SIGNAL(codeDataReady()), this, SLOT(codeDataReady()));
 
     ui->statusBar->addWidget(&statusLabel);
-    if (!stockCode->getIsDataReady()) { //正在更新
-        ui->reflash->setEnabled(false);
-        statueStr_1 = STR("正在读取股票代码");
-    } else {
-        ui->reflash->setEnabled(true);
+    if (stockCode->getIsDataReady()) {
         statueStr_1 = STR("股票代码获取成功");
+    } else {
+        statueStr_1 = STR("");
     }
     statusLabel.setText(statueStr_1+statueStr_2);
 
@@ -78,7 +76,7 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     exchangeMoneyUp = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/myMoneyUp.png"), STR("理财"), this);
     connect(exchangeMoneyUp, SIGNAL(triggered()), this, SLOT(on_exchangeMoneyUp_clicked()));
     ui->mainToolBar->addAction(exchangeMoneyUp);
-    exchangeTransfer = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/myTransfer.png"), STR("转账"), this);
+    exchangeTransfer = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/myTransfer.png"), STR("转帐"), this);
     connect(exchangeTransfer, SIGNAL(triggered()), this, SLOT(on_exchangeTransfer_clicked()));
     ui->mainToolBar->addAction(exchangeTransfer);
     ui->mainToolBar->addSeparator();
@@ -116,10 +114,11 @@ myFinanceMainWindow::~myFinanceMainWindow()
 
 void myFinanceMainWindow::codeDataReady() {
     if (stockCode->getIsDataReady()) {
-        ui->reflash->setEnabled(true);
+        reflashData->setEnabled(true);
     }
     statueStr_1 = STR("股票代码获取成功");
     statusLabel.setText(statueStr_1+statueStr_2);
+    qDebug() << statueStr_1;
 }
 
 void myFinanceMainWindow::on_exchange_clicked()
@@ -137,19 +136,19 @@ void myFinanceMainWindow::on_exchangeStock_clicked()
 void myFinanceMainWindow::on_exchangeFund_clicked()
 {
     qDebug() << STR("基金 clicked");
-    myExchangeUI exchangeUI = myExchangeUI();
+    myExchangeUI exchangeUI(myExchangeUI::TAB_FUNDS);
     doExchange(exchangeUI);
 }
 void myFinanceMainWindow::on_exchangeMoneyUp_clicked()
 {
     qDebug() << STR("理财 clicked");
-    myExchangeUI exchangeUI = myExchangeUI();
+    myExchangeUI exchangeUI(myExchangeUI::TAB_MONUP);
     doExchange(exchangeUI);
 }
 void myFinanceMainWindow::on_exchangeTransfer_clicked()
 {
-    qDebug() << STR("转账 clicked");
-    myExchangeUI exchangeUI = myExchangeUI();
+    qDebug() << STR("转帐 clicked");
+    myExchangeUI exchangeUI(myExchangeUI::TAB_TRANS);
     doExchange(exchangeUI);
 }
 void myFinanceMainWindow::doExchange(const myExchangeUI& uiSetup, bool isSetDisable) {
@@ -191,13 +190,14 @@ void myFinanceMainWindow::on_new_account_clicked()
 
 void myFinanceMainWindow::on_reflash_clicked()
 {
-    statusLabel.setText(STR("正在读取股票代码"));
-    ui->reflash->setEnabled(false);
-    qDebug() << STR("刷新 clicked");
+    qDebug() << STR("刷新 clicked finished 正在读取股票代码");
+    statueStr_1 = STR("正在读取股票代码");
+    statusLabel.setText(statueStr_1+statueStr_2);
+    reflashData->setEnabled(false);
+
     assetModel->doReflashData();
     stockCode->getStockCode();
     ui->treeView->expandAll();
-    qDebug() << STR("刷新 clicked finished");
 }
 
 void myFinanceMainWindow::on_updatePrice_clicked()
@@ -214,16 +214,13 @@ void myFinanceMainWindow::priceDataReflashed() {
 
     ui->treeView->expandAll();
     QDateTime dateTime = QDateTime::currentDateTime();
-    ui->dateTimePrice->setDateTime(dateTime);
     float totalAsset = assetModel->doGetTotalAsset();
     QString strTotalAsset = QString::number(totalAsset, 'f', 2);
-    ui->lineEditTotalAsset->setText(strTotalAsset);
     float securityAsset = assetModel->doGetSecurityAsset();
     QString strSecurityAsset = QString::number(securityAsset, 'f', 2);
-    ui->lineEditSecurity->setText(strSecurityAsset);
     statueStr_2 = STR("<b>【更新时间：%1●总资产：%2●证券账户：%3】</b>")
             .arg(dateTime.toString(STR("yyyy-MM-dd hh:mm:ss")))
-            .arg(strSecurityAsset).arg(strSecurityAsset);
+            .arg(strTotalAsset).arg(strSecurityAsset);
     statusLabel.setText(statueStr_1+statueStr_2);
     qDebug() << STR("价格更新 finished") << statueStr_2;
 }

@@ -25,7 +25,7 @@ myStockCodeName *myStockCodeName::instance = nullptr;
 myStockCodeName::myStockCodeName()
     : manager(nullptr), ntRequest(QUrl("")),
       isInitialed(false), CodeDataFile("stockCodeData.txt"),
-      thread(this), isDataReady(true)
+      thread(this), isDataReady(false)
 {
     manager = new QNetworkAccessManager();
     connect(manager, SIGNAL(finished(QNetworkReply*)),
@@ -91,6 +91,7 @@ void myStockCodeName::getStockCode() {
         requestType = REQUEST_CODE;
         manager->get(ntRequest);
     } else {
+        isDataReady = true;
         emit codeDataReady();
     }
 }

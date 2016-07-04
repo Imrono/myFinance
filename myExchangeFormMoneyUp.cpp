@@ -130,6 +130,7 @@ void myExchangeFormMoneyUp::on_radioSubscribing_clicked() {
     ui->checkBoxSoldAll->setDisabled(true);
     buySellFlag = 1.0f;
     data.exchangeType = STR("认购");
+    setExchangeWindowType(data.exchangeType);
     data.assetData.price = buySellFlag * qAbs(data.assetData.price);
     ui->checkBoxSoldAll->setChecked(false);
     ui->usedSpinBox->setReadOnly(false);

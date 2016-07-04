@@ -52,7 +52,9 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
         //if (exchangeUI.getTabType() == myExchangeUI::TAB_EXPES)
         //    _myTabs.append(new myExchangeFormExpenses(rootNode, STR("支出")    , this));
         if (exchangeUI.getTabType() == myExchangeUI::TAB_MONUP)
-            _myTabs.append(new myExchangeFormExpenses(rootNode, STR("理财")    , this));
+            _myTabs.append(new myExchangeFormMoneyUp(rootNode, STR("理财")    , this));
+        if (exchangeUI.getTabType() == myExchangeUI::TAB_FUNDS)
+            _myTabs.append(new myExchangeFormFund   (rootNode, STR("基金")    , this));
         if (_myTabs.count() == 0) {
             qDebug() << "ERROR: NO TAB IS ADDED";
             return;
@@ -62,7 +64,7 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
             setUI(exchangeUI.getExchangeData(), exchangeUI.getIsShowRollback());
             _currentTab->checkAndSetDisable(exchangeUI.getExchangeData());
         }
-        qDebug() << "## SETUP UI MODEL FINISH";
+        qDebug() << "## SETUP UI MODEL FINISH ##";
     } else {  }
 
     for (int i = 0; i < _myTabs.count(); i++) {

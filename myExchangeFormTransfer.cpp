@@ -12,6 +12,7 @@ myExchangeFormTransfer::myExchangeFormTransfer(const myAccountAssetRootNode *roo
     data.assetData.assetCode = MY_CASH;
     data.assetData.amount    = 1;
     data.assetData.type = AssetCode2Type::getInstance()->getAssetType(data.assetData.assetCode);
+    recoverTypeAndFee();
 
     inIdx2AccountIdx.clear();
     outIdx2AccountIdx.clear();
@@ -21,7 +22,7 @@ myExchangeFormTransfer::myExchangeFormTransfer(const myAccountAssetRootNode *roo
         for (int j = 0; j < account->children.count(); j++) {
             const myAssetNode *asset = static_cast<const myAssetNode *>(account->children.at(j));
             QString assetCode = GET_CONST_ASSET_NODE_DATA(asset).assetData.assetCode;
-            if (assetCode.contains("cash")) {
+            if (assetCode.contains(MY_CASH)) {
                 const myAccountNodeData &accountData = GET_CONST_ACCOUNT_NODE_DATA(account);
                 QIcon   icon =QIcon( QString(":/icon/finance/resource/icon/finance/%1").arg(accountData.logo));
                 QString code;
