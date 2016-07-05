@@ -11,6 +11,9 @@
 #define OTHER_ASSET     "myOtherAsset"
 #define MONEY_EPS  0.0001f
 
+#define FLOAT2STR(val, precision) QString::number(val, 'f', precision)
+
+
 enum SHOW_CATEGORY {
     STOCK_CATEGORY        = 0,
     MONEY_MANAGE_CATEGORY = 1,

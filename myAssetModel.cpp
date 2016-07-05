@@ -107,7 +107,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                     QString strPrice = QString::number(assetHold.assetData.price, 'f', 2);
                     return QString("%1").arg(strPrice);
                 } else {
-                    QString strPrice  = QString::number(assetHold.assetData.price,  'f', 3);
+                    QString strPrice  = QString::number(assetHold.assetData.price, 'f', 3);
                     QString strAmount;
                     if (assetHold.assetData.type == STR("股票")) {
                         strAmount = QString::number(assetHold.assetData.amount, 'f', 0);

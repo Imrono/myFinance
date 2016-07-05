@@ -51,7 +51,7 @@ bool myAccountAssetRootNode::doExchange(const myAssetData &assetData) {
                 return true;
             }
         } else {
-            qDebug() << query.lastError().text() << " numRows=" << numRows;
+            MY_DEBUG_ERROR(query.lastError().text()+QString(" numRows=%1").arg(numRows));
             return false;
         }
     } else if (0 == numRows) {  ///INSERT
@@ -67,7 +67,7 @@ bool myAccountAssetRootNode::doExchange(const myAssetData &assetData) {
             account->addChild(asset);
             return true;
         } else {
-            qDebug() << query.lastError().text() << " numRows=" << numRows;
+            MY_DEBUG_ERROR(query.lastError().text()+QString(" numRows=%1").arg(numRows));
             return false;
         }
     } else {
@@ -120,7 +120,7 @@ bool myAccountAssetRootNode::checkExchange(const myExchangeData &data, QString &
             return false;
         }
     } else {
-        qDebug() << query.lastError().text();
+        MY_DEBUG_ERROR(query.lastError().text());
         abnormalCode = SQL_ERROR;
         return false;
     }
@@ -168,7 +168,7 @@ bool myAccountAssetRootNode::checkExchange(const myExchangeData &data, QString &
             return false;
         }
     } else {
-        qDebug() << query.lastError().text();
+        MY_DEBUG_ERROR(query.lastError().text());
         abnormalCode = SQL_ERROR;
         abnormalInfo = STR("SQL ERROR");
         return false;
@@ -371,7 +371,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
                     tmpAccount->addChild(hold);
                     return true;
                 } else {
-                    qDebug() << query.lastError().text();
+                    MY_DEBUG_ERROR(query.lastError().text());
                     return false;
                 }
             } else { return false;}
@@ -459,7 +459,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
                         .arg(filter);
                 MY_DEBUG_SQL(execWord);
                 if(!query.exec(execWord)) {
-                    qDebug() << query.lastError().text();
+                    MY_DEBUG_ERROR(query.lastError().text());
                     return false;
                 } else { return true;}
             } else { return false;}
@@ -518,7 +518,7 @@ bool myAccountAssetRootNode::doInsertAccount(myAccountData data) {
             rootNode.addChild(account);
             return true;
         } else {
-            qDebug() << query.lastError().text();
+            MY_DEBUG_ERROR(query.lastError().text());
             return false;
         }
     } else { return false;}
@@ -544,7 +544,7 @@ bool myAccountAssetRootNode::setAccountPosition(const QString &accountCode, int 
             }
             return true;
         } else {
-            qDebug() << query.lastError().text();
+            MY_DEBUG_ERROR(query.lastError().text());
             return false;}
     } else { return false;}
 }
@@ -566,7 +566,7 @@ bool myAccountAssetRootNode::setAssetPosition(const QString &accountCode, const 
             }
             return true;
         } else {
-            qDebug() << query.lastError().text();
+            MY_DEBUG_ERROR(query.lastError().text());
             return false;
         }
     } else { return false;}

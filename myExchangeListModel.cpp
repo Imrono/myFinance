@@ -24,7 +24,7 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
         execWord = STR("DELETE FROM 资产变化 WHERE id=%1").arg(exchangeData.id);
         MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
-            qDebug() << query.lastError().text();
+            MY_DEBUG_ERROR(query.lastError().text());
             return false;
         }
     } else {
@@ -44,7 +44,7 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
             MY_DEBUG_SQL(execWord);
 
             if(!query.exec(execWord)) {
-                qDebug() << query.lastError().text();
+                MY_DEBUG_ERROR(query.lastError().text());
                 return false;
             } else {
                 for (int i = 0; i < list.count(); i++) {
@@ -64,7 +64,7 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
             MY_DEBUG_SQL(execWord);
 
             if(!query.exec(execWord)) {
-                qDebug() << query.lastError().text();
+                MY_DEBUG_ERROR(query.lastError().text());
                 return false;
             }
         } else {

@@ -88,7 +88,7 @@ bool myMoneyIncomeExpenses::initIncomeExpensesType() {
             _totalType.append(tmp);
         }
     } else {
-        qDebug() << query.lastError().text();
+        MY_DEBUG_ERROR(query.lastError().text());
         return false;
     }
 
