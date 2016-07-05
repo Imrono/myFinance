@@ -21,6 +21,7 @@
 #define MY_FT_BLUE(str)    "\033[34m"str"\033[0m"
 
 #define MY_DEBUG_SQL(str) qDebug() << "\033[34m" << str << "\033[0m"
+#define MY_DEBUG_ERROR(str) qDebug() << "\033[31m" << str << "\033[0m"
 
 class myGlobal
 {

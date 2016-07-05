@@ -235,10 +235,9 @@ float myAssetModel::currentPrice(const QMap<QString, sinaRealTimeData> *priceMap
     QMap<QString, sinaRealTimeData>::const_iterator it = priceMap->find(assetCode);
     float currentPrice = 0.0f;
     while (it != priceMap->end() && it.key() == assetCode) {
+        currentPrice = it.value().price;
         if (currentPrice < MONEY_EPS) {
             currentPrice = it.value().lastClose;
-        } else {
-            currentPrice = it.value().price;
         }
         ++it;
     }

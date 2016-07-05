@@ -15,6 +15,7 @@ codeDataProcessThread::~codeDataProcessThread() {
 
 }
 void codeDataProcessThread::run() {
+    qDebug() << "### analyzeStockCode run ###";
     mutex.lock();
     parent->analyzeStockCode(parent->CodeDataFile);
     emit processFinish();
@@ -34,9 +35,7 @@ myStockCodeName::myStockCodeName()
             this, SLOT(threadProcessFinish()));
 
     if (QFileInfo::exists(CodeDataFile)) {
-        //analyzeStockCode(CodeDataFile);
-        if (isDataReady) {
-            isDataReady = false;
+        if (!isDataReady) {
             thread.start();
         } else {
             qDebug() << "doing Process";
@@ -50,7 +49,7 @@ myStockCodeName::~myStockCodeName() {
 }
 
 void myStockCodeName::replyFinished(QNetworkReply* data) {
-    qDebug() << requestType << "begin";
+    qDebug() << "requestType:" << requestType << "begin";
     switch(requestType) {
     case REQUEST_CODE: {
         QByteArray codeDataArray = data->readAll();
@@ -65,16 +64,14 @@ void myStockCodeName::replyFinished(QNetworkReply* data) {
         toFile << codeData;
         toFile.flush();
         file.close();
-        // 读取数据
-        //analyzeStockCode(CodeDataFile);
-        if (isDataReady) {
-            isDataReady = false;
+
+        if (!isDataReady) {
             thread.start();
         } else {
-            qDebug() << "doing Process";
+            qDebug() << "data is ready, no need to analyze stock code file";
         }
 
-        qDebug() << requestType << "finish";
+        qDebug() << "requestType:" << requestType << "finish";
         break;
         }
     default:
@@ -87,6 +84,7 @@ void myStockCodeName::getStockCode() {
     QDateTime time = QDateTime::currentDateTime();
     QDateTime fileCreateTime = info.lastModified();
     if (!info.exists() || time.date().toJulianDay() - fileCreateTime.date().toJulianDay() >= 1) {
+        isDataReady = false;
         ntRequest.setUrl(QUrl("http://quote.eastmoney.com/stocklist.html"));
         requestType = REQUEST_CODE;
         manager->get(ntRequest);
@@ -141,7 +139,7 @@ void myStockCodeName::analyzeStockCode(QString fileName) {
     }
     file.close();
     isInitialed = true;
-    qDebug() << codeName.count();
+    qDebug() << "myStockCodeName::analyzeStockCode=>codeName.count() =" << codeName.count();
 }
 void myStockCodeName::threadProcessFinish() {
     qDebug() << "threadProcessFinish";

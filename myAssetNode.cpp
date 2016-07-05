@@ -181,7 +181,7 @@ bool myAccountAssetRootNode::checkExchange(const myExchangeData &data, QString &
 }
 
 bool myAccountAssetRootNode::initial(bool isFetchAccount, bool isFetchAsset) {
-    qDebug() << "### myAccountAssetRootNode::initial ###";
+    qDebug() << "### myAccountAssetRootNode::initial  ###";
     if (!myFinanceDatabase::isConnected) {
         if (!myFinanceDatabase::connectDB())
             return false;
@@ -270,7 +270,7 @@ bool myAccountAssetRootNode::fetchAccount() {
 }
 ///读“资产”表
 bool myAccountAssetRootNode::fetchAsset() {
-    qDebug() << "## myAccountAssetRootNode::fetchAsset ##";
+    qDebug() << "## myAccountAssetRootNode::fetchAsset   ##";
     QSqlQuery query;
     if(query.exec(STR("select * from 资产"))) {
         int i = 0;
@@ -387,7 +387,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
                         .arg(filter);
                 MY_DEBUG_SQL(execWord);
                 if(!query.exec(execWord)) {
-                    qDebug() << query.lastError().text();
+                    MY_DEBUG_ERROR(query.lastError().text());
                     return false;
                 } else { return true;}
             } else { return false;}

@@ -55,9 +55,11 @@ bool myFinanceDatabase::initialDB() {
                                "单位成本 decimal(14,3) DEFAULT 0, "
                                "类别 varchar(16), "
                                "pos int(4) DEFAULT -1, "
+                               "显示类别 int(4) DEFAULT -1,"
                                "primary key (代号, 资产帐户代号));");
         MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
+            MY_DEBUG_ERROR(query.lastError().text());
             return false;
         }
         execWord = STR("CREATE TABLE IF NOT EXISTS 资产变化 ("
@@ -73,6 +75,7 @@ bool myFinanceDatabase::initialDB() {
                        "数量 decimal(14,3) DEFAULT 0);");
         MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
+            MY_DEBUG_ERROR(query.lastError().text());
             return false;
         }
         execWord = STR("CREATE TABLE IF NOT EXISTS 资产帐户 ("
@@ -83,6 +86,7 @@ bool myFinanceDatabase::initialDB() {
                        "pos int(4) DEFAULT -1);");
         MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
+            MY_DEBUG_ERROR(query.lastError().text());
             return false;
         }
         execWord = STR("CREATE TABLE IF NOT EXISTS 现金收支 ("
@@ -93,16 +97,18 @@ bool myFinanceDatabase::initialDB() {
                        "pos int(4) DEFAULT -1);");
         MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
+            MY_DEBUG_ERROR(query.lastError().text());
             return false;
         }
         execWord = STR("CREATE TABLE IF NOT EXISTS 收支种类ui ("
                        "名称 varchar(16) PRIMARY KEY, "
                        "类别 varchar(16), "
                        "备注 varchar(32), "
-                       "pos int(4) DEFAULT -1)"
-                       "收支 varchar(16);");
+                       "pos int(4) DEFAULT -1,"
+                       "收支 varchar(16));");
         MY_DEBUG_SQL(execWord);
         if(!query.exec(execWord)) {
+            MY_DEBUG_ERROR(query.lastError().text());
             return false;
         }
     }
@@ -121,7 +127,7 @@ int myFinanceDatabase::getQueryRows(const QString &execWord) {
         query.finish();
         return numRows;
     } else {
-        qDebug() << query.lastError().text();
+        MY_DEBUG_ERROR(query.lastError().text());
         return -1;
     }
     return numRows;

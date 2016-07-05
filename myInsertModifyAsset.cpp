@@ -120,7 +120,7 @@ void myInsertModifyAsset::on_lineEditAssetCode_textChanged(const QString &str)
 
     updateMarketInfo();
 
-    if (data.assetCode == "cash") {
+    if (data.assetCode == MY_CASH) {
         data.amount = 1;
         ui->spinBoxAmount->setValue(data.amount);
         ui->spinBoxAmount->setDisabled(true);

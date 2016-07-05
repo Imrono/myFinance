@@ -42,6 +42,7 @@ private slots:
     void on_new_account_clicked();
 
     void on_reflash_clicked();
+    void on_syncDatabase_clicked();
 
     void on_updatePrice_clicked();
     void on_hidePrice_clicked();
@@ -74,6 +75,7 @@ private:
 
     QAction *newAccount;
     QAction *reflashData;
+    QAction *syncDatabase;
 
     QAction *updatePrice;
     QAction *hidePrice;

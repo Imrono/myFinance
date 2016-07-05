@@ -89,6 +89,9 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     reflashData = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myReflashData.png"), STR("刷新"), this);
     connect(reflashData, SIGNAL(triggered()), this, SLOT(on_reflash_clicked()));
     ui->mainToolBar->addAction(reflashData);
+    syncDatabase = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/mySyncDatabase.png"), STR("界面与数据库同步"), this);
+    connect(syncDatabase, SIGNAL(triggered()), this, SLOT(on_syncDatabase_clicked()));
+    ui->mainToolBar->addAction(syncDatabase);
     ui->mainToolBar->addSeparator();
 
     updatePrice = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myUpdatePrice.png"), STR("更新价格"), this);;
@@ -197,6 +200,10 @@ void myFinanceMainWindow::on_reflash_clicked()
 
     assetModel->doReflashData();
     stockCode->getStockCode();
+    ui->treeView->expandAll();
+}
+void myFinanceMainWindow::on_syncDatabase_clicked() {
+    assetModel->doReflashData();
     ui->treeView->expandAll();
 }
 

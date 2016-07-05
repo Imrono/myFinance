@@ -25,5 +25,6 @@
         <file>resource/icon/toolBar/myReflashData.png</file>
         <file>resource/icon/toolBar/myUpdatePrice.png</file>
         <file>resource/icon/toolBar/myHidePrice.png</file>
+        <file>resource/icon/toolBar/mySyncDatabase.png</file>
     </qresource>
 </RCC>

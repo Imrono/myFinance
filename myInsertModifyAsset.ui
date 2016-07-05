@@ -164,9 +164,10 @@
  </widget>
  <tabstops>
   <tabstop>lineEditAssetCode</tabstop>
+  <tabstop>lineEditAssetName</tabstop>
+  <tabstop>spinBoxAmount</tabstop>
   <tabstop>spinBoxPrice</tabstop>
   <tabstop>lineEditType</tabstop>
-  <tabstop>lineEditAssetName</tabstop>
   <tabstop>radioSH</tabstop>
   <tabstop>radioSZ</tabstop>
   <tabstop>radioOther</tabstop>
