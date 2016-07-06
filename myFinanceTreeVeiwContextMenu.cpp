@@ -16,6 +16,8 @@ myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : pa
     deleteAccount = new QAction(parent);
     modifyAccount = new QAction(parent);
     insertAsset   = new QAction(parent);
+    addAssetList  = new QAction(parent);
+
     deleteAsset   = new QAction(parent);
     modifyAsset   = new QAction(parent);
     buyAsset      = new QAction(parent);
@@ -30,28 +32,34 @@ myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : pa
     deleteAccount->setText(STR("删除帐户"));
     modifyAccount->setText(STR("更新帐户"));
     insertAsset->setText(STR("添加资产"));
+    addAssetList->setText(STR("从文件添加资产"));
+
+    upAsset->setText(STR("上移"));
+    downAsset->setText(STR("下移"));
+
     deleteAsset->setText(STR("删除资产"));
     modifyAsset->setText(STR("更新资产"));
     buyAsset->setText(STR("买入"));
     sellAsset->setText(STR("卖出"));
     transferIn->setText(STR("转入"));
     transferOut->setText(STR("转出"));
-    upAsset->setText(STR("上移"));
-    downAsset->setText(STR("下移"));
     stockBonus->setText(STR("分红"));
     intrests->setText(STR("利息"));
 
     connect(deleteAccount, SIGNAL(triggered()), this, SLOT(deleteAccount_clicked()));
     connect(modifyAccount, SIGNAL(triggered()), this, SLOT(modifyAccount_clicked()));
     connect(insertAsset,   SIGNAL(triggered()), this, SLOT(insertAsset_clicked()));
+    connect(addAssetList,  SIGNAL(triggered()), this, SLOT(addAssetList_clicked()));
+
+    connect(upAsset,       SIGNAL(triggered()), this, SLOT(upAsset_clicked()));
+    connect(downAsset,     SIGNAL(triggered()), this, SLOT(downAsset_clicked()));
+
     connect(deleteAsset,   SIGNAL(triggered()), this, SLOT(deleteAsset_clicked()));
     connect(modifyAsset,   SIGNAL(triggered()), this, SLOT(modifyAsset_clicked()));
     connect(buyAsset,      SIGNAL(triggered()), this, SLOT(buyAsset_clicked()));
     connect(sellAsset,     SIGNAL(triggered()), this, SLOT(sellAsset_clicked()));
     connect(transferIn,    SIGNAL(triggered()), this, SLOT(transferIn_clicked()));
     connect(transferOut,   SIGNAL(triggered()), this, SLOT(transferOut_clicked()));
-    connect(upAsset,       SIGNAL(triggered()), this, SLOT(upAsset_clicked()));
-    connect(downAsset,     SIGNAL(triggered()), this, SLOT(downAsset_clicked()));
     connect(stockBonus,    SIGNAL(triggered()), this, SLOT(stockBonus_clicked()));
     connect(intrests,      SIGNAL(triggered()), this, SLOT(intrests_clicked()));
 }
@@ -67,6 +75,12 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myIndexShell *node)
         editAsset->addAction(insertAsset);
         editAsset->addAction(modifyAccount);
         editAsset->addAction(deleteAccount);
+        editAsset->addSeparator();
+
+        editAsset->addAction(addAssetList);
+        if (0 != currentNode->children.count()) {
+            addAssetList->setDisabled(true);
+        }
     } else if (myAssetNode::nodeHolds == node->type) {
         const myAssetNodeData &assetHolds = GET_CONST_ASSET_NODE_DATA(node);
         editAsset->addAction(modifyAsset);
@@ -88,8 +102,8 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myIndexShell *node)
         }
     } else if (myAssetNode::nodeRoot == node->type) {
     } else {}
-
     editAsset->addSeparator();
+
     upAsset->setEnabled(true);
     downAsset->setEnabled(true);
     unsigned int upDownType = HAS_NONE;
@@ -133,13 +147,36 @@ void myFinanceTreeVeiwContextMenu::modifyAccount_clicked() {
 void myFinanceTreeVeiwContextMenu::insertAsset_clicked() {
     doChangeAssetDirectly(POP_INSERT);
 }
+void myFinanceTreeVeiwContextMenu::addAssetList_clicked() {
+    // 1. 读取并保存资产数据
+    QList<myAssetData *> assetDataList;
+
+    // 2. 批量添加资产
+    QString info = STR("从文件批量添加资产");
+    for (int i = 0; i < 0; i++) {
+        parent->doChangeAssetDirectly(currentNode, POP_INSERT, assetDataList.at(i), info);
+    }
+
+    // 3. 释放QList<myAssetData *> assetDataList
+    for (int i = 0; i < assetDataList.count(); i++) {
+        delete assetDataList.at(i);
+    }
+    assetDataList.clear();
+}
+
+void myFinanceTreeVeiwContextMenu::upAsset_clicked() {
+    doUpDown(true);
+}
+void myFinanceTreeVeiwContextMenu::downAsset_clicked() {
+    doUpDown(false);
+}
+
 void myFinanceTreeVeiwContextMenu::deleteAsset_clicked() {
     doChangeAssetDirectly(POP_DELETE);
 }
 void myFinanceTreeVeiwContextMenu::modifyAsset_clicked() {
     doChangeAssetDirectly(POP_MODIFY);
 }
-
 void myFinanceTreeVeiwContextMenu::buyAsset_clicked() {
     qDebug() << STR("右键买入 clicked");
     doExchangeStock(STR("证券买入"));
@@ -148,6 +185,10 @@ void myFinanceTreeVeiwContextMenu::sellAsset_clicked() {
     qDebug() << STR("右键卖出 clicked");
     doExchangeStock(STR("证券卖出"));
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+/// 具体实现部分
+/////////////////////////////////////////////////////////////////////////////////
 void myFinanceTreeVeiwContextMenu::doExchangeStock(const QString &type) {
     myExchangeData exchangeData;
     const myAssetNodeData &holds = GET_CONST_ASSET_NODE_DATA(currentNode);
@@ -167,7 +208,6 @@ void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
     exchangeData.exchangeType = STR("转帐");
     parent->doExchange(myExchangeUI(exchangeData, false), true);
 }
-
 void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
     qDebug() << STR("右键转出 clicked");
     myExchangeData exchangeData;
@@ -176,14 +216,6 @@ void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
     exchangeData.exchangeType = STR("转帐");
     parent->doExchange(myExchangeUI(exchangeData, false), true);
 }
-
-void myFinanceTreeVeiwContextMenu::upAsset_clicked() {
-    doUpDown(true);
-}
-void myFinanceTreeVeiwContextMenu::downAsset_clicked() {
-    doUpDown(false);
-}
-
 
 void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
     QString info;

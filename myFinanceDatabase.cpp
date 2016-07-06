@@ -112,7 +112,7 @@ bool myFinanceDatabase::initialDB() {
             return false;
         }
     }
-    qDebug() << "DB initial SUCCESS";
+    MY_A_TRACE("### DB initial SUCCESS!! ###");
     return true;
 }
 

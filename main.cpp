@@ -14,7 +14,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    qDebug() << MY_FT_RED("WELLCOM") << MY_FT_YELLOW("TO") << MY_FT_GREEN("myFinance") << MY_FT_BLUE("PROGRAM");
+    qDebug() << MY_FT_RED("WELLCOM") << MY_FT_YELLOW("TO") << MY_FT_GREEN("myFinance") << MY_FT_BOLD_BLACK("PROGRAM");
 
     QPixmap pixmap(":/SplashScreen/resource/SplashScreen/gold10years.jpg");
     QSplashScreen screen(pixmap);

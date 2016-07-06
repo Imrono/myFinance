@@ -32,14 +32,17 @@ private:
     QAction *modifyAccount;
     QAction *deleteAccount;
     QAction *insertAsset;
+    QAction *addAssetList;
+
+    QAction *upAsset;
+    QAction *downAsset;
+
     QAction *deleteAsset;
     QAction *modifyAsset;
     QAction *buyAsset;
     QAction *sellAsset;
     QAction *transferIn;
     QAction *transferOut;
-    QAction *upAsset;
-    QAction *downAsset;
     QAction *stockBonus;
     QAction *intrests;
 
@@ -50,14 +53,17 @@ private slots:
     void deleteAccount_clicked();
     void modifyAccount_clicked();
     void insertAsset_clicked();
+    void addAssetList_clicked();
+
+    void upAsset_clicked();
+    void downAsset_clicked();
+
     void deleteAsset_clicked();
     void modifyAsset_clicked();
     void buyAsset_clicked();
     void sellAsset_clicked();
     void transferIn_clicked();
     void transferOut_clicked();
-    void upAsset_clicked();
-    void downAsset_clicked();
     void stockBonus_clicked();
     void intrests_clicked();
 
