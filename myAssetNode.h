@@ -1,4 +1,4 @@
-#ifndef MYASSETNODE_H
+﻿#ifndef MYASSETNODE_H
 #define MYASSETNODE_H
 #include "myGlobal.h"
 
@@ -29,6 +29,23 @@ struct myAccountNodeData {
     QString toString() {
         return STR("*myAccountData* %1;logo:%2;pos:%3")
                 .arg(accountData.toString()).arg(logo).arg(pos);
+    }
+    void getLogoFromName() {
+        if (accountData.name.contains(STR("工商银行"))) {
+            logo = "gsyh.png";
+        } else if (accountData.name.contains(STR("招商银行"))) {
+            logo = "zsyh.png";
+        } else if (accountData.name == STR("中国银行")) {
+            logo = "zgyh.png";
+        } else if (accountData.name == STR("华泰证券")) {
+            logo = "htzq.png";
+        } else if (accountData.name == STR("国泰君安")) {
+            logo = "gtja.png";
+        } else if (accountData.name == STR("支付宝")) {
+            logo = "zfb.png";
+        } else {
+            logo = "nologo";
+        }
     }
 
     myAccountData accountData;
@@ -144,7 +161,7 @@ public:
 
     QStringList getAllStockCodeList();
 
-    bool doExchange(const myAssetData &assetData);
+    bool doChangeAsset(const myAssetData &assetData);
     static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
 
     bool doChangeAssetDirectly(const myIndexShell *node, changeType type, void *data);
@@ -160,6 +177,8 @@ private:
     bool fetchAsset();
 
     bool deleteOneAsset(const QString &accountCode, const QString &assetCode);
+    bool insertOneAsset(const myAssetData &insertAssetHold);
+    bool modifyOneAsset(const QString &originalAccountCode, const QString &originalAssetCode, const myAssetData &targetAssetHold);
 
     void doSortPosition(bool isSortAccount = true, bool isSortAsset = true);
     void sortPositionAccount();

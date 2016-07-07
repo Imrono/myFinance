@@ -2,6 +2,8 @@
 
 #include <QModelIndex>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QFile>
 
 #include "myInsertModifyAccount.h"
 #include "myInsertModifyAsset.h"
@@ -150,11 +152,17 @@ void myFinanceTreeVeiwContextMenu::insertAsset_clicked() {
 void myFinanceTreeVeiwContextMenu::addAssetList_clicked() {
     // 1. 读取并保存资产数据
     QList<myAssetData *> assetDataList;
+    QString fileName = QFileDialog::getOpenFileName(parent, tr("open file"), " ",  tr("Allfile(*.*)"));
+    qDebug() << "fileName:" << fileName;
+    if (!analyzeStockFromFile(fileName, assetDataList)) {
+        qDebug() << "analyzeStockFromFile failed!!";
+        return;
+    }
 
     // 2. 批量添加资产
     QString info = STR("从文件批量添加资产");
     for (int i = 0; i < 0; i++) {
-        parent->doChangeAssetDirectly(currentNode, POP_INSERT, assetDataList.at(i), info);
+        parent->doChangeAssetDirectly(currentNode, POP_INSERT, (void *)assetDataList.at(i), info);
     }
 
     // 3. 释放QList<myAssetData *> assetDataList
@@ -162,6 +170,23 @@ void myFinanceTreeVeiwContextMenu::addAssetList_clicked() {
         delete assetDataList.at(i);
     }
     assetDataList.clear();
+}
+bool myFinanceTreeVeiwContextMenu::analyzeStockFromFile(const QString &fileName, QList<myAssetData *> &assetDataList) {
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly)) {
+        qDebug() << "can not open file: " << fileName;
+        return false;
+    }
+
+    QTextStream txtGet(&file);
+    QString lineStr;
+    while(!txtGet.atEnd())
+    {
+        lineStr = txtGet.readLine();
+        qDebug() << lineStr << endl;
+    }
+    file.close();
+    return true;
 }
 
 void myFinanceTreeVeiwContextMenu::upAsset_clicked() {

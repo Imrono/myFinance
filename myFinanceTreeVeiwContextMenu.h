@@ -49,6 +49,8 @@ private:
     const myIndexShell *currentNode;
     myFinanceMainWindow *parent;
 
+    bool analyzeStockFromFile(const QString &fileName, QList<myAssetData *> &assetDataList);
+
 private slots:
     void deleteAccount_clicked();
     void modifyAccount_clicked();
