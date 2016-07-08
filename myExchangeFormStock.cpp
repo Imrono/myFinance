@@ -207,7 +207,7 @@ void myExchangeFormStock::on_codeLineEdit_textEdited(const QString &str) {
             ui->radioSH->setChecked(true);
         } else {
             subStr = data.assetData.assetCode.mid(pointIndex+1, 4);
-            if (subStr == "cash") {
+            if (subStr == MY_CASH) {
                 ui->radioOther->setChecked(true);
             } else {}
         }

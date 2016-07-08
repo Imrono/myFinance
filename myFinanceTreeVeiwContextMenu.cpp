@@ -80,6 +80,7 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myIndexShell *node)
         editAsset->addSeparator();
 
         editAsset->addAction(addAssetList);
+        qDebug() << "currentNode->children.count():" << currentNode->children.count() << "type:" << currentNode->type;
         if (0 != currentNode->children.count()) {
             addAssetList->setDisabled(true);
         }
@@ -151,7 +152,7 @@ void myFinanceTreeVeiwContextMenu::insertAsset_clicked() {
 }
 void myFinanceTreeVeiwContextMenu::addAssetList_clicked() {
     // 1. 读取并保存资产数据
-    QList<myAssetData *> assetDataList;
+    QList<myAssetData> assetDataList;
     QString fileName = QFileDialog::getOpenFileName(parent, tr("open file"), " ",  tr("Allfile(*.*)"));
     qDebug() << "fileName:" << fileName;
     if (!analyzeStockFromFile(fileName, assetDataList)) {
@@ -160,18 +161,18 @@ void myFinanceTreeVeiwContextMenu::addAssetList_clicked() {
     }
 
     // 2. 批量添加资产
-    QString info = STR("从文件批量添加资产");
-    for (int i = 0; i < 0; i++) {
-        parent->doChangeAssetDirectly(currentNode, POP_INSERT, (void *)assetDataList.at(i), info);
+    int assetCount = assetDataList.count();
+    QString info = STR("从文件批量添加资产%1 ").arg(assetCount);
+    qDebug() << info;
+    for (int i = 0; i < assetCount; i++) {
+        parent->doChangeAssetDirectly(currentNode, POP_INSERT, (const void *)&assetDataList[i], info, assetCount-1 == i);
     }
-
-    // 3. 释放QList<myAssetData *> assetDataList
-    for (int i = 0; i < assetDataList.count(); i++) {
-        delete assetDataList.at(i);
-    }
-    assetDataList.clear();
 }
-bool myFinanceTreeVeiwContextMenu::analyzeStockFromFile(const QString &fileName, QList<myAssetData *> &assetDataList) {
+bool myFinanceTreeVeiwContextMenu::analyzeStockFromFile(const QString &fileName, QList<myAssetData> &assetDataList) {
+    const myAccountNode *account = static_cast<const myAccountNode *>(currentNode);
+    if (nullptr == account)
+        return false;
+
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly)) {
         qDebug() << "can not open file: " << fileName;
@@ -180,10 +181,78 @@ bool myFinanceTreeVeiwContextMenu::analyzeStockFromFile(const QString &fileName,
 
     QTextStream txtGet(&file);
     QString lineStr;
+    bool flag = false;
+    QMap<int, int> dataIdx2fileDataIdx;
+
     while(!txtGet.atEnd())
     {
         lineStr = txtGet.readLine();
+        lineStr.remove(" ");
         qDebug() << lineStr << endl;
+        if (lineStr.contains(STR(",,,,,,,,合计(人民币)")))
+            break;
+        QStringList strList = lineStr.split(',');
+
+        if (!flag) {
+            if (lineStr.contains(STR("余额")) && lineStr.contains(STR("总资产"))) {
+                lineStr = txtGet.readLine();
+                lineStr.remove(" ");
+                qDebug() << lineStr << endl;
+                int left = lineStr.indexOf("\"");
+                int rigth = lineStr.mid(left+1).indexOf("\"");
+                QString money = lineStr.mid(left+1).left(rigth);
+                money.remove(",");
+
+                myAssetData assetData;
+                assetData.accountCode = account->dbAccountData.accountData.code;
+                assetData.assetCode   = MY_CASH;
+                assetData.assetName   = STR("现金");
+                assetData.amount      = 1;
+                assetData.price       = money.toDouble();
+                assetData.type        = STR("现金");
+
+                assetDataList.append(assetData);
+            }
+            if (lineStr.contains(STR("证券代码"))) {
+                flag = true;
+                for (int i = 0; i < strList.count(); i++) {
+                    qDebug() << strList.at(i);
+                    if (strList.at(i) == STR("证券代码"))
+                        dataIdx2fileDataIdx[0] = i;
+                    if (strList.at(i) == STR("证券名称"))
+                        dataIdx2fileDataIdx[1] = i;
+                    if (strList.at(i) == STR("股票余额"))
+                        dataIdx2fileDataIdx[2] = i;
+                    if (strList.at(i) == STR("成本价") || strList.at(i) == STR("盈亏成本"))
+                        dataIdx2fileDataIdx[3] = i;
+                }
+            }
+        } else {
+            myAssetData assetData;
+            assetData.accountCode = account->dbAccountData.accountData.code;
+            assetData.assetCode   = strList.at(dataIdx2fileDataIdx[0]);
+            int len = assetData.assetCode.length();
+            if (6 != len) {
+                int diff = 6 - len;
+                QString left = QString(diff, '0');
+                assetData.assetCode.insert(0, left);
+            }
+            QString subStr = assetData.assetCode.left(2);
+            QString market;
+            if (subStr == "30" || subStr == "00") {
+                market = "sz.";
+            } else if (subStr == "60") {
+                market = "sh.";
+            } else {}
+            assetData.assetCode.insert(0, market);
+
+            assetData.assetName   = strList.at(dataIdx2fileDataIdx[1]);
+            assetData.amount      = strList.at(dataIdx2fileDataIdx[2]).toDouble();
+            assetData.price       = strList.at(dataIdx2fileDataIdx[3]).toDouble();
+            assetData.type        = STR("股票");
+
+            assetDataList.append(assetData);
+        }
     }
     file.close();
     return true;

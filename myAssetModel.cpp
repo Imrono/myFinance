@@ -409,10 +409,11 @@ void myAssetModel::qDebugNodeData()
     }
 }
 
-bool myAssetModel::doChangeAssetDirectly(const myIndexShell *node, changeType type, void *data) {
-    qDebug() << "myAssetModel";
+bool myAssetModel::doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data, bool isFlash) {
+    qDebug() << "myAssetModel, isFlash:" << isFlash;
     bool ans = root.doChangeAssetDirectly(node, type, data);
-    doReflashData(myIndexShell::nodeAccount == type, myIndexShell::nodeHolds == type);
+    if (isFlash)
+        doReflashData(myIndexShell::nodeAccount == type, myIndexShell::nodeHolds == type);
     return ans;
 }
 bool myAssetModel::doInsertAccount(myAccountData data) {

@@ -99,7 +99,7 @@ private slots:
 
 public:
     /// treeView
-    void doChangeAssetDirectly(const myIndexShell *node, changeType type, void *data, const QString &info);
+    void doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data, const QString &info, bool isFlash = true);
     void doUpDown(const myIndexShell *node, bool isUp);
 };
 

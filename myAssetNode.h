@@ -164,7 +164,7 @@ public:
     bool doChangeAsset(const myAssetData &assetData);
     static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
 
-    bool doChangeAssetDirectly(const myIndexShell *node, changeType type, void *data);
+    bool doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data);
     bool doInsertAccount(myAccountData data);
 
     bool setAccountPosition(const QString &accountCode, int pos);

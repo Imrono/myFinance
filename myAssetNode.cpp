@@ -298,7 +298,7 @@ QStringList myAccountAssetRootNode::getAllStockCodeList() {
     return list;
 }
 
-bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, changeType type, void *data) {
+bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data) {
     QSqlQuery query;
     QString execWord, filter;
 
@@ -309,14 +309,14 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
 
         /// INSERT ASSET
         if (POP_INSERT == type) {
-            return insertOneAsset(*static_cast<myAssetData *>(data));
+            return insertOneAsset(*static_cast<const myAssetData *>(data));
         /// MODIFY ACCOUNT
         } else if (POP_MODIFY == type) {
             QString accountCode = account->dbAccountData.accountData.code;
             filter   = STR("代号='%1'").arg(accountCode);
             execWord = STR("select count(*) from 资产帐户 WHERE %1").arg(filter);
             if (1 == myFinanceDatabase::getQueryRows(execWord)) {
-                myAccountData tmpAccountInfo = *static_cast<myAccountData *>(data);
+                myAccountData tmpAccountInfo = *static_cast<const myAccountData *>(data);
                 execWord = STR("UPDATE 资产帐户 SET 代号='%1', 名称='%2', 类别='%3', 备注='%4' WHERE %5")
                         .arg(tmpAccountInfo.code).arg(tmpAccountInfo.name).arg(tmpAccountInfo.type).arg(tmpAccountInfo.note)
                         .arg(filter);
@@ -379,7 +379,7 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
         QString originalAssetCode   = asset->dbAssetData.assetData.assetCode;
         /// MODIFY ASSET
         if (POP_MODIFY == type) {
-            modifyOneAsset(originalAccountCode, originalAssetCode, *static_cast<myAssetData *>(data));
+            modifyOneAsset(originalAccountCode, originalAssetCode, *static_cast<const myAssetData *>(data));
         /// DELETE ASSET
         } else if (POP_DELETE == type) {
             // delete holds

@@ -39,7 +39,7 @@ public:
     float doGetSecurityAsset();
 
     void doReflash();
-    bool doChangeAssetDirectly(const myIndexShell *node, changeType type, void *data);
+    bool doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data, bool isFlash);
     bool doInsertAccount(myAccountData data);
 
     bool doUpDown(bool isUp, const myIndexShell *node);

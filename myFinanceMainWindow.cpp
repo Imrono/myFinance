@@ -243,8 +243,8 @@ void myFinanceMainWindow::treeViewContextMenuSlot(const QPoint& pt) {
     myIndexShell *node = assetModel->nodeFromIndex(index);
     treeViewContextMenu.treeViewContextMenu(node);
 }
-void myFinanceMainWindow::doChangeAssetDirectly(const myIndexShell *node, changeType type, void* data, const QString &info) {
-    if (!assetModel->doChangeAssetDirectly(node, type, data)) {
+void myFinanceMainWindow::doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data, const QString &info, bool isFlash) {
+    if (!assetModel->doChangeAssetDirectly(node, type, data, isFlash)) {
         ui->treeView->expandAll();
         QMessageBox::warning(this, info+"failed", info+"failed", QMessageBox::Ok, QMessageBox::Ok);
     }
