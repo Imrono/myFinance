@@ -232,8 +232,8 @@ bool myAccountAssetRootNode::fetchAsset() {
             tmpAssetHold.assetData.assetCode   = query.value(0).toString();
             tmpAssetHold.assetData.assetName   = query.value(1).toString();
             tmpAssetHold.assetData.accountCode = query.value(2).toString();
-            tmpAssetHold.assetData.amount      = query.value(3).toFloat();
-            tmpAssetHold.assetData.price       = query.value(4).toFloat();
+            tmpAssetHold.assetData.amount      = query.value(3).toDouble();
+            tmpAssetHold.assetData.price       = query.value(4).toDouble();
             tmpAssetHold.assetData.type        = query.value(5).toString();
             tmpAssetHold.pos                   = query.value(6).toInt();
             tmpAssetHold.category              = query.value(7).toInt();
@@ -321,11 +321,17 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
                         .arg(tmpAccountInfo.code).arg(tmpAccountInfo.name).arg(tmpAccountInfo.type).arg(tmpAccountInfo.note)
                         .arg(filter);
                 MY_DEBUG_SQL(execWord);
-                if(!query.exec(execWord)) {
+                if(query.exec(execWord)) {
+                    const_cast<myAccountNode *>(account)->dbAccountData.accountData = tmpAccountInfo;
+                    return true;
+                } else {
                     MY_DEBUG_ERROR(query.lastError().text());
                     return false;
-                } else { return true;}
-            } else { return false;}
+                }
+            } else {
+                MY_DEBUG_ERROR(query.lastError().text());
+                return false;
+            }
         /// DELETE ACCOUNT
         } else if (POP_DELETE == type) {
             QString accountCode = account->dbAccountData.accountData.code;
@@ -341,45 +347,43 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
             // delete account
             filter   = STR("代号='%1'").arg(accountCode);
             execWord = STR("select count(*) from 资产帐户 WHERE %1").arg(filter);
-            MY_DEBUG_SQL(execWord);
-            if(!query.exec(execWord)) {
-                return false;
-            }
-            query.next();
-            if (1 == query.value(0).toInt()) {
-                execWord = STR("select * from 资产帐户 WHERE %1").arg(filter);
+            if (1 == myFinanceDatabase::getQueryRows(execWord)) {
+                int pos  = account->dbAccountData.pos;
+
+                execWord = STR("delete from 资产帐户 WHERE %1").arg(filter);
                 MY_DEBUG_SQL(execWord);
                 if(query.exec(execWord)) {
-                    query.next();
-                    int pos  = query.value(4).toInt();
-
-                    execWord = STR("delete from 资产帐户 WHERE %1").arg(filter);
-                    MY_DEBUG_SQL(execWord);
-                    if(query.exec(execWord)) {
-                        int toRemove = -1;
-                        for (int i = 0; i < rootNode.children.count(); i++) {
-                            const myAccountNodeData &accountInfo = GET_CONST_ACCOUNT_NODE_DATA(rootNode.children.at(i));
-                            if (accountInfo.accountData.code == accountCode) {
-                                toRemove = i;
-                            } else if (accountInfo.pos > pos) {
-                                if (!setAccountPosition(accountInfo.accountData.code, accountInfo.pos-1)) {
-                                        return false;
-                                }
+                    int toRemove = -1;
+                    for (int i = 0; i < rootNode.children.count(); i++) {
+                        const myAccountNodeData &accountInfo = GET_CONST_ACCOUNT_NODE_DATA(rootNode.children.at(i));
+                        if (accountInfo.accountData.code == accountCode) {
+                            toRemove = i;
+                        } else if (accountInfo.pos > pos) {
+                            if (!setAccountPosition(accountInfo.accountData.code, accountInfo.pos-1)) {
+                                return false;
                             }
                         }
-                        rootNode.children.removeAt(toRemove);
-                        return true;
-                    } else { return false;}
-                } else { return false;}
-            } else { return false;}
-        } else { return false;}
+                    }
+                    rootNode.children.removeAt(toRemove);
+                    return true;
+                } else {
+                    MY_DEBUG_ERROR(query.lastError().text());
+                    return false;
+                }
+            } else {
+                MY_DEBUG_ERROR(query.lastError().text());
+                return false;
+            }
+        } else {
+            return false;
+        }
     } else if (myIndexShell::nodeHolds == node->type) {
         const myAssetNode *asset = static_cast<const myAssetNode *>(node);
         QString originalAccountCode = asset->dbAssetData.assetData.accountCode;
         QString originalAssetCode   = asset->dbAssetData.assetData.assetCode;
         /// MODIFY ASSET
         if (POP_MODIFY == type) {
-            modifyOneAsset(originalAccountCode, originalAssetCode, *static_cast<const myAssetData *>(data));
+            return modifyOneAsset(originalAccountCode, originalAssetCode, *static_cast<const myAssetData *>(data));
         /// DELETE ASSET
         } else if (POP_DELETE == type) {
             // delete holds
@@ -390,17 +394,20 @@ bool myAccountAssetRootNode::doChangeAssetDirectly(const myIndexShell *node, cha
 }
 
 bool myAccountAssetRootNode::deleteOneAsset(const QString &accountCode, const QString &assetCode) {
+    myAccountNode *account = getAccountNode(accountCode);
+    if (!account)
+        return false;
+
     QSqlQuery query;
     QString filter   = STR("资产帐户代号='%1' AND 代号='%2'").arg(accountCode).arg(assetCode);
     QString execWord = STR("select count(*) from 资产 WHERE %1").arg(filter);
     if (1 == myFinanceDatabase::getQueryRows(execWord)) {
-        query.next();
-        int pos = query.value(6).toInt();
+        int pos = myAccountAssetRootNode::getAssetNode(account, assetCode)->dbAssetData.pos;
 
+        query.next();
         execWord = STR("delete from 资产 WHERE %1").arg(filter);
         MY_DEBUG_SQL(execWord);
         if(query.exec(execWord)) {
-            myAccountNode *account = getAccountNode(accountCode);
             int toRemove = -1;
             for (int i = 0; i < account->children.count(); i++) {
                 const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(account->children.at(i));
@@ -414,7 +421,10 @@ bool myAccountAssetRootNode::deleteOneAsset(const QString &accountCode, const QS
             }
             account->children.removeAt(toRemove);
             return true;
-        } else { return false;}
+        } else {
+            MY_DEBUG_ERROR(query.lastError().text());
+            return false;
+        }
     } else { return false;}
 }
 bool myAccountAssetRootNode::insertOneAsset(const myAssetData &insertAssetHold) {
@@ -443,7 +453,10 @@ bool myAccountAssetRootNode::insertOneAsset(const myAssetData &insertAssetHold) 
             MY_DEBUG_ERROR(query.lastError().text());
             return false;
         }
-    } else { return false;}
+    } else {
+        MY_DEBUG_ERROR(query.lastError().text());
+        return false;
+    }
 }
 bool myAccountAssetRootNode::modifyOneAsset(const QString &originalAccountCode, const QString &originalAssetCode, const myAssetData &targetAssetHold) {
     QSqlQuery query;

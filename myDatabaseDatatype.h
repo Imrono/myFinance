@@ -80,7 +80,7 @@ struct myAssetData {
     QString assetCode;
     QString assetName;
     double  amount; //double keeps the precise of int
-    float   price;
+    double  price;
     QString type;
     static bool isSameAssetData(const myAssetData &data1, const myAssetData &data2);
 };

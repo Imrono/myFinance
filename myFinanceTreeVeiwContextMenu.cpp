@@ -83,6 +83,8 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myIndexShell *node)
         qDebug() << "currentNode->children.count():" << currentNode->children.count() << "type:" << currentNode->type;
         if (0 != currentNode->children.count()) {
             addAssetList->setDisabled(true);
+        } else {
+            addAssetList->setEnabled(true);
         }
     } else if (myAssetNode::nodeHolds == node->type) {
         const myAssetNodeData &assetHolds = GET_CONST_ASSET_NODE_DATA(node);
@@ -312,6 +314,7 @@ void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
 }
 
 void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
+    qDebug() << STR("myFinanceTreeVeiwContextMenu::doChangeAssetDirectly with type=") << (int)type;
     QString info;
     void *data = nullptr;
 
@@ -395,7 +398,6 @@ void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {
     } else if (myAssetNode::nodeRoot == currentNode->type) {
     } else {}
 
-    qDebug() << "view" << (int)type;
     parent->doChangeAssetDirectly(currentNode, type, data, info);
     if (data) {
         delete data; data = nullptr;
@@ -418,12 +420,7 @@ void myFinanceTreeVeiwContextMenu::stockBonus_intrests(bool isInterest) {
     myDividendsDialog dial(holds.assetData, isInterest, parent);
     if(dial.exec() == QDialog::Accepted) {
         myDividends dividendsData = dial.getDividendsData();
-        qDebug() << "base" << dividendsData.base
-                 << "shareSplit" << dividendsData.shareSplit
-                 << "shareBonus" << dividendsData.shareBonus
-                 << "capitalBonus" << dividendsData.capitalBonus
-                 << "time" << dividendsData.time.toString()
-                 << "type" << dividendsData.type;
+        qDebug() << dividendsData.toString();
         parent->doDividend(dividendsData, holds.assetData, isInterest);
     }
 }

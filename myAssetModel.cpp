@@ -342,6 +342,7 @@ void myAssetModel::doUpdatePrice() {
 void myAssetModel::updatePriceFinish() {
     doReflash();
 }
+
 float myAssetModel::doGetTotalAsset() {
     float totalValue = 0.0f;
     if (stockPrice.isInit()) {
@@ -361,7 +362,6 @@ float myAssetModel::doGetTotalAsset() {
 
     return totalValue;
 }
-
 float myAssetModel::doGetSecurityAsset() {
     float securityAsset = 0.0f;
     if (stockPrice.isInit()) {
@@ -410,10 +410,14 @@ void myAssetModel::qDebugNodeData()
 }
 
 bool myAssetModel::doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data, bool isFlash) {
-    qDebug() << "myAssetModel, isFlash:" << isFlash;
-    bool ans = root.doChangeAssetDirectly(node, type, data);
+    qDebug() << "myAssetModel::doChangeAssetDirectly, isFlash:" << isFlash;
     if (isFlash)
-        doReflashData(myIndexShell::nodeAccount == type, myIndexShell::nodeHolds == type);
+        beginResetModel();
+
+    bool ans = root.doChangeAssetDirectly(node, type, data);
+
+    if (isFlash)
+        endResetModel();
     return ans;
 }
 bool myAssetModel::doInsertAccount(myAccountData data) {
