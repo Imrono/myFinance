@@ -16,7 +16,7 @@ myExchangeListModel::myExchangeListModel() {
 myExchangeListModel::~myExchangeListModel() {
 }
 
-bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool isDelete) {
+bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool isDelete, bool isFlash) {
     qDebug() << "### myExchangeListModel::doExchange ###";
     QSqlQuery query;
     QString execWord;
@@ -66,6 +66,8 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
             if(!query.exec(execWord)) {
                 MY_DEBUG_ERROR(query.lastError().text());
                 return false;
+            } else {
+
             }
         } else {
             return false;
@@ -73,7 +75,10 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
     }
 
     // 2 更新list，刷新
-    return initial();
+    if (isFlash)
+        return initial();
+    else
+        return true;
 }
 QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exchangeData) {
     QString exchangeStr;
@@ -138,7 +143,7 @@ bool myExchangeListModel::initial() {
             //data[i] = tmpExchange;
             i ++;
         }
-        qDebug() << "num of exchange data : " << i;
+        qDebug() << "## Initial Exchange data finished, num of exchange data : " << i << "###";
     } else { // 如果查询失败，用下面的方法得到具体数据库返回的原因
         qDebug() << "Fetch Account Data to MySql error: " << query.lastError().text();
         return false;
@@ -195,4 +200,8 @@ QString *myExchangeListModel::stringFromIndex(const QModelIndex &index) const {
     } else {
         return nullptr;
     }
+}
+
+bool myExchangeListModel::sortExchangeDateTime(const myExchangeData &origin, const myExchangeData &target) {
+    return origin.time.toMSecsSinceEpoch() < target.time.toMSecsSinceEpoch();
 }

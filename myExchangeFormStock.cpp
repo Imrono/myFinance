@@ -187,10 +187,10 @@ void myExchangeFormStock::updateExchangeFee() {
     } else {}
 
     fee = fee1 + fee2 + fee3;
-    data.fee = static_cast<float>(static_cast<int>(fee*100+0.5))/100;
+    data.fee = static_cast<double>(static_cast<int>(fee*100+0.5))/100;
     setExchangeWindowFee(data.fee);
 }
-float myExchangeFormStock::getStockExchangeFee(const QString assetCode, double amount, double price, double commisionRate) {
+double myExchangeFormStock::getStockExchangeFee(const QString assetCode, double amount, double price, double commisionRate) {
     double fee = 0.0f;
     double assetValue = qAbs(price*amount);
 
@@ -211,7 +211,7 @@ float myExchangeFormStock::getStockExchangeFee(const QString assetCode, double a
         fee3 = assetValue * 0.001f;
     } else {}
 
-    fee = fee1 + fee2 + fee3;
+    fee = static_cast<double>(static_cast<int>((fee1 + fee2 + fee3)*100+0.5))/100;
     return fee;
 }
 

@@ -98,10 +98,10 @@ struct myExchangeData {
 
     int       id;
     QDateTime time;
-    float     fee;      //为正数，用减法
+    double    fee;      //为正数，用减法
 
     QString   accountMoney;
-    float     money;
+    double    money;
     myAssetData assetData;
 
     QString   exchangeType;

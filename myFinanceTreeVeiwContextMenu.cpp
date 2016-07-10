@@ -264,7 +264,7 @@ void myFinanceTreeVeiwContextMenu::addExchangeList_clicked() {
     QString info = STR("从文件批量添加资产变化%1项").arg(exchangeCount);
     qDebug() << info;
     for (int i = 0; i < exchangeCount; i++) {
-        parent->exchangeModel->doExchange(exchangeDataList.at(i), true);
+        parent->exchangeModel->doExchange(exchangeDataList.at(i), false, i == exchangeCount-1);
     }
 }
 bool myFinanceTreeVeiwContextMenu::analyzeExchangeFromFile(const QString &fileName, QList<myExchangeData> &exchangeDataList) {
@@ -287,7 +287,6 @@ bool myFinanceTreeVeiwContextMenu::analyzeExchangeFromFile(const QString &fileNa
     {
         lineStr = txtGet.readLine();
         lineStr.remove(" ");
-        qDebug() << lineStr;
         QStringList strList = lineStr.split(',');
 
         if (!flag) {
@@ -295,7 +294,6 @@ bool myFinanceTreeVeiwContextMenu::analyzeExchangeFromFile(const QString &fileNa
                 flag = true;
 
                 for (int i = 0; i < strList.count(); i++) {
-                    qDebug() << strList.at(i);
                     if (strList.at(i) == STR("日期"))
                         dataIdx2fileDataIdx[0] = i;
                     if (strList.at(i) == STR("交易类别"))
@@ -314,14 +312,14 @@ bool myFinanceTreeVeiwContextMenu::analyzeExchangeFromFile(const QString &fileNa
             float buySellFlag = 1.0f;   // Buy 1.0, Sell -1.0;
 
             myExchangeData tmpExchangeData;
-            tmpExchangeData.time                = QDateTime::fromString(strList.at(dataIdx2fileDataIdx[0]), "yyyy-MM-dd");
-            tmpExchangeData.exchangeType        = strList.at(dataIdx2fileDataIdx[1]).contains(STR("买")) ?
-                                                                        STR("证券买入") : STR("证券卖出");
-            tmpExchangeData.assetData.assetCode = assetCodeWithMarket(strList.at(dataIdx2fileDataIdx[2]));
-            tmpExchangeData.assetData.assetName = strList.at(dataIdx2fileDataIdx[3]);
-            tmpExchangeData.assetData.price     = strList.at(dataIdx2fileDataIdx[4]).toDouble();
-            tmpExchangeData.assetData.amount    = buySellFlag * qAbs(strList.at(dataIdx2fileDataIdx[5]).toDouble());
-            buySellFlag                         = strList.at(dataIdx2fileDataIdx[1]).contains(STR("买")) ? 1.0f : -1.0f;
+            tmpExchangeData.time                  = QDateTime::fromString(strList.at(dataIdx2fileDataIdx[0]), "yyyyMMdd");
+            tmpExchangeData.exchangeType          = strList.at(dataIdx2fileDataIdx[1]).contains(STR("买")) ?
+                                                                          STR("证券买入") : STR("证券卖出");
+            tmpExchangeData.assetData.assetCode   = assetCodeWithMarket(strList.at(dataIdx2fileDataIdx[2]));
+            tmpExchangeData.assetData.assetName   = strList.at(dataIdx2fileDataIdx[3]);
+            tmpExchangeData.assetData.price       = strList.at(dataIdx2fileDataIdx[4]).toDouble();
+            tmpExchangeData.assetData.amount      = buySellFlag * qAbs(strList.at(dataIdx2fileDataIdx[5]).toDouble());
+            buySellFlag                           = strList.at(dataIdx2fileDataIdx[1]).contains(STR("买")) ? 1.0f : -1.0f;
 
             tmpExchangeData.accountMoney          = account->dbAccountData.accountData.code;
             tmpExchangeData.assetData.accountCode = tmpExchangeData.accountMoney;
@@ -329,6 +327,8 @@ bool myFinanceTreeVeiwContextMenu::analyzeExchangeFromFile(const QString &fileNa
                                                                                              tmpExchangeData.assetData.price, account->dbAccountData.accountData.note.toDouble());
             tmpExchangeData.money                 = -tmpExchangeData.assetData.price*tmpExchangeData.assetData.amount - tmpExchangeData.fee;
             tmpExchangeData.assetData.type        = STR("股票");
+
+            exchangeDataList.append(tmpExchangeData);
         }
     }
     file.close();

@@ -24,7 +24,7 @@ public:
     void setUI(const myExchangeData &exchangeData);
     void checkAndSetDisable(const myExchangeData &exchangeData);
 
-    static float getStockExchangeFee(const QString assetCode, double amount, double price, double commisionRate);
+    static double getStockExchangeFee(const QString assetCode, double amount, double price, double commisionRate);
 
 private:
     ///UI
