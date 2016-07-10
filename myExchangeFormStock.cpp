@@ -190,6 +190,31 @@ void myExchangeFormStock::updateExchangeFee() {
     data.fee = static_cast<float>(static_cast<int>(fee*100+0.5))/100;
     setExchangeWindowFee(data.fee);
 }
+float myExchangeFormStock::getStockExchangeFee(const QString assetCode, double amount, double price, double commisionRate) {
+    double fee = 0.0f;
+    double assetValue = qAbs(price*amount);
+
+    double fee1 = 0.0f; //佣金
+    double fee2 = 0.0f; //过户费
+    double fee3 = 0.0f; //印花税
+
+    fee1 = assetValue * commisionRate;
+    if (fee1 < 5.0f) {
+        fee1 = 5.0f;
+    } else {}
+
+    if (STR("sh.") == assetCode.left(3)) {
+        fee2 = assetValue * 0.02f*0.001f;  //0.02‰
+    } else {}
+
+    if (amount < 0) {
+        fee3 = assetValue * 0.001f;
+    } else {}
+
+    fee = fee1 + fee2 + fee3;
+    return fee;
+}
+
 
 void myExchangeFormStock::on_codeLineEdit_textEdited(const QString &str) {
     data.assetData.assetCode = str;

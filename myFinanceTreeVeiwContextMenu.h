@@ -12,6 +12,7 @@ class myFinanceMainWindow;
 class myFinanceTreeVeiwContextMenu : public QObject
 {
     Q_OBJECT
+    friend class myFinanceMainWindow;
 
 public:
     myFinanceTreeVeiwContextMenu(QWidget *parent);
@@ -33,6 +34,7 @@ private:
     QAction *deleteAccount;
     QAction *insertAsset;
     QAction *addAssetList;
+    QAction *addExchangeList;
 
     QAction *upAsset;
     QAction *downAsset;
@@ -50,12 +52,14 @@ private:
     myFinanceMainWindow *parent;
 
     bool analyzeStockFromFile(const QString &fileName, QList<myAssetData> &assetDataList);
+    bool analyzeExchangeFromFile(const QString &fileName, QList<myExchangeData> &exchangeDataList);
 
 private slots:
     void deleteAccount_clicked();
     void modifyAccount_clicked();
     void insertAsset_clicked();
     void addAssetList_clicked();
+    void addExchangeList_clicked();
 
     void upAsset_clicked();
     void downAsset_clicked();
@@ -74,6 +78,9 @@ private slots:
     void doExchangeStock(const QString &type);
 
     void stockBonus_intrests(bool isInterest);
+
+private:
+    QString assetCodeWithMarket(const QString &assetCode);
 };
 
 #endif // MYFINANCETREEVEIWCONTEXTMENU_H

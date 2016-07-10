@@ -3,6 +3,9 @@
 
 #include <QDebug>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QFile>
+
 #include "myFinanceExchangeWindow.h"
 #include "myInsertModifyAccount.h"
 #include "myInsertModifyAsset.h"
@@ -56,8 +59,8 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     editExchange->addAction(modifyExchange);
     editExchange->addAction(deleteExchange);
 
-    connect(modifyExchange, SIGNAL(triggered()), this, SLOT(modifyExchange_clicked()));
-    connect(deleteExchange, SIGNAL(triggered()), this, SLOT(deleteExchange_clicked()));
+    connect(modifyExchange,  SIGNAL(triggered()), this, SLOT(modifyExchange_clicked()));
+    connect(deleteExchange,  SIGNAL(triggered()), this, SLOT(deleteExchange_clicked()));
 
     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listView, SIGNAL(customContextMenuRequested(const QPoint&)),

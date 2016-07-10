@@ -23,6 +23,7 @@ class myFinanceMainWindow;
 class myFinanceMainWindow : public QMainWindow
 {
     Q_OBJECT
+    friend class myFinanceTreeVeiwContextMenu;
 
 public:
     explicit myFinanceMainWindow(QWidget *parent = 0);
