@@ -23,6 +23,7 @@ public:
     void recordExchangeData(myExchangeData &tmpData);
     void setUI(const myExchangeData &exchangeData);
     void checkAndSetDisable(const myExchangeData &exchangeData);
+    void disableAll();
 
     static double getStockExchangeFee(const QString assetCode, double amount, double price, double commisionRate);
 

@@ -20,6 +20,7 @@ myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : pa
     insertAsset     = new QAction(parent);
     addAssetList    = new QAction(parent);
     addExchangeList = new QAction(parent);
+    undoExchangeList= new QAction(parent);
 
     deleteAsset     = new QAction(parent);
     modifyAsset     = new QAction(parent);
@@ -37,6 +38,7 @@ myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : pa
     insertAsset->setText(STR("添加资产"));
     addAssetList->setText(STR("从文件添加资产"));
     addExchangeList->setText(STR("从文件读入交易数据"));
+    undoExchangeList->setText(STR("undo last读入交易数据"));
 
     upAsset->setText(STR("上移"));
     downAsset->setText(STR("下移"));
@@ -55,6 +57,7 @@ myFinanceTreeVeiwContextMenu::myFinanceTreeVeiwContextMenu(QWidget *parent) : pa
     connect(insertAsset,     SIGNAL(triggered()), this, SLOT(insertAsset_clicked()));
     connect(addAssetList,    SIGNAL(triggered()), this, SLOT(addAssetList_clicked()));
     connect(addExchangeList, SIGNAL(triggered()), this, SLOT(addExchangeList_clicked()));
+    connect(undoExchangeList,SIGNAL(triggered()), this, SLOT(undoExchangeList_clicked()));
 
     connect(upAsset,       SIGNAL(triggered()), this, SLOT(upAsset_clicked()));
     connect(downAsset,     SIGNAL(triggered()), this, SLOT(downAsset_clicked()));
@@ -84,11 +87,17 @@ void myFinanceTreeVeiwContextMenu::treeViewContextMenu(const myIndexShell *node)
 
         editAsset->addAction(addAssetList);
         editAsset->addAction(addExchangeList);
+        editAsset->addAction(undoExchangeList);
         qDebug() << "currentNode->children.count():" << currentNode->children.count() << "type:" << currentNode->type;
         if (0 != currentNode->children.count()) {
             addAssetList->setDisabled(true);
         } else {
             addAssetList->setEnabled(true);
+        }
+        if (0 == lastExchangeList.count()) {
+            undoExchangeList->setDisabled(true);
+        } else {
+            undoExchangeList->setEnabled(true);
         }
     } else if (myAssetNode::nodeHolds == node->type) {
         const myAssetNodeData &assetHolds = GET_CONST_ASSET_NODE_DATA(node);
@@ -260,11 +269,15 @@ void myFinanceTreeVeiwContextMenu::addExchangeList_clicked() {
     }
 
     // 2. 批量添加资产变化
-    int exchangeCount = exchangeDataList.count();
-    QString info = STR("从文件批量添加资产变化%1项").arg(exchangeCount);
+    lastExchangeList.clear();
+    int insertCount = exchangeDataList.count();
+    QString info = STR("从文件批量添加资产变化%1项").arg(insertCount);
     qDebug() << info;
-    for (int i = 0; i < exchangeCount; i++) {
-        parent->exchangeModel->doExchange(exchangeDataList.at(i), false, i == exchangeCount-1);
+    for (int i = 0; i < insertCount; i++) {
+        myExchangeData exchangeData = exchangeDataList.at(i);
+        parent->exchangeModel->doExchange(exchangeData, false, i == insertCount-1);
+        qDebug() << "insert exchangeData.id" << exchangeData.id;
+        lastExchangeList.append(exchangeData.id);
     }
 }
 bool myFinanceTreeVeiwContextMenu::analyzeExchangeFromFile(const QString &fileName, QList<myExchangeData> &exchangeDataList) {
@@ -287,6 +300,8 @@ bool myFinanceTreeVeiwContextMenu::analyzeExchangeFromFile(const QString &fileNa
     {
         lineStr = txtGet.readLine();
         lineStr.remove(" ");
+        if ("" == lineStr)
+            continue;
         QStringList strList = lineStr.split(',');
 
         if (!flag) {
@@ -334,6 +349,20 @@ bool myFinanceTreeVeiwContextMenu::analyzeExchangeFromFile(const QString &fileNa
     file.close();
     return true;
 }
+void myFinanceTreeVeiwContextMenu::undoExchangeList_clicked() {
+    int deleteCount = lastExchangeList.count();
+    QString info = STR("批量删除上次添加交易数据%1项").arg(deleteCount);
+    qDebug() << info;
+    for (int i = 0; i < deleteCount; i++) {
+        myExchangeData exchangeData;
+        exchangeData.id = lastExchangeList.at(i);
+        parent->exchangeModel->doExchange(exchangeData, true, i == deleteCount-1);
+        qDebug() << "delete exchangeData.id" << exchangeData.id;
+    }
+
+    lastExchangeList.clear();
+}
+
 QString myFinanceTreeVeiwContextMenu::assetCodeWithMarket(const QString &assetCode) {
     QString ans = assetCode;
     int len = ans.length();
@@ -385,7 +414,7 @@ void myFinanceTreeVeiwContextMenu::doExchangeStock(const QString &type) {
     exchangeData.assetData.assetCode   = holds.assetData.assetCode;
     exchangeData.assetData.assetName   = holds.assetData.assetName;
     exchangeData.exchangeType          = type;
-    parent->doExchange(myExchangeUI(exchangeData, false), true);
+    parent->doExchange(myExchangeUI(exchangeData, false, false), true);
 }
 
 void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
@@ -394,7 +423,7 @@ void myFinanceTreeVeiwContextMenu::transferIn_clicked() {
     const myAssetNodeData &holds = GET_CONST_ASSET_NODE_DATA(currentNode);
     exchangeData.assetData.accountCode = holds.assetData.accountCode;
     exchangeData.exchangeType = STR("转帐");
-    parent->doExchange(myExchangeUI(exchangeData, false), true);
+    parent->doExchange(myExchangeUI(exchangeData, false, false), true);
 }
 void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
     qDebug() << STR("右键转出 clicked");
@@ -402,7 +431,7 @@ void myFinanceTreeVeiwContextMenu::transferOut_clicked() {
     const myAssetNodeData &holds = GET_CONST_ASSET_NODE_DATA(currentNode);
     exchangeData.accountMoney = holds.assetData.accountCode;
     exchangeData.exchangeType = STR("转帐");
-    parent->doExchange(myExchangeUI(exchangeData, false), true);
+    parent->doExchange(myExchangeUI(exchangeData, false, false), true);
 }
 
 void myFinanceTreeVeiwContextMenu::doChangeAssetDirectly(changeType type) {

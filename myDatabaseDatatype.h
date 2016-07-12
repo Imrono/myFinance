@@ -122,16 +122,17 @@ public:
         MAX_TAB_COUNT = 6
     };
 
-    myExchangeUI(TAB_TYPES type) : numOfTabs(1), tabType(type), isShowRollback(false) {}
-    myExchangeUI() : numOfTabs(MAX_TAB_COUNT), tabType(TAB_NONE), isShowRollback(false) {}
-    myExchangeUI(const myExchangeData &data, bool isShowRollback)
-        : isShowRollback(isShowRollback), exchangeData(data) {
+    myExchangeUI(TAB_TYPES type) : numOfTabs(1), tabType(type), isShowRollback(false), isDisableAll(false) {}
+    myExchangeUI() : numOfTabs(MAX_TAB_COUNT), tabType(TAB_NONE), isShowRollback(false), isDisableAll(false) {}
+    myExchangeUI(const myExchangeData &data, bool isShowRollback, bool isDisableAll)
+        : isShowRollback(isShowRollback), exchangeData(data), isDisableAll(isDisableAll) {
         setTypeOfExchange(data);
     }
 
     int getNumOfTabs() const { return numOfTabs;}
     int getTabType() const { return tabType;}
     bool getIsShowRollback() const { return isShowRollback;}
+    bool getIsDisableAll() const { return isDisableAll;}
     const myExchangeData &getExchangeData() const { return exchangeData;}
     QString toString() {
         return STR("*myExchangeUI* numOfTabs:%1;tabType:%2;isShowRollback:%3;%4")
@@ -143,6 +144,7 @@ private:
     int numOfTabs;
     int tabType;
     bool isShowRollback;
+    bool isDisableAll;
     myExchangeData exchangeData;
 
     void setTypeOfExchange (const myExchangeData &data) {

@@ -22,6 +22,7 @@ public:
     virtual void recordExchangeData(myExchangeData &tmpData);
     virtual void setUI(const myExchangeData &exchangeData);
     virtual void checkAndSetDisable(const myExchangeData &exchangeData);
+    virtual void disableAll();
 
     const myExchangeData &getExchangeData();
     const int getTabType() { return tabType;}

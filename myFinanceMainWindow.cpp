@@ -284,8 +284,8 @@ void myFinanceMainWindow::modifyExchange_clicked() {
         return;
     }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myExchangeUI tmpUI(originExchangeData, true);
-    myFinanceExchangeWindow exWin(this, tmpUI, this, true);
+    myExchangeUI tmpUI(originExchangeData, true, false);
+    myFinanceExchangeWindow exWin(this, tmpUI, true, true);
     exWin.setWindowTitle(info);
     //exWin.setUI(originExchangeData, true);
     if(exWin.exec() == QDialog::Accepted) {
@@ -320,10 +320,10 @@ void myFinanceMainWindow::deleteExchange_clicked() {
         return;
     }
     myExchangeData originExchangeData = exchangeModel->getDataFromRow(line);
-    myExchangeUI tmpUI(originExchangeData, true);
-    myFinanceExchangeWindow dial(this, tmpUI);
+    myExchangeUI tmpUI(originExchangeData, true, true);
+    myFinanceExchangeWindow dial(this, tmpUI, true);
     dial.setWindowTitle(info);
-    dial.setUI(originExchangeData, true);
+    //dial.setUI(originExchangeData, true);
     if(dial.exec() == QDialog::Accepted) {
         qDebug() << info + "Accepted";
         // 1. DO EXCHANGE ASSET_DATA

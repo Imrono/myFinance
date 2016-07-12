@@ -13,11 +13,11 @@ public:
     myExchangeListModel();
     ~myExchangeListModel();
 
-    bool doExchange(const myExchangeData &data, bool isDelete = false, bool isFlash = true);
+    bool doExchange(myExchangeData &data, bool isDelete = false, bool isFlash = true);
     bool initial();
 
     myExchangeData getDataFromRow(int row);
-    static bool sortExchangeDateTime(const myExchangeData &origin, const myExchangeData &target);
+    void updateList(const myExchangeData &exchangeData);
 
     /*
      * changeIdx:

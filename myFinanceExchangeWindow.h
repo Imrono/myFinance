@@ -44,6 +44,7 @@ public:
 
     void setExchangeWindowUiType(const QString type);
     void setExchangeWindowUiFee(double fee);
+    void disableAll();
     void getCommonExchangeData(myExchangeData &tmpData);
 
     myFinanceMainWindow *getParent() { return parent;}

@@ -35,6 +35,8 @@ private:
     QAction *insertAsset;
     QAction *addAssetList;
     QAction *addExchangeList;
+    QAction *undoExchangeList;
+    QList<int> lastExchangeList;
 
     QAction *upAsset;
     QAction *downAsset;
@@ -60,6 +62,7 @@ private slots:
     void insertAsset_clicked();
     void addAssetList_clicked();
     void addExchangeList_clicked();
+    void undoExchangeList_clicked();
 
     void upAsset_clicked();
     void downAsset_clicked();

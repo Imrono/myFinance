@@ -23,6 +23,9 @@ void myExchangeFormTabBase::setUI(const myExchangeData &exchangeData) {
 void myExchangeFormTabBase::checkAndSetDisable(const myExchangeData &exchangeData) {
     Q_UNUSED(exchangeData);
 }
+void myExchangeFormTabBase::disableAll() {
+
+}
 
 void myExchangeFormTabBase::setExchangeWindowType(const QString &type) {
     parent->setExchangeWindowUiType(type);

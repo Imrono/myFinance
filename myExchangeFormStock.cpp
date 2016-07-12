@@ -1,6 +1,7 @@
 ﻿#include "myExchangeFormStock.h"
 #include "ui_myExchangeFormStock.h"
 #include "AssetCode2Type.h"
+#include "myFinanceExchangeWindow.h"
 
 myExchangeFormStock::myExchangeFormStock(const myAccountAssetRootNode *rootNode, QString tabName, QWidget *parent, bool isModifyExchange) :
     myExchangeFormTabBase(rootNode, tabName, myExchangeUI::TAB_STOCK, parent, isModifyExchange),
@@ -85,10 +86,8 @@ void myExchangeFormStock::setUI(const myExchangeData &exchangeData) {
     ui->nameLineEdit->setText(exchangeData.assetData.assetName);
     ui->codeLineEdit->setText(exchangeData.assetData.assetCode);
     on_codeLineEdit_textEdited(exchangeData.assetData.assetCode);
-    if (isModifyExchange) {
-        ui->spinBoxPrice->setValue(exchangeData.assetData.price);
-        ui->amountLineEdit->setValue(qAbs(exchangeData.assetData.amount));
-    }
+    ui->spinBoxPrice->setValue(exchangeData.assetData.price);
+    ui->amountLineEdit->setValue(qAbs(exchangeData.assetData.amount));
     if (STR("证券买入") == exchangeData.exchangeType) {
         ui->radioBuy->click();
     } else if (STR("证券卖出") == exchangeData.exchangeType) {
@@ -109,6 +108,21 @@ void myExchangeFormStock::checkAndSetDisable(const myExchangeData &exchangeData)
     }
     if (exchangeData.assetData.assetName != "")
         ui->nameLineEdit->setDisabled(true);
+}
+void myExchangeFormStock::disableAll() {
+    ui->moneyAccount->setDisabled(true);
+    ui->codeLineEdit->setDisabled(true);
+    ui->radioSH->setDisabled(true);
+    ui->radioSZ->setDisabled(true);
+    ui->radioOther->setDisabled(true);
+    ui->nameLineEdit->setDisabled(true);
+    ui->radioBuy->setDisabled(true);
+    ui->radioSell->setDisabled(true);
+    ui->spinBoxPrice->setDisabled(true);
+    ui->amountLineEdit->setDisabled(true);
+    ui->bonusTaxSpinBox->setDisabled(true);
+
+    parent->disableAll();
 }
 
 void myExchangeFormStock::updateBuySell() {

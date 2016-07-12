@@ -16,7 +16,7 @@ myExchangeListModel::myExchangeListModel() {
 myExchangeListModel::~myExchangeListModel() {
 }
 
-bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool isDelete, bool isFlash) {
+bool myExchangeListModel::doExchange(myExchangeData &exchangeData, bool isDelete, bool isFlash) {
     qDebug() << "### myExchangeListModel::doExchange ###";
     QSqlQuery query;
     QString execWord;
@@ -67,7 +67,16 @@ bool myExchangeListModel::doExchange(const myExchangeData &exchangeData, bool is
                 MY_DEBUG_ERROR(query.lastError().text());
                 return false;
             } else {
-
+                updateList(exchangeData);
+                execWord = STR("SELECT last_insert_rowid()");
+                MY_DEBUG_SQL(execWord);
+                if(query.exec(execWord)) {
+                    query.next();
+                    exchangeData.id = query.value(0).toInt();
+                } else {
+                    MY_DEBUG_ERROR(query.lastError().text());
+                    return false;
+                }
             }
         } else {
             return false;
@@ -126,7 +135,7 @@ bool myExchangeListModel::initial() {
         while(query.next()) { // 定位结果到下一条记录
             myExchangeData tmpExchange;
             tmpExchange.id                    = query.value(0).toInt();
-            tmpExchange.time                  = QDateTime::fromString(query.value(1).toString(), "yyyy-MM-ddThh:mm:ss");
+            tmpExchange.time                  = QDateTime::fromString(query.value(1).toString(), "yyyy-MM-dd hh:mm:ss");
             tmpExchange.exchangeType          = query.value(2).toString();
             tmpExchange.accountMoney          = query.value(3).toString();
             tmpExchange.money                 = query.value(4).toDouble();
@@ -136,11 +145,7 @@ bool myExchangeListModel::initial() {
             tmpExchange.assetData.price       = query.value(8).toDouble();
             tmpExchange.assetData.amount      = query.value(9).toInt();
 
-            QString exchangeStr = updateStrFromExchangeData(tmpExchange);
-            // 下标为i的list与data要保持对应的
-            list.append(exchangeStr);
-            strData.append(tmpExchange);
-            //data[i] = tmpExchange;
+            updateList(tmpExchange);
             i ++;
         }
         qDebug() << "## Initial Exchange data finished, num of exchange data : " << i << "###";
@@ -202,6 +207,17 @@ QString *myExchangeListModel::stringFromIndex(const QModelIndex &index) const {
     }
 }
 
-bool myExchangeListModel::sortExchangeDateTime(const myExchangeData &origin, const myExchangeData &target) {
-    return origin.time.toMSecsSinceEpoch() < target.time.toMSecsSinceEpoch();
+void myExchangeListModel::updateList(const myExchangeData &exchangeData) {
+    QString exchangeStr = updateStrFromExchangeData(exchangeData);
+    // 下标为i的list与data要保持对应的
+    list.append(exchangeStr);
+    strData.append(exchangeData);
+
+    int dataCount = strData.count();
+    for (int i = 0; i < dataCount-1; i++) {
+        if (strData.at(i).time.toMSecsSinceEpoch() > strData.at(dataCount-1).time.toMSecsSinceEpoch()) {
+            list.swap(i, dataCount-1);
+            strData.swap(i, dataCount-1);
+        }
+    }
 }

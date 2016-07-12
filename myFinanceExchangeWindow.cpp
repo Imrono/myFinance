@@ -62,7 +62,11 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
         _currentTab = _myTabs[dataSource];
         if (isPartial) {
             setUI(exchangeUI.getExchangeData(), exchangeUI.getIsShowRollback());
-            _currentTab->checkAndSetDisable(exchangeUI.getExchangeData());
+            if (exchangeUI.getIsDisableAll()) {
+                _currentTab->disableAll();
+            } else {
+                _currentTab->checkAndSetDisable(exchangeUI.getExchangeData());
+            }
         }
         qDebug() << "## SETUP UI MODEL FINISH ##";
     } else {  }
@@ -143,6 +147,11 @@ void myFinanceExchangeWindow::setExchangeWindowUiType(const QString type) {
 }
 void myFinanceExchangeWindow::setExchangeWindowUiFee(double fee) {
     ui->exchangeFeeSpinBox->setValue(fee);
+}
+void myFinanceExchangeWindow::disableAll() {
+    ui->timeDateTimeEdit->setDisabled(true);
+    ui->exchangeFeeSpinBox->setDisabled(true);
+    ui->typeLineEdit->setDisabled(true);
 }
 void myFinanceExchangeWindow::getCommonExchangeData(myExchangeData &tmpData) {
     tmpData.time = ui->timeDateTimeEdit->dateTime();
