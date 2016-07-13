@@ -6,7 +6,10 @@
 #include <QString>
 #include <QVariant>
 
-#define MY_CASH            "cash"
+#define MY_CASH         "cash"
+#define MY_MONEY_FUND   STR("货币基金")
+
+
 #define OTHER_ACCOUNT   "myOtherAccount"
 #define OTHER_ASSET     "myOtherAsset"
 #define MONEY_EPS  0.0001f

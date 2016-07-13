@@ -1,23 +1,25 @@
 #ifndef MYEXCHANGELISTMODEL_H
 #define MYEXCHANGELISTMODEL_H
 #include "myGlobal.h"
+#include "myDatabaseDatatype.h"
+#include "myExchangeListNode.h"
 
 #include <QStringListModel>
-#include "myDatabaseDatatype.h"
-#include "myFinanceDatabase.h"
+#include <QList>
 
 class myExchangeListModel : public QStringListModel
 {
     Q_OBJECT
 public:
-    myExchangeListModel();
+    myExchangeListModel(QObject *parent = 0);
     ~myExchangeListModel();
 
-    bool doExchange(myExchangeData &data, bool isDelete = false, bool isFlash = true);
-    bool initial();
+    bool doExchange(myExchangeData &data, bool isDelete = false, bool isSyncWithDb = true);
+    void doReflash();
 
-    myExchangeData getDataFromRow(int row);
-    void updateList(const myExchangeData &exchangeData);
+    const myExchangeData &getDataFromRow(int row) const {
+        return exchangeNode.getDataFromRow(row);
+    }
 
     /*
      * changeIdx:
@@ -38,14 +40,16 @@ public:
 
     void coordinatorModifyExchange(const myExchangeData &originData, const myExchangeData &targetData, int &changeIdx);
 
+    QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
     QString *stringFromIndex(const QModelIndex &index) const;
 
 private:
-    QStringList list;
-    QList<myExchangeData> strData;
+    myExchangeListNode exchangeNode;
 
-    QString updateStrFromExchangeData(const myExchangeData &exchangeData);
+    QString updateStrFromExchangeData(const myExchangeData &exchangeData) const;
 };
 
 #endif // MYEXCHANGELISTMODEL_H

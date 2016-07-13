@@ -1,95 +1,27 @@
 ﻿#include "myExchangeListModel.h"
 #include "myFinanceDatabase.h"
-#include <QtSql/QSqlQuery>
-#include <QtSql/QSqlDriver>
-#include <QtSql/QSqlError>
-#include <QtSql/QSqlRecord>
 
 #include <QDebug>
 
-myExchangeListModel::myExchangeListModel() {
-    if (!myFinanceDatabase::isConnected) {
-        myFinanceDatabase::connectDB();
-    }
-    initial();
+myExchangeListModel::myExchangeListModel(QObject *parent) : QStringListModel(parent) {
+    doReflash();
 }
 myExchangeListModel::~myExchangeListModel() {
 }
 
-bool myExchangeListModel::doExchange(myExchangeData &exchangeData, bool isDelete, bool isFlash) {
-    qDebug() << "### myExchangeListModel::doExchange ###";
-    QSqlQuery query;
-    QString execWord;
-    if (isDelete) {
-        execWord = STR("DELETE FROM 资产变化 WHERE id=%1").arg(exchangeData.id);
-        MY_DEBUG_SQL(execWord);
-        if(!query.exec(execWord)) {
-            MY_DEBUG_ERROR(query.lastError().text());
-            return false;
-        }
-    } else {
-        QString exchangeTime = exchangeData.time.toString(("yyyy-MM-dd hh:mm:ss"));
-        QString exchangeType = exchangeData.exchangeType;
-        // 1 update database, "资产变化"表 CHANGE
-        execWord = STR("SELECT count(*) FROM 资产变化 WHERE id=%1").arg(exchangeData.id);
-        int numRows = myFinanceDatabase::getQueryRows(execWord);
-        if (1 == numRows) {        //UPDATE
-            execWord = STR("UPDATE 资产变化 "
-                    "SET 时间='%1', 变化类别='%2', 资产帐户代号1='%3', 变化资金=%4, "
-                    "资产帐户代号2='%5', 代号='%6', 名称='%7', 单价=%8, 数量=%9 "
-                    "WHERE id=%10")
-                    .arg(exchangeTime).arg(exchangeType).arg(exchangeData.accountMoney).arg(exchangeData.money)
-                    .arg(exchangeData.assetData.accountCode).arg(exchangeData.assetData.assetCode).arg(exchangeData.assetData.assetName)
-                    .arg(exchangeData.assetData.price).arg(exchangeData.assetData.amount).arg(exchangeData.id);
-            MY_DEBUG_SQL(execWord);
-
-            if(!query.exec(execWord)) {
-                MY_DEBUG_ERROR(query.lastError().text());
-                return false;
-            } else {
-                for (int i = 0; i < list.count(); i++) {
-                    if (strData[i].id == exchangeData.id) {
-                        QString exchangeStr = updateStrFromExchangeData(exchangeData);
-                        strData.replace(i, exchangeData);
-                        list.replace(i, exchangeStr);
-                    }
-                }
-            }
-        } else if (0 == numRows) { //INSERT
-            execWord = STR("INSERT INTO 资产变化 "
-                                              "VALUES (null, '%1', '%2', '%3', %4, '%5', '%6', '%7', %8, %9)")
-                    .arg(exchangeTime).arg(exchangeType).arg(exchangeData.accountMoney).arg(exchangeData.money)
-                    .arg(exchangeData.assetData.accountCode).arg(exchangeData.assetData.assetCode).arg(exchangeData.assetData.assetName)
-                    .arg(exchangeData.assetData.price).arg(exchangeData.assetData.amount);
-            MY_DEBUG_SQL(execWord);
-
-            if(!query.exec(execWord)) {
-                MY_DEBUG_ERROR(query.lastError().text());
-                return false;
-            } else {
-                updateList(exchangeData);
-                execWord = STR("SELECT last_insert_rowid()");
-                MY_DEBUG_SQL(execWord);
-                if(query.exec(execWord)) {
-                    query.next();
-                    exchangeData.id = query.value(0).toInt();
-                } else {
-                    MY_DEBUG_ERROR(query.lastError().text());
-                    return false;
-                }
-            }
-        } else {
-            return false;
-        }
-    }
+bool myExchangeListModel::doExchange(myExchangeData &exchangeData, bool isDelete, bool isSyncWithDb) {
+    // 1 doExchange to DB
+    beginResetModel();
+    bool ans = exchangeNode.doExchange(exchangeData, isDelete);
+    endResetModel();
 
     // 2 更新list，刷新
-    if (isFlash)
-        return initial();
-    else
-        return true;
+    if (isSyncWithDb)
+        doReflash();
+
+    return ans;
 }
-QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exchangeData) {
+QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exchangeData) const {
     QString exchangeStr;
     if (MY_CASH == exchangeData.assetData.assetCode && 1 == exchangeData.assetData.amount
     && STR("利息") != exchangeData.exchangeType && STR("分红") != exchangeData.exchangeType) {
@@ -124,41 +56,11 @@ QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exc
     return exchangeStr;
 }
 
-bool myExchangeListModel::initial() {
-    list.clear();
-    strData.clear();
-
-    QSqlQuery query;
-    ///读“资产变化”表
-    if(query.exec(STR("select * from 资产变化"))) {
-        int i = 0;
-        while(query.next()) { // 定位结果到下一条记录
-            myExchangeData tmpExchange;
-            tmpExchange.id                    = query.value(0).toInt();
-            tmpExchange.time                  = QDateTime::fromString(query.value(1).toString(), "yyyy-MM-dd hh:mm:ss");
-            tmpExchange.exchangeType          = query.value(2).toString();
-            tmpExchange.accountMoney          = query.value(3).toString();
-            tmpExchange.money                 = query.value(4).toDouble();
-            tmpExchange.assetData.accountCode = query.value(5).toString();
-            tmpExchange.assetData.assetCode   = query.value(6).toString();
-            tmpExchange.assetData.assetName   = query.value(7).toString();
-            tmpExchange.assetData.price       = query.value(8).toDouble();
-            tmpExchange.assetData.amount      = query.value(9).toInt();
-
-            updateList(tmpExchange);
-            i ++;
-        }
-        qDebug() << "## Initial Exchange data finished, num of exchange data : " << i << "###";
-    } else { // 如果查询失败，用下面的方法得到具体数据库返回的原因
-        qDebug() << "Fetch Account Data to MySql error: " << query.lastError().text();
-        return false;
-    }
-    setStringList(list);
-    return true;
-}
-
-myExchangeData myExchangeListModel::getDataFromRow(int row) {
-    return strData[row];
+void myExchangeListModel::doReflash() {
+    beginResetModel();
+    exchangeNode.rollback();
+    exchangeNode.initial();
+    endResetModel();
 }
 
 void myExchangeListModel::coordinatorModifyExchange(const myExchangeData &originData, const myExchangeData &targetData, int &changeIdx) {
@@ -187,10 +89,24 @@ void myExchangeListModel::coordinatorModifyExchange(const myExchangeData &origin
     }
 }
 
+QModelIndex myExchangeListModel::index(int row, int column, const QModelIndex &parent) const {
+    Q_UNUSED(parent);
+    if (row < 0 || column < 0 || row >= exchangeNode.getRowCount())
+        return QModelIndex();
+    return createIndex(row, column, const_cast<myExchangeData *>(exchangeNode.getDataPtrFromRow(row)));
+}
+int myExchangeListModel::rowCount(const QModelIndex &parent) const {
+    Q_UNUSED(parent);
+    return exchangeNode.getRowCount();
+}
+int myExchangeListModel::columnCount(const QModelIndex &parent) const {
+    Q_UNUSED(parent);
+    return 1;
+}
 QVariant myExchangeListModel::data(const QModelIndex &index, int role) const {
     if (Qt::DisplayRole == role) {
-        if (stringFromIndex(index)) {
-            return list[index.row()];
+        if (exchangeNode.getRowCount() > index.row() && index.row() >= 0) {
+            return updateStrFromExchangeData(*static_cast<myExchangeData *>(index.internalPointer()));
         } else {
             return QVariant();
         }
@@ -198,26 +114,4 @@ QVariant myExchangeListModel::data(const QModelIndex &index, int role) const {
         return QVariant();
     }
     return QVariant();
-}
-QString *myExchangeListModel::stringFromIndex(const QModelIndex &index) const {
-    if (index.isValid()) {
-        return const_cast<QString *>(&list[index.row()]);
-    } else {
-        return nullptr;
-    }
-}
-
-void myExchangeListModel::updateList(const myExchangeData &exchangeData) {
-    QString exchangeStr = updateStrFromExchangeData(exchangeData);
-    // 下标为i的list与data要保持对应的
-    list.append(exchangeStr);
-    strData.append(exchangeData);
-
-    int dataCount = strData.count();
-    for (int i = 0; i < dataCount-1; i++) {
-        if (strData.at(i).time.toMSecsSinceEpoch() > strData.at(dataCount-1).time.toMSecsSinceEpoch()) {
-            list.swap(i, dataCount-1);
-            strData.swap(i, dataCount-1);
-        }
-    }
 }

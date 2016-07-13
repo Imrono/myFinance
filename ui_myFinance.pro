@@ -38,7 +38,9 @@ SOURCES += main.cpp\
     customUI/myLineEdit.cpp \
     myDividendsDialog.cpp \
     myExchangeFormFund.cpp \
-    myDividendsDialog_2.cpp
+    myDividendsDialog_2.cpp \
+    myAssetHistory.cpp \
+    myExchangeListNode.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \
@@ -66,7 +68,9 @@ HEADERS  += myFinanceMainWindow.h \
     customUI/myLineEdit.h \
     myDividendsDialog.h \
     myExchangeFormFund.h \
-    myDividendsDialog_2.h
+    myDividendsDialog_2.h \
+    myAssetHistory.h \
+    myExchangeListNode.h
 
 FORMS    += myFinanceMainWindow.ui \
     myFinanceExchangeWindow.ui \

@@ -146,9 +146,11 @@ class myAccountAssetRootNode {
 public:
     myAccountAssetRootNode()
         : rootNode(myIndexShell::nodeRoot, myRootNodeData(), nullptr) {}
+    myAccountAssetRootNode(const myAccountAssetRootNode &otherNode);
     ~myAccountAssetRootNode() {
         callback();
     }
+    myAccountAssetRootNode &operator =(const myAccountAssetRootNode &otherNode);
 
     bool initial(bool isFetchAccount = true, bool isFetchAsset = true);
     bool callback(bool isRemoveAccount = true, bool isRemoveAsset = true);
@@ -165,13 +167,20 @@ public:
     static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
 
     bool doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data);
-    bool doInsertAccount(myAccountData data);
+    bool doInsertAccount(const myAccountData &data);
 
     bool setAccountPosition(const QString &accountCode, int pos);
     bool setAssetPosition(const QString &accountCode, const QString &assetCode, int pos);
 
+    // nodeData change only
+    void setAssetPositionNode(myAssetNode *asset, int po);
+    void deleteOneAssetNode(myAccountNode *account, const QString &assetCode);
+    void insertOneAssetNode(myAccountNode *account, const myAssetData &insertAssetHold);
+    void modifyOneAssetNode(myAssetNode *asset, const myAssetData &targetAssetHold);
+
 private:
     myRootNode rootNode;
+    myAccountAssetRootNode &deepCopy(const myAccountAssetRootNode &otherNode);
 
     bool fetchAccount();
     bool fetchAsset();

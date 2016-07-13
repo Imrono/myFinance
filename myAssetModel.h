@@ -9,9 +9,6 @@
 #include "myStockPrice.h"
 #include "myDatabaseDatatype.h"
 
-//#include "myFinanceMainWindow.h"
-//class myFinanceMainWindow;
-
 class myAssetModel : public QAbstractItemModel
 {
     Q_OBJECT
@@ -19,8 +16,7 @@ public:
     myAssetModel(QObject *parent);
     ~myAssetModel();
 
-    QModelIndex index(int row, int column,
-                      const QModelIndex &parent) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
 
     int rowCount(const QModelIndex &parent) const;

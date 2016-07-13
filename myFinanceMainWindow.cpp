@@ -19,7 +19,7 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     treeViewContextMenu(this)
 {
     assetModel = new myAssetModel(this);
-    exchangeModel = new myExchangeListModel();
+    exchangeModel = new myExchangeListModel(this);
 
     ui->setupUi(this);
 
