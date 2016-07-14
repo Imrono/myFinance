@@ -2,6 +2,7 @@
 #include <QDebug>
 
 int getShowCategory(const myAssetData &tmpAssetHold) {
+    Q_UNUSED(tmpAssetHold);
     return -1;
 }
 

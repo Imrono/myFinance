@@ -163,7 +163,8 @@ public:
 
     QStringList getAllStockCodeList();
 
-    bool doChangeAsset(const myAssetData &assetData);
+    bool doChangeAssetDatabase(const myAssetData &assetData);
+    bool doChangeAssetNode(const myAssetData &assetData);
     static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
 
     bool doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data);
@@ -174,9 +175,9 @@ public:
 
     // nodeData change only
     void setAssetPositionNode(myAssetNode *asset, int po);
-    void deleteOneAssetNode(myAccountNode *account, const QString &assetCode);
-    void insertOneAssetNode(myAccountNode *account, const myAssetData &insertAssetHold);
-    void modifyOneAssetNode(myAssetNode *asset, const myAssetData &targetAssetHold);
+    bool deleteOneAssetNode(myAccountNode *account, const QString &assetCode);
+    bool insertOneAssetNode(myAccountNode *account, const myAssetData &insertAssetHold);
+    bool modifyOneAssetNode(myAccountNode *account, const QString &originalAssetCode, const myAssetData &targetAssetHold);
 
 private:
     myRootNode rootNode;

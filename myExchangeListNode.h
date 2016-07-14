@@ -9,10 +9,13 @@ class myExchangeListNode
 public:
     myExchangeListNode();
     myExchangeListNode(const myExchangeListNode &otherNode);
-    ~myExchangeListNode();
+    myExchangeListNode &operator =(const myExchangeListNode &otherNode);
+    ~myExchangeListNode() {}
+
+    myExchangeListNode &deepCopy(const myExchangeListNode &otherNode);
 
     bool initial();
-    void rollback();
+    void callback();
     bool doExchange(myExchangeData &exchangeData, bool isDelete);
 
     const myExchangeData &getDataFromRow(int row) const {

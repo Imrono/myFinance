@@ -58,7 +58,7 @@ QString myExchangeListModel::updateStrFromExchangeData(const myExchangeData &exc
 
 void myExchangeListModel::doReflash() {
     beginResetModel();
-    exchangeNode.rollback();
+    exchangeNode.callback();
     exchangeNode.initial();
     endResetModel();
 }

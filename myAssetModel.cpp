@@ -280,7 +280,7 @@ bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) 
             } else { }      /// insert MY_CASH
             float money = originalAssetData.price + exchangeData.money;
             moneyData.initMoneyAsset(exchangeData.accountMoney, money);
-            ans = root.doChangeAsset(moneyData) && ans;
+            ans = root.doChangeAssetDatabase(moneyData) && ans;
         } else { return false;}
     }
 
@@ -307,7 +307,7 @@ bool myAssetModel::doExchange(const myExchangeData &exchangeData, bool reflash) 
             tmpAssetData.amount = 1;
             tmpAssetData.price = exchangeData.assetData.price + originalAssetData.price;
         }
-        ans = root.doChangeAsset(tmpAssetData) && ans;
+        ans = root.doChangeAssetDatabase(tmpAssetData) && ans;
     } else { return false;}
 
     if (reflash) {

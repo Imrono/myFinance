@@ -54,7 +54,28 @@ myAccountAssetRootNode &myAccountAssetRootNode::deepCopy(const myAccountAssetRoo
     return *this;
 }
 
-bool myAccountAssetRootNode::doChangeAsset(const myAssetData &assetData) {
+bool myAccountAssetRootNode::doChangeAssetDatabase(const myAssetData &assetData) {
+    myAccountNode *account = getAccountNode(assetData.accountCode);
+    if (!account)
+        return false;
+
+    bool ans = false;
+    myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, assetData.assetCode);
+    if (asset) {
+        if (assetData.amount != 0) {    ///UPDATE
+            ans = modifyOneAsset(assetData.accountCode, assetData.assetCode, assetData);
+        } else {                        ///DELETE
+            ans = deleteOneAsset(assetData.accountCode, assetData.assetCode);
+        }
+    } else {                            ///INSERT
+        ans = insertOneAsset(assetData);
+    }
+    if (ans)
+        return doChangeAssetNode(assetData);
+    else
+        return false;
+}
+bool myAccountAssetRootNode::doChangeAssetNode(const myAssetData &assetData) {
     myAccountNode *account = getAccountNode(assetData.accountCode);
     if (!account)
         return false;
@@ -62,12 +83,12 @@ bool myAccountAssetRootNode::doChangeAsset(const myAssetData &assetData) {
     myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, assetData.assetCode);
     if (asset) {
         if (assetData.amount != 0) {    ///UPDATE
-            return modifyOneAsset(assetData.accountCode, assetData.assetCode, assetData);
+            return modifyOneAssetNode(account, assetData.assetCode, assetData);
         } else {                        ///DELETE
-            return deleteOneAsset(assetData.accountCode, assetData.assetCode);
+            return deleteOneAssetNode(account, assetData.assetCode);
         }
     } else {                            ///INSERT
-        return insertOneAsset(assetData);
+        return insertOneAssetNode(account, assetData);
     }
     return false;
 }
@@ -446,7 +467,6 @@ bool myAccountAssetRootNode::deleteOneAsset(const QString &accountCode, const QS
                     }
                 }
             }
-            deleteOneAssetNode(account, assetCode);
             return true;
         } else {
             MY_DEBUG_ERROR(query.lastError().text());
@@ -454,20 +474,25 @@ bool myAccountAssetRootNode::deleteOneAsset(const QString &accountCode, const QS
         }
     } else { return false;}
 }
-void myAccountAssetRootNode::deleteOneAssetNode(myAccountNode *account, const QString &assetCode) {
-    int pos = myAccountAssetRootNode::getAssetNode(account, assetCode)->dbAssetData.pos;
-    int toRemove = -1;
-    int assetCount = account->children.count();
-    for (int i = 0; i < assetCount; i++) {
-        myAssetNode *asset = static_cast<myAssetNode *>(account->children.at(i));
-        const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(asset);
-        if (assetHold.assetData.assetCode == assetCode) {
-            toRemove = i;
-        } else if (assetHold.pos > pos) {
-            setAssetPositionNode(asset, assetHold.pos-1);
+bool myAccountAssetRootNode::deleteOneAssetNode(myAccountNode *account, const QString &assetCode) {
+    if (account) {
+        int pos = myAccountAssetRootNode::getAssetNode(account, assetCode)->dbAssetData.pos;
+        int toRemove = -1;
+        int assetCount = account->children.count();
+        for (int i = 0; i < assetCount; i++) {
+            myAssetNode *asset = static_cast<myAssetNode *>(account->children.at(i));
+            const myAssetNodeData &assetHold = GET_CONST_ASSET_NODE_DATA(asset);
+            if (assetHold.assetData.assetCode == assetCode) {
+                toRemove = i;
+            } else if (assetHold.pos > pos) {
+                setAssetPositionNode(asset, assetHold.pos-1);
+            }
         }
-    }
     account->children.removeAt(toRemove);
+    return true;
+    } else {
+        return false;
+    }
 }
 bool myAccountAssetRootNode::insertOneAsset(const myAssetData &insertAssetHold) {
     myAccountNode *account = getAccountNode(insertAssetHold.accountCode);
@@ -485,7 +510,6 @@ bool myAccountAssetRootNode::insertOneAsset(const myAssetData &insertAssetHold) 
                 .arg(insertAssetHold.amount).arg(strPrice).arg(insertAssetHold.type).arg(account->children.count()).arg(-1);
         MY_DEBUG_SQL(execWord);
         if(query.exec(execWord)) {
-            insertOneAssetNode(account, insertAssetHold);
             return true;
         } else {
             MY_DEBUG_ERROR(query.lastError().text());
@@ -496,15 +520,22 @@ bool myAccountAssetRootNode::insertOneAsset(const myAssetData &insertAssetHold) 
         return false;
     }
 }
-void myAccountAssetRootNode::insertOneAssetNode(myAccountNode *account, const myAssetData &insertAssetHold) {
+bool myAccountAssetRootNode::insertOneAssetNode(myAccountNode *account, const myAssetData &insertAssetHold) {
     if (account) {
         myAssetNodeData tmpAssetHold(insertAssetHold);
         tmpAssetHold.pos = account->children.count();
         myAssetNode *asset = new myAssetNode(myIndexShell::nodeHolds, tmpAssetHold, account);
         account->addChild(asset);
+        return true;
+    } else {
+        return false;
     }
 }
 bool myAccountAssetRootNode::modifyOneAsset(const QString &originalAccountCode, const QString &originalAssetCode, const myAssetData &targetAssetHold) {
+    myAccountNode *account = getAccountNode(originalAccountCode);
+    if (!account)
+        return false;
+
     QSqlQuery query;
     QString filter   = STR("资产帐户代号='%1' AND 代号='%2'")
                     .arg(originalAccountCode).arg(originalAssetCode);
@@ -519,15 +550,6 @@ bool myAccountAssetRootNode::modifyOneAsset(const QString &originalAccountCode, 
                 .arg(filter);
         MY_DEBUG_SQL(execWord);
         if(query.exec(execWord)) {
-            myAccountNode *account = getAccountNode(originalAccountCode);
-            if (!account)
-                return false;
-
-            myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, originalAssetCode);
-            if (!asset)
-                return false;
-
-            modifyOneAssetNode(asset, targetAssetHold);
             return true;
         } else {
             MY_DEBUG_ERROR(query.lastError().text());
@@ -536,9 +558,18 @@ bool myAccountAssetRootNode::modifyOneAsset(const QString &originalAccountCode, 
     } else { return false;}
     return false;
 }
-void myAccountAssetRootNode::modifyOneAssetNode(myAssetNode *asset, const myAssetData &targetAssetHold) {
-    if (asset)
-        asset->dbAssetData.assetData = targetAssetHold;
+bool myAccountAssetRootNode::modifyOneAssetNode(myAccountNode *account, const QString &originalAssetCode, const myAssetData &targetAssetHold) {
+    if (account) {
+        myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, originalAssetCode);
+        if (!asset) {
+            return false;
+        } else {
+            asset->dbAssetData.assetData = targetAssetHold;
+            return true;
+        }
+    } else {
+        return false;
+    }
 }
 
 bool myAccountAssetRootNode::doInsertAccount(const myAccountData &data) {

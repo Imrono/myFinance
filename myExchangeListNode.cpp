@@ -17,14 +17,16 @@ myExchangeListNode::myExchangeListNode(const myExchangeListNode &otherNode) {
         myFinanceDatabase::connectDB();
     }
 
-    int exchangeCount = exchangeList.count();
-    for (int i = 0; i < exchangeCount; i++) {
-        exchangeList.append(otherNode.getExchangeList());
-    }
+    deepCopy(otherNode);
 }
+myExchangeListNode &myExchangeListNode::operator =(const myExchangeListNode &otherNode) {
+    return deepCopy(otherNode);
+}
+myExchangeListNode &myExchangeListNode::deepCopy(const myExchangeListNode &otherNode) {
+    if(this != &otherNode)
+        exchangeList.append(otherNode.getExchangeList());
 
-myExchangeListNode::~myExchangeListNode() {
-
+    return *this;
 }
 
 bool myExchangeListNode::initial() {
@@ -57,7 +59,7 @@ bool myExchangeListNode::initial() {
     }
     return true;
 }
-void myExchangeListNode::rollback() {
+void myExchangeListNode::callback() {
     exchangeList.clear();
 }
 

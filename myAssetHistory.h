@@ -11,15 +11,17 @@ class myAssetHistory
 {
 public:
     myAssetHistory();
-    myAssetHistory(const myAccountAssetRootNode &root, const myExchangeListNode &exchangeList)
-        : currentAssetTime(QDateTime::currentDateTime()), historyRoot(root), exchangeList(exchangeList) {}
+    myAssetHistory(const myAccountAssetRootNode &root, const myExchangeListNode &exchangeListNode)
+        : currentAssetTime(QDateTime::currentDateTime()), historyRoot(root), exchangeListNode(exchangeListNode) {}
     ~myAssetHistory();
 
     const myAccountAssetRootNode &getHistoryNode(const QDateTime &time);
+    bool doExchangeNode(const myExchangeData &exchangeData);
+
 private:
     QDateTime currentAssetTime;
     myAccountAssetRootNode historyRoot;
-    myExchangeListNode exchangeList;
+    myExchangeListNode exchangeListNode;
 };
 
 #endif // MYASSETHISTORY_H
