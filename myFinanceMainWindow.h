@@ -34,19 +34,19 @@ public:
     myAssetModel *getAssetModel() { return assetModel;}
 
 private slots:
-    void on_exchange_clicked();
-    void on_exchangeStock_clicked();
-    void on_exchangeFund_clicked();
-    void on_exchangeMoneyUp_clicked();
-    void on_exchangeTransfer_clicked();
+    void onExchangeClicked();
+    void onExchangeStockClicked();
+    void onExchangeFundClicked();
+    void onExchangeMoneyUpClicked();
+    void onExchangeTransferClicked();
 
-    void on_new_account_clicked();
+    void onNewAccountClicked();
 
-    void on_reflash_clicked();
-    void on_syncDatabase_clicked();
+    void onReflashClicked();
+    void onSyncDatabaseClicked();
 
-    void on_updatePrice_clicked();
-    void on_hidePrice_clicked();
+    void onUpdatePriceClicked();
+    void onHidePriceClicked();
 
 private:
     Ui::myFinanceMainWindow *ui;

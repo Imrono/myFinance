@@ -9,12 +9,16 @@
 #include "myFinanceDatabase.h"
 #include "myStockCodeName.h"
 #include "AssetCode2Type.h"
+#include "myStockHistoryData.h"
 
 #include <QDebug>
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     qDebug() << MY_FT_RED("WELLCOM") << MY_FT_YELLOW("TO") << MY_FT_GREEN("myFinance") << MY_FT_BOLD_BLACK("PROGRAM");
+
+    myStockHistoryData *stockHistoryData = myStockHistoryData::getInstance();
+    stockHistoryData->getStockHistory("sz.000333");
 
     QPixmap pixmap(":/SplashScreen/resource/SplashScreen/gold10years.jpg");
     QSplashScreen screen(pixmap);

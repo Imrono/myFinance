@@ -68,40 +68,40 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
 
     // mainToolBar
     exchange = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myExchange.png"), STR("资产变化"), this);
-    connect(exchange, SIGNAL(triggered()), this, SLOT(on_exchange_clicked()));
+    connect(exchange, SIGNAL(triggered()), this, SLOT(onExchangeClicked()));
     ui->mainToolBar->addAction(exchange);
     exchangeStock = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/mySecurity.png"), STR("证券交易"), this);
-    connect(exchangeStock, SIGNAL(triggered()), this, SLOT(on_exchangeStock_clicked()));
+    connect(exchangeStock, SIGNAL(triggered()), this, SLOT(onExchangeStockClicked()));
     ui->mainToolBar->addAction(exchangeStock);
     exchangeFund = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/myFund.png"), STR("基金"), this);
-    connect(exchangeFund, SIGNAL(triggered()), this, SLOT(on_exchangeFund_clicked()));
+    connect(exchangeFund, SIGNAL(triggered()), this, SLOT(onExchangeFundClicked()));
     ui->mainToolBar->addAction(exchangeFund);
     exchangeMoneyUp = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/myMoneyUp.png"), STR("理财"), this);
-    connect(exchangeMoneyUp, SIGNAL(triggered()), this, SLOT(on_exchangeMoneyUp_clicked()));
+    connect(exchangeMoneyUp, SIGNAL(triggered()), this, SLOT(onExchangeMoneyUpClicked()));
     ui->mainToolBar->addAction(exchangeMoneyUp);
     exchangeTransfer = new QAction(QIcon(":/icon/exchangeTab/resource/icon/exchangeTab/myTransfer.png"), STR("转帐"), this);
-    connect(exchangeTransfer, SIGNAL(triggered()), this, SLOT(on_exchangeTransfer_clicked()));
+    connect(exchangeTransfer, SIGNAL(triggered()), this, SLOT(onExchangeTransferClicked()));
     ui->mainToolBar->addAction(exchangeTransfer);
     ui->mainToolBar->addSeparator();
 
     newAccount = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myNewAccount.png"), STR("新建帐户"), this);
-    connect(newAccount, SIGNAL(triggered()), this, SLOT(on_new_account_clicked()));
+    connect(newAccount, SIGNAL(triggered()), this, SLOT(onNewAccountClicked()));
     ui->mainToolBar->addAction(newAccount);
     ui->mainToolBar->addSeparator();
 
     reflashData = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myReflashData.png"), STR("刷新"), this);
-    connect(reflashData, SIGNAL(triggered()), this, SLOT(on_reflash_clicked()));
+    connect(reflashData, SIGNAL(triggered()), this, SLOT(onReflashClicked()));
     ui->mainToolBar->addAction(reflashData);
     syncDatabase = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/mySyncDatabase.png"), STR("界面与数据库同步"), this);
-    connect(syncDatabase, SIGNAL(triggered()), this, SLOT(on_syncDatabase_clicked()));
+    connect(syncDatabase, SIGNAL(triggered()), this, SLOT(onSyncDatabaseClicked()));
     ui->mainToolBar->addAction(syncDatabase);
     ui->mainToolBar->addSeparator();
 
     updatePrice = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myUpdatePrice.png"), STR("更新价格"), this);;
-    connect(updatePrice, SIGNAL(triggered()), this, SLOT(on_updatePrice_clicked()));
+    connect(updatePrice, SIGNAL(triggered()), this, SLOT(onUpdatePriceClicked()));
     ui->mainToolBar->addAction(updatePrice);
     hidePrice = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myHidePrice.png"), STR("更新价格"), this);;
-    connect(hidePrice, SIGNAL(triggered()), this, SLOT(on_hidePrice_clicked()));
+    connect(hidePrice, SIGNAL(triggered()), this, SLOT(onHidePriceClicked()));
     ui->mainToolBar->addAction(hidePrice);
 }
 
@@ -127,31 +127,31 @@ void myFinanceMainWindow::codeDataReady() {
     qDebug() << statueStr_1;
 }
 
-void myFinanceMainWindow::on_exchange_clicked()
+void myFinanceMainWindow::onExchangeClicked()
 {
     qDebug() << STR("资产变化 clicked");
     myExchangeUI exchangeUI = myExchangeUI();
     doExchange(exchangeUI);
 }
-void myFinanceMainWindow::on_exchangeStock_clicked()
+void myFinanceMainWindow::onExchangeStockClicked()
 {
     qDebug() << STR("证券交易 clicked");
     myExchangeUI exchangeUI(myExchangeUI::TAB_STOCK);
     doExchange(exchangeUI);
 }
-void myFinanceMainWindow::on_exchangeFund_clicked()
+void myFinanceMainWindow::onExchangeFundClicked()
 {
     qDebug() << STR("基金 clicked");
     myExchangeUI exchangeUI(myExchangeUI::TAB_FUNDS);
     doExchange(exchangeUI);
 }
-void myFinanceMainWindow::on_exchangeMoneyUp_clicked()
+void myFinanceMainWindow::onExchangeMoneyUpClicked()
 {
     qDebug() << STR("理财 clicked");
     myExchangeUI exchangeUI(myExchangeUI::TAB_MONUP);
     doExchange(exchangeUI);
 }
-void myFinanceMainWindow::on_exchangeTransfer_clicked()
+void myFinanceMainWindow::onExchangeTransferClicked()
 {
     qDebug() << STR("转帐 clicked");
     myExchangeUI exchangeUI(myExchangeUI::TAB_TRANS);
@@ -177,7 +177,7 @@ void myFinanceMainWindow::doExchange(const myExchangeUI& uiSetup, bool isSetDisa
     ui->treeView->expandAll();
 }
 
-void myFinanceMainWindow::on_new_account_clicked()
+void myFinanceMainWindow::onNewAccountClicked()
 {
     qDebug() << STR("新建帐户 clicked");
     myInsertModifyAccount dial(this);
@@ -194,7 +194,7 @@ void myFinanceMainWindow::on_new_account_clicked()
     ui->treeView->expandAll();
 }
 
-void myFinanceMainWindow::on_reflash_clicked()
+void myFinanceMainWindow::onReflashClicked()
 {
     qDebug() << STR("刷新 clicked finished 正在读取股票代码");
     statueStr_1 = STR("正在读取股票代码");
@@ -205,12 +205,12 @@ void myFinanceMainWindow::on_reflash_clicked()
     stockCode->getStockCode();
     ui->treeView->expandAll();
 }
-void myFinanceMainWindow::on_syncDatabase_clicked() {
+void myFinanceMainWindow::onSyncDatabaseClicked() {
     assetModel->doReflashData();
     ui->treeView->expandAll();
 }
 
-void myFinanceMainWindow::on_updatePrice_clicked()
+void myFinanceMainWindow::onUpdatePriceClicked()
 {
     qDebug() << STR("更新价格 clicked");
     assetModel->doUpdatePrice();
@@ -234,7 +234,7 @@ void myFinanceMainWindow::priceDataReflashed() {
     statusLabel.setText(statueStr_1+statueStr_2);
     qDebug() << STR("价格更新 finished") << statueStr_2;
 }
-void myFinanceMainWindow::on_hidePrice_clicked() {
+void myFinanceMainWindow::onHidePriceClicked() {
     statueStr_2 = STR("");
     statusLabel.setText(statueStr_1+statueStr_2);
 }

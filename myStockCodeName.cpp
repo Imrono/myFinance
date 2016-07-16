@@ -44,8 +44,10 @@ myStockCodeName::myStockCodeName()
 }
 
 myStockCodeName::~myStockCodeName() {
-    if (manager)
+    if (manager) {
         delete manager;
+        manager = nullptr;
+    }
 }
 
 void myStockCodeName::replyFinished(QNetworkReply* data) {
