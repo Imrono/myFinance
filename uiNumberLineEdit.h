@@ -1,5 +1,6 @@
 #ifndef UINUMBERLINEEDIT_H
 #define UINUMBERLINEEDIT_H
+#include "myGlobal.h"
 
 #include <QLineEdit>
 

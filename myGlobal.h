@@ -10,6 +10,7 @@
 #endif
 #else
 #   define  STR(x)  QString::fromLocal8Bit(x)
+#   pragma warning (disable:4819)
 #endif
 
 // QT_NO_DEBUG -> QT release version macro

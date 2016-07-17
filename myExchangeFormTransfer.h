@@ -1,6 +1,5 @@
-#ifndef MYEXCHANGEFORMTRANSFER_H
+﻿#ifndef MYEXCHANGEFORMTRANSFER_H
 #define MYEXCHANGEFORMTRANSFER_H
-
 #include "myExchangeFormTabBase.h"
 
 namespace Ui {

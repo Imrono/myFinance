@@ -1,5 +1,6 @@
 #ifndef MYMONEYINCOMEEXPENSES_H
 #define MYMONEYINCOMEEXPENSES_H
+#include "myGlobal.h"
 
 #include <QList>
 #include <QString>

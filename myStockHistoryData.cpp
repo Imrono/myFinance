@@ -4,64 +4,36 @@
 #include <QByteArray>
 #include <QDebug>
 #include <QMessageBox>
+#include <QEventLoop>
 
-myStockHistoryData *myStockHistoryData::instance = nullptr;
-myStockHistoryData::myStockHistoryData()
-{
-    manager = new QNetworkAccessManager(this);
-    connect(manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(replyFinished(QNetworkReply*)));
+historyDailyDataProcessThread::historyDailyDataProcessThread(const QString &stockCode, myStockHistoryData* parent)
+    : parent(parent), stockCode(stockCode), QThread(parent) {}
 
-    replyTimeout = new QTimer(this);
-    connect(replyTimeout, SIGNAL(timeout()), this, SLOT(handleTimeout()));
-    replyTimeout->setSingleShot(true);
-}
-myStockHistoryData::~myStockHistoryData() {
-}
+historyDailyDataProcessThread::~historyDailyDataProcessThread() {}
 
-void myStockHistoryData::getStockHistory(QString stockCode) {
+void historyDailyDataProcessThread::run() {
+    qDebug() << STR("### historyDailyDataProcessThread |%1| run ###").arg(stockCode);
+
     QString urlYahooHistory;
     QString prefix = STR("http://table.finance.yahoo.com/table.csv?s=");
-    urlYahooHistory = prefix;
-
-    QString preStr = stockCode.left(3);
-    if ("sh." == preStr) {
-        stockCode.remove(0, 3);
-        stockCode.append(STR(".ss"));
-    } else if ("sz." == preStr) {
-        stockCode.remove(0, 3);
-        stockCode.append(STR(".sz"));
-    } else {}
     urlYahooHistory = prefix + stockCode;
 
-    ntRequest.setUrl(QUrl(urlYahooHistory));
-    reply = manager->get(ntRequest);
-    MY_DEBUG_URL(ntRequest.url().toString());
-    connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(onDownloadProgress(qint64, qint64)));
-    connect(reply, SIGNAL(readyRead()),this, SLOT(onReadyRead()));
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(urlYahooHistory)));
+    MY_DEBUG_URL(urlYahooHistory);
+    QEventLoop eventLoop;
+    connect(manager, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
+    eventLoop.exec();       //block until finish
 
-    //replyTimeout->start(6000);
-    //qDebug() << "### start TIMER 6s for stock price get ###";
-}
-
-void myStockHistoryData::replyFinished(QNetworkReply* data) {
-    replyTimeout->stop();
-    stockHistoryList.clear();
-
-    if (reply->error()) {
-        qDebug() << "failed : " << reply->errorString();
-        QMessageBox::information(NULL, STR("reply error"), reply->errorString());
-    }
-
-    QByteArray lineData = data->readLine();
+    QByteArray lineData = reply->readLine();
+    QList<myStockHistoryData::myStockDailyData> *tmpStockHistoryList = new QList<myStockHistoryData::myStockDailyData>();
     unsigned historyCount = 0;
     while (!lineData.isNull()) {
         //qDebug() << stockDailyData;
-        lineData = data->readLine();
         QList<QByteArray> strList = lineData.split(',');
 
         if (7 == strList.count()) {
-            myStockDailyData stockDailyData;
+            myStockHistoryData::myStockDailyData stockDailyData;
             stockDailyData.datetime = QDateTime::fromString(strList.at(0), "yyyy-MM-dd");
             stockDailyData.open     = strList.at(1).toFloat();
             stockDailyData.high     = strList.at(2).toFloat();
@@ -70,22 +42,99 @@ void myStockHistoryData::replyFinished(QNetworkReply* data) {
             stockDailyData.volume   = strList.at(5).toInt();
             stockDailyData.adjClose = strList.at(6).toFloat();
 
-            stockHistoryList.append(stockDailyData);
+            tmpStockHistoryList->append(stockDailyData);
             historyCount ++;
+            lineData = reply->readLine();
         }
     }
     qDebug() << "myStockHistoryData::replyFinished with historyCount:" << historyCount;
-}
-void myStockHistoryData::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal) {
-    qDebug() << STR("### myStockHistoryData::onDownloadProgress -> bytesReceived:%1, bytesTotal:%2 ###").arg(bytesReceived).arg(bytesTotal);
-}
-void myStockHistoryData::onReadyRead() {
-    qDebug() << "### myStockHistoryData::onReadyRead ###";
+
+    mutex.lock();
+    parent->stockHistoryList[stockCode] = tmpStockHistoryList;
+    mutex.unlock();
+    emit processFinish(stockCode);
 }
 
-void myStockHistoryData::handleTimeout() {
-    qDebug() << "### myStockHistoryData get TIMER timeout!! ###";
-    replyTimeout->stop();
-    reply->abort();
-    QMessageBox::warning(nullptr, "timeout", STR("获取股票历史价格超时"), QMessageBox::Ok, QMessageBox::Ok);
+/////////////////////////////////////
+/// class myStockHistoryData PART ///
+/////////////////////////////////////
+myStockHistoryData *myStockHistoryData::instance = nullptr;
+myStockHistoryData::myStockHistoryData() : maxNumOfHistories(10)
+{}
+myStockHistoryData::~myStockHistoryData() {
+    while (stockHistoryList.count()) {
+        if (stockHistoryList.first()) {
+            delete stockHistoryList.first();
+            stockHistoryList.remove(stockHistoryList.firstKey());
+        }
+    }
+}
+
+void myStockHistoryData::getStockHistory(QString stockCode) {
+    QString preStr = stockCode.left(3);
+    if ("sh." == preStr) {
+        stockCode.remove(0, 3);
+        stockCode.append(STR(".ss"));
+    } else if ("sz." == preStr) {
+        stockCode.remove(0, 3);
+        stockCode.append(STR(".sz"));
+    } else {}
+    lastStockCode = stockCode;
+    if (stockHistoryList.contains(stockCode)) {
+        if (pendingRemoveStock.contains(stockCode)) {
+            pendingRemoveStock.removeAll(stockCode);
+        } else {}
+        qDebug() << STR("### %1 already exist in list ###").arg(stockCode);
+        return;
+    } else {
+        stockHistoryList.insert(stockCode, nullptr);
+    }
+
+    historyDailyDataProcessThread *thread = new historyDailyDataProcessThread(stockCode, this);
+    threads.insert(stockCode, thread);
+    connect(thread, SIGNAL(processFinish(QString)), this, SLOT(oneHistoryDailyDataInserted(QString)));
+}
+
+void myStockHistoryData::oneHistoryDailyDataInserted(const QString stockCode) {
+    qDebug() << STR("%1 historyDailyData process finished").arg(stockCode);
+    historyDailyDataProcessThread *thread = threads.value(stockCode);
+    disconnect(thread, SIGNAL(processFinish(QString)), this, SLOT(oneHistoryDailyDataInserted(QString)));
+    delete thread;
+    threads.remove(stockCode);
+
+    if (stockHistoryList.count() > maxNumOfHistories) {
+        int pendingRemoveCount = pendingRemoveStock.count();
+        if (pendingRemoveCount > 0) {
+            for (int i = 0; i < pendingRemoveCount; i++) {
+                stockHistoryList.remove(pendingRemoveStock.first());
+                pendingRemoveStock.removeFirst();
+                if (stockHistoryList.count() <= maxNumOfHistories) {
+                    break;
+                }
+            }
+        }
+    }
+    qDebug() << "myStockHistoryData::replyFinished with stockHistoryList.count():" << stockHistoryList.count()
+             << " pendingRemoveStock.count()" << pendingRemoveStock.count();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+bool myStockHistoryData::getStockDailyData(const QString &stockCode, const QDateTime dateTime, myStockDailyData &stockDailyData) {
+    if (!stockHistoryList.contains(stockCode))
+        return false;
+
+    QList<myStockDailyData> *historyData = stockHistoryList.value(stockCode);
+    int historyDailyDataCount = historyData->count();
+    for (int i = 0; i < historyDailyDataCount; i++) {
+        const myStockDailyData &dailyData = historyData->at(i);
+        if (dailyData.datetime == dateTime) {
+            stockDailyData = dailyData;
+            return true;
+        } else if (dailyData.datetime > dateTime) {
+            continue;
+        } else {
+            return false;
+        }
+    }
+    return false;
 }

@@ -60,22 +60,30 @@ bool myAccountAssetRootNode::doChangeAssetDatabase(const myAssetData &assetData)
         return false;
 
     bool ans = false;
+    int exchangeType = -1;
     myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, assetData.assetCode);
     if (asset) {
         if (assetData.amount != 0) {    ///UPDATE
+            exchangeType = ASSET_MODIFY;
             ans = modifyOneAsset(assetData.accountCode, assetData.assetCode, assetData);
         } else {                        ///DELETE
+            exchangeType = ASSET_DELETE;
             ans = deleteOneAsset(assetData.accountCode, assetData.assetCode);
         }
     } else {                            ///INSERT
+        exchangeType = ASSET_INSERT;
         ans = insertOneAsset(assetData);
     }
-    if (ans)
-        return doChangeAssetNode(assetData);
+
+    if (ans) {
+        int exchangeTypeNode = -1;
+        ans = doChangeAssetNode(assetData, exchangeTypeNode) && ans;
+        return ans && (exchangeTypeNode == exchangeType);
+    }
     else
         return false;
 }
-bool myAccountAssetRootNode::doChangeAssetNode(const myAssetData &assetData) {
+bool myAccountAssetRootNode::doChangeAssetNode(const myAssetData &assetData, int &exchangeType) {
     myAccountNode *account = getAccountNode(assetData.accountCode);
     if (!account)
         return false;
@@ -83,11 +91,14 @@ bool myAccountAssetRootNode::doChangeAssetNode(const myAssetData &assetData) {
     myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, assetData.assetCode);
     if (asset) {
         if (assetData.amount != 0) {    ///UPDATE
+            exchangeType = ASSET_MODIFY;
             return modifyOneAssetNode(account, assetData.assetCode, assetData);
         } else {                        ///DELETE
+            exchangeType = ASSET_DELETE;
             return deleteOneAssetNode(account, assetData.assetCode);
         }
     } else {                            ///INSERT
+        exchangeType = ASSET_INSERT;
         return insertOneAssetNode(account, assetData);
     }
     return false;

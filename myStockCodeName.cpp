@@ -24,8 +24,7 @@ void codeDataProcessThread::run() {
 
 myStockCodeName *myStockCodeName::instance = nullptr;
 myStockCodeName::myStockCodeName()
-    : manager(nullptr), ntRequest(QUrl("")),
-      isInitialed(false), CodeDataFile("stockCodeData.txt"),
+    : manager(nullptr), ntRequest(QUrl("")), CodeDataFile("stockCodeData.txt"),
       thread(this), isDataReady(false)
 {
     manager = new QNetworkAccessManager();
@@ -116,7 +115,6 @@ void myStockCodeName::analyzeStockCode(QString fileName) {
     QTextStream stream(&file);
 
     codeName.clear();
-    isInitialed = false;
     QString line;
     QRegExp rxCode("([a-zA-Z]*)([0-9]*)");
     QRegExp rxName("[(][0-9]*[)]");
@@ -140,7 +138,6 @@ void myStockCodeName::analyzeStockCode(QString fileName) {
         } else { continue; }
     }
     file.close();
-    isInitialed = true;
     qDebug() << "myStockCodeName::analyzeStockCode=>codeName.count() =" << codeName.count();
 }
 void myStockCodeName::threadProcessFinish() {
@@ -150,7 +147,7 @@ void myStockCodeName::threadProcessFinish() {
 }
 
 QString myStockCodeName::findNameFromCode(const QString &code) const {
-    if (this->getIsInitialed()) {
+    if (this->getIsDataReady()) {
         QMap<QString, QString>::const_iterator ii = codeName.find(code);
         if (ii != codeName.end() && ii.key() == code) {
             return ii.value();

@@ -1,9 +1,9 @@
 #ifndef MYEXCHANGEFORMFUND_H
 #define MYEXCHANGEFORMFUND_H
+#include "myExchangeFormTabBase.h"
 
 #include <QWidget>
 #include <QButtonGroup>
-#include "myExchangeFormTabBase.h"
 
 namespace Ui {
 class myExchangeFormFund;

@@ -1,4 +1,4 @@
-#ifndef MYFINANCEMAINWINDOW_H
+﻿#ifndef MYFINANCEMAINWINDOW_H
 #define MYFINANCEMAINWINDOW_H
 #include "myGlobal.h"
 

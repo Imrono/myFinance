@@ -228,7 +228,6 @@ void myExchangeFormMoneyUp::on_doDividendButton_clicked() {
 
     if (currentAsset) {
         myDividends divident;
-        const myAssetData &assetHold = GET_CONST_ASSET_NODE_DATA(currentAsset);
         // 1. 读取分红数据
         myDividendsDialog_2 dial(GET_CONST_ASSET_NODE_DATA(currentAsset), this);
         if(dial.exec() != QDialog::Accepted)
@@ -238,6 +237,7 @@ void myExchangeFormMoneyUp::on_doDividendButton_clicked() {
 
 #if 0
         // 2. 写入数据库并更新MainWindow
+        const myAssetData &assetHold = GET_CONST_ASSET_NODE_DATA(currentAsset);
         grandparent->doDividend(divident, assetHold, true, false);
 
         // 3. 更新当前界面

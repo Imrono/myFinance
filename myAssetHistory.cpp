@@ -1,4 +1,4 @@
-#include "myAssetHistory.h"
+﻿#include "myAssetHistory.h"
 
 #include <QDateTime>
 #include <QDebug>
@@ -6,7 +6,13 @@
 myAssetHistory::myAssetHistory()
     : currentAssetTime(QDateTime::currentDateTime())
 {
+    // ASSET DATA
     historyRoot.initial();
+    calcCurrentStockHolding();                                  //默认的持有股票信息
+    stockHistoryData = myStockHistoryData::getInstance();
+    myAssetHistory::getHistoryDataList(currentStockHolding);    //每只股票的历史价格
+
+    // EXCHANGE DATA
     exchangeListNode.initial();
 }
 
@@ -58,7 +64,7 @@ bool myAssetHistory::doExchangeNode(const myExchangeData &exchangeData) {
             originalAssetData = GET_CONST_ASSET_NODE_DATA(asset).assetData;
         } else { }      /// insert MY_CASH
 
-        ans = historyRoot.doChangeAssetNode(moneyData) && ans;
+        ans = doChange(moneyData) && ans;
     } else { return false;}
 
     account = nullptr;
@@ -75,7 +81,7 @@ bool myAssetHistory::doExchangeNode(const myExchangeData &exchangeData) {
         if (exchangeData.assetData.assetCode != MY_CASH) {
             tmpAssetData.amount = originalAssetData.amount + exchangeData.assetData.amount;
             if (0 != tmpAssetData.amount)
-                tmpAssetData.price = (-exchangeData.money + originalAssetData.price*originalAssetData.amount)/static_cast<float>(tmpAssetData.amount);
+                tmpAssetData.price = (-exchangeData.money + originalAssetData.price*originalAssetData.amount)/tmpAssetData.amount;
             else {
                 qDebug() << "ERROR: 0 == assetData.amount";
                 return false;
@@ -84,7 +90,54 @@ bool myAssetHistory::doExchangeNode(const myExchangeData &exchangeData) {
             tmpAssetData.amount = 1;
             tmpAssetData.price = exchangeData.assetData.price + originalAssetData.price;
         }
-        ans = historyRoot.doChangeAssetNode(tmpAssetData) && ans;
+        ans = doChange(tmpAssetData) && ans;
     } else { return false;}
     return ans;
+}
+bool myAssetHistory::doChange(const myAssetData &assetData) {
+    int exchangeType = -1;
+    if (historyRoot.doChangeAssetNode(assetData, exchangeType)) {
+        if (myAccountAssetRootNode::ASSET_INSERT == exchangeType) {
+            currentStockHolding.append(assetData.assetCode);
+            myAssetHistory::getHistoryDataList(currentStockHolding);
+        } else if (myAccountAssetRootNode::ASSET_DELETE == exchangeType) {
+            currentStockHolding.removeAll(assetData.assetCode);
+            myAssetHistory::getHistoryDataList(currentStockHolding);
+        } else {}
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void myAssetHistory::calcCurrentStockHolding() {
+    currentStockHolding.clear();
+    const myRootNode *rootNode = historyRoot.getRootNode();
+    int accountCount = historyRoot.getAccountCount();
+    for (int i = 0; i < accountCount; i++) {
+        const myAccountNode *account = static_cast<const myAccountNode *>(rootNode->children.at(i));
+        if (STR("券商") != account->dbAccountData.accountData.type) {
+            continue;
+        } else {
+            int assetCount = account->children.count();
+            for (int j = 0; j < assetCount; j++) {
+                const myAssetNode *asset = static_cast<const myAssetNode *>(account->children.at(j));
+                if (STR("股票") != asset->dbAssetData.assetData.type) {
+                    continue;
+                } else {
+                    const myAssetData &assetHold = asset->dbAssetData.assetData;
+                    if (!currentStockHolding.contains(assetHold.assetCode)) {
+                        currentStockHolding.append(assetHold.assetCode);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void myAssetHistory::getHistoryDataList(const QList<QString> &currentStockHolding) {
+    myStockHistoryData *stockHistoryData = myStockHistoryData::getInstance();
+    foreach (QString stockCode, currentStockHolding) {
+        stockHistoryData->getStockHistory(stockCode);
+    }
 }

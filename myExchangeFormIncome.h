@@ -1,6 +1,5 @@
 #ifndef MYINCOMEFORM_H
 #define MYINCOMEFORM_H
-
 #include "myExchangeFormTabBase.h"
 
 #include <QButtonGroup>

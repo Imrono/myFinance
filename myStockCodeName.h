@@ -1,4 +1,4 @@
-#ifndef MYSTOCKCODENAME_H
+﻿#ifndef MYSTOCKCODENAME_H
 #define MYSTOCKCODENAME_H
 #include "myGlobal.h"
 
@@ -43,11 +43,10 @@ public:
 
     void getStockCode();
     void getStockAbbreviation();
-    bool getIsInitialed() const { return isInitialed;}
     codeDataProcessThread &getThread() {
         return thread;
     }
-    bool getIsDataReady() {return isDataReady;}
+    bool getIsDataReady() const { return isDataReady;}
     QMap <QString, QString> codeName;
 
     QString findNameFromCode(const QString &code) const;
@@ -59,7 +58,6 @@ private:
         REQUEST_CODE = 0
     };
     E_RequestTpye requestType;
-    bool isInitialed;
     QString CodeDataFile;
 
     codeDataProcessThread thread;

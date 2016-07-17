@@ -1,4 +1,4 @@
-#ifndef MYINSERTASSET_H
+﻿#ifndef MYINSERTASSET_H
 #define MYINSERTASSET_H
 #include "myGlobal.h"
 

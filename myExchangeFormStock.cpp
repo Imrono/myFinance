@@ -165,7 +165,7 @@ void myExchangeFormStock::updateMarketInfo() {
     ui->codeLineEdit->setText(data.assetData.assetCode);
 
     updateExchangeFee();
-    if (stockCode->getIsInitialed()) {
+    if (stockCode->getIsDataReady()) {
         data.assetData.assetName = stockCode->findNameFromCode(data.assetData.assetCode);
         ui->nameLineEdit->setText(data.assetData.assetName);
     }

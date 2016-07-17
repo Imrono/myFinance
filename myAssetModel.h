@@ -1,4 +1,4 @@
-#ifndef MYASSETMODEL_H
+﻿#ifndef MYASSETMODEL_H
 #define MYASSETMODEL_H
 #include "myGlobal.h"
 

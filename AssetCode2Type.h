@@ -1,10 +1,9 @@
-#ifndef ASSETCODE2TYPE_H
+﻿#ifndef ASSETCODE2TYPE_H
 #define ASSETCODE2TYPE_H
+#include "myGlobal.h"
 
 #include <QString>
 #include <QMap>
-
-#include "myGlobal.h"
 
 class AssetCode2Type
 {

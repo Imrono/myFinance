@@ -144,6 +144,12 @@ public:
 ///
 class myAccountAssetRootNode {
 public:
+    enum EXCHANGE_TYPE {
+        ASSET_INSERT = 0,
+        ASSET_MODIFY = 1,
+        ASSET_DELETE = 2
+    };
+
     myAccountAssetRootNode()
         : rootNode(myIndexShell::nodeRoot, myRootNodeData(), nullptr) {}
     myAccountAssetRootNode(const myAccountAssetRootNode &otherNode);
@@ -164,7 +170,7 @@ public:
     QStringList getAllStockCodeList();
 
     bool doChangeAssetDatabase(const myAssetData &assetData);
-    bool doChangeAssetNode(const myAssetData &assetData);
+    bool doChangeAssetNode(const myAssetData &assetData, int &exchangeType);
     static bool checkExchange(const myExchangeData &data, QString &abnormalInfo);
 
     bool doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data);
@@ -174,7 +180,7 @@ public:
     bool setAssetPosition(const QString &accountCode, const QString &assetCode, int pos);
 
     // nodeData change only
-    void setAssetPositionNode(myAssetNode *asset, int po);
+    void setAssetPositionNode(myAssetNode *asset, int pos);
     bool deleteOneAssetNode(myAccountNode *account, const QString &assetCode);
     bool insertOneAssetNode(myAccountNode *account, const myAssetData &insertAssetHold);
     bool modifyOneAssetNode(myAccountNode *account, const QString &originalAssetCode, const myAssetData &targetAssetHold);

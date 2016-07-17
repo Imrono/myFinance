@@ -138,7 +138,7 @@ void myInsertModifyAsset::on_lineEditAssetCode_editingFinished()
     int count = stockCode->codeName.count();
     qDebug() << STR("代号EditLine") << ui->lineEditAssetCode->text() << "(" << count << ")";
     if (OTHER != grpMarket->checkedId()) {
-        if (stockCode->getIsInitialed()) {
+        if (stockCode->getIsDataReady()) {
             data.assetName = stockCode->findNameFromCode(data.assetCode);
             ui->lineEditAssetName->setText(data.assetName);
         }

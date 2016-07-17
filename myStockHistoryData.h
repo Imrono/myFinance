@@ -1,5 +1,6 @@
-#ifndef MYSTOCKHISTORYDATA_H
+﻿#ifndef MYSTOCKHISTORYDATA_H
 #define MYSTOCKHISTORYDATA_H
+#include "myGlobal.h"
 
 #include <QObject>
 #include <QtNetwork/QNetworkAccessManager>
@@ -9,11 +10,34 @@
 #include <QTimer>
 #include <QDateTime>
 #include <QList>
+#include <QMap>
+
+#include <QThread>
+#include <QMutex>
+class myStockHistoryData;
+class historyDailyDataProcessThread : public QThread {
+    Q_OBJECT
+public:
+    friend class myStockHistoryData;
+    historyDailyDataProcessThread(const QString &stockCode, myStockHistoryData* parent);
+    ~historyDailyDataProcessThread();
+
+signals:
+    void processFinish(const QString stockCode);
+protected:
+    void run() Q_DECL_OVERRIDE;
+
+private:
+    myStockHistoryData* parent;
+    const QString stockCode;
+    QMutex mutex;
+};
 
 // http://table.finance.yahoo.com/table.csv?s=000001.sz
 class myStockHistoryData : public QObject
 {
     Q_OBJECT
+    friend class historyDailyDataProcessThread;
 /// Singleton
 public:
     static myStockHistoryData *getInstance() {
@@ -57,21 +81,18 @@ public:
 public:
     ~myStockHistoryData();
     void getStockHistory(QString stockCode);
+    bool getStockDailyData(const QString &stockCode, const QDateTime dateTime, myStockDailyData &stockDailyData);
 
 private:
     QStringList stockList;
-    QList<myStockDailyData> stockHistoryList;
-
-    QNetworkAccessManager *manager;
-    QNetworkRequest ntRequest;
-    QNetworkReply *reply;
-    QTimer *replyTimeout;
+    QString lastStockCode;
+    QMap<QString, QList<myStockDailyData> *> stockHistoryList;
+    QList<QString> pendingRemoveStock;
+    const int maxNumOfHistories;
+    QMap<QString, historyDailyDataProcessThread *> threads;
 
 private slots:
-    void replyFinished(QNetworkReply* data);
-    void handleTimeout();
-    void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
-    void onReadyRead();
+    void oneHistoryDailyDataInserted(const QString stockCode);
 };
 
 #endif // MYSTOCKHISTORYDATA_H

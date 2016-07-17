@@ -1,5 +1,6 @@
 #ifndef MYEXCHANGEFORMEXPENSES_H
 #define MYEXCHANGEFORMEXPENSES_H
+#include "myGlobal.h"
 
 #include "myExchangeFormTabBase.h"
 

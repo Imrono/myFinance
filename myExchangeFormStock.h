@@ -1,11 +1,11 @@
 #ifndef MYEXCHANGEFORMSTOCK_H
 #define MYEXCHANGEFORMSTOCK_H
+#include "myExchangeFormTabBase.h"
 
 #include <QButtonGroup>
 #include <QMap>
 
 #include "myStockCodeName.h"
-#include "myExchangeFormTabBase.h"
 
 namespace Ui {
 class myExchangeFormStock;

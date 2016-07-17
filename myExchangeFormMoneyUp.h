@@ -1,9 +1,8 @@
 #ifndef MYEXCHANGEFORMMONEYUP_H
 #define MYEXCHANGEFORMMONEYUP_H
+#include "myExchangeFormTabBase.h"
 
 #include <QButtonGroup>
-
-#include "myExchangeFormTabBase.h"
 
 class myFinanceMainWindow;
 namespace Ui {

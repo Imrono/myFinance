@@ -1,11 +1,12 @@
-#include "myFinanceMainWindow.h"
+﻿#include "myGlobal.h"
+
 #include <QApplication>
 #include <QtCore/QTextCodec>
 #include <QPixmap>
 #include <QSplashScreen>
 #include <QElapsedTimer>
 
-#include "myGlobal.h"
+#include "myFinanceMainWindow.h"
 #include "myFinanceDatabase.h"
 #include "myStockCodeName.h"
 #include "AssetCode2Type.h"

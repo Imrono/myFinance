@@ -1,5 +1,6 @@
 #ifndef MYDIVIDENDSDIALOG_2_H
 #define MYDIVIDENDSDIALOG_2_H
+#include "myGlobal.h"
 
 #include <QDialog>
 #include "myDatabaseDatatype.h"

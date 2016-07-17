@@ -1,5 +1,7 @@
 #ifndef MYEXCHANGELISTNODE_H
 #define MYEXCHANGELISTNODE_H
+#include "myGlobal.h"
+
 #include "myDatabaseDatatype.h"
 
 #include <QList>

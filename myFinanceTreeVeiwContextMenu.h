@@ -1,10 +1,10 @@
 #ifndef MYFINANCETREEVEIWCONTEXTMENU_H
 #define MYFINANCETREEVEIWCONTEXTMENU_H
+#include "myGlobal.h"
 
 #include <QMenu>
 #include <QAction>
 
-#include "myGlobal.h"
 #include "myAssetNode.h"
 #include "myDatabaseDatatype.h"
 

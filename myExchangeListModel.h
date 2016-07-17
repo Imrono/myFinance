@@ -1,6 +1,7 @@
 #ifndef MYEXCHANGELISTMODEL_H
 #define MYEXCHANGELISTMODEL_H
 #include "myGlobal.h"
+
 #include "myDatabaseDatatype.h"
 #include "myExchangeListNode.h"
 

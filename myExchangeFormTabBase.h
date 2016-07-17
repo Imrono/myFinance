@@ -1,5 +1,6 @@
-#ifndef MYEXCHANGEFORMTABBASE_H
+﻿#ifndef MYEXCHANGEFORMTABBASE_H
 #define MYEXCHANGEFORMTABBASE_H
+#include "myGlobal.h"
 
 #include <QWidget>
 #include <QString>
