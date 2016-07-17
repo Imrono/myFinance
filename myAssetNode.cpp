@@ -233,7 +233,7 @@ bool myAccountAssetRootNode::initial(bool isFetchAccount, bool isFetchAsset) {
     return true;
 }
 bool myAccountAssetRootNode::callback(bool isRemoveAccount, bool isRemoveAsset) {
-    MY_A_TRACE("### myAccountAssetRootNode::callback ###");
+    MY_A_TRACE(STR("### myAccountAssetRootNode::callback isRemoveAccount:%1 isRemoveAsset:%2 ###").arg(isRemoveAccount).arg(isRemoveAsset));
     if (!isRemoveAccount && !isRemoveAsset) {
         return true;
     }
