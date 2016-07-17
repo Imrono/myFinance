@@ -411,13 +411,18 @@ void myAssetModel::qDebugNodeData()
 
 bool myAssetModel::doChangeAssetDirectly(const myIndexShell *node, changeType type, const void *data, bool isFlash) {
     qDebug() << "myAssetModel::doChangeAssetDirectly, isFlash:" << isFlash;
-    if (isFlash)
-        beginResetModel();
+    bool ans = true;
+    if (isFlash) {
+        beginResetModel();     
+    }
 
-    bool ans = root.doChangeAssetDirectly(node, type, data);
+    ans = root.doChangeAssetDirectly(node, type, data) && ans;
 
-    if (isFlash)
+    if (isFlash) {
+        ans = root.callback(true, false) && ans;
+        ans = root.initial(true, false) && ans;
         endResetModel();
+    }
     return ans;
 }
 bool myAssetModel::doInsertAccount(myAccountData data) {

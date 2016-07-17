@@ -93,6 +93,7 @@ void myStockHistoryData::getStockHistory(QString stockCode) {
     historyDailyDataProcessThread *thread = new historyDailyDataProcessThread(stockCode, this);
     threads.insert(stockCode, thread);
     connect(thread, SIGNAL(processFinish(QString)), this, SLOT(oneHistoryDailyDataInserted(QString)));
+    thread->start();
 }
 
 void myStockHistoryData::oneHistoryDailyDataInserted(const QString stockCode) {
