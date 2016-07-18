@@ -9,8 +9,9 @@
 #include <QDateTime>
 #include <QList>
 
-class myAssetHistory
+class myAssetHistory : public QObject
 {
+    Q_OBJECT
 public:
     myAssetHistory();
     myAssetHistory(const myAccountAssetRootNode &root, const myExchangeListNode &exchangeListNode)
@@ -27,11 +28,15 @@ private:
     QList<QString> currentStockHolding;
     void calcCurrentStockHolding();
     myStockHistoryData *stockHistoryData;
+    QList<QString> leftStock;
 
     myAccountAssetRootNode historyRoot;
     myExchangeListNode exchangeListNode;
 
     bool doChange(const myAssetData &assetData);
+
+private slots:
+    void oneStockHistoryDataReady(QString stockCode);
 };
 
 #endif // MYASSETHISTORY_H

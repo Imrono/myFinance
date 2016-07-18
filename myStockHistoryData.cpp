@@ -70,30 +70,29 @@ myStockHistoryData::~myStockHistoryData() {
     }
 }
 
-void myStockHistoryData::getStockHistory(QString stockCode) {
-    QString preStr = stockCode.left(3);
-    if ("sh." == preStr) {
-        stockCode.remove(0, 3);
-        stockCode.append(STR(".ss"));
-    } else if ("sz." == preStr) {
-        stockCode.remove(0, 3);
-        stockCode.append(STR(".sz"));
-    } else {}
+void myStockHistoryData::insertStockHistory(const QString &stockCode) {
     lastStockCode = stockCode;
     if (stockHistoryList.contains(stockCode)) {
         if (pendingRemoveStock.contains(stockCode)) {
             pendingRemoveStock.removeAll(stockCode);
         } else {}
-        qDebug() << STR("### %1 already exist in list ###").arg(stockCode);
+        qDebug() << STR("### historyDailyDataReady -> %1 already exist in list ###").arg(stockCode);
+        emit historyDailyDataReady(stockCode);
         return;
     } else {
-        stockHistoryList.insert(stockCode, nullptr);
-    }
+        removePendingDelete();
 
-    historyDailyDataProcessThread *thread = new historyDailyDataProcessThread(stockCode, this);
-    threads.insert(stockCode, thread);
-    connect(thread, SIGNAL(processFinish(QString)), this, SLOT(oneHistoryDailyDataInserted(QString)));
-    thread->start();
+        stockHistoryList.insert(stockCode, nullptr);    //nullptr在线程中被更新
+        historyDailyDataProcessThread *thread = new historyDailyDataProcessThread(stockCode2YahooStyle(stockCode), this);
+        threads.insert(stockCode, thread);
+        connect(thread, SIGNAL(processFinish(QString)), this, SLOT(oneHistoryDailyDataInserted(QString)));
+        thread->start();
+        return;
+    }
+}
+void myStockHistoryData::deleteStockHistory(const QString &stockCode) {
+    pendingRemoveStock.append(stockCode);
+    removePendingDelete();
 }
 
 void myStockHistoryData::oneHistoryDailyDataInserted(const QString stockCode) {
@@ -103,6 +102,12 @@ void myStockHistoryData::oneHistoryDailyDataInserted(const QString stockCode) {
     delete thread;
     threads.remove(stockCode);
 
+    emit historyDailyDataReady(stockCode);
+    qDebug() << "### historyDailyDataReady -> stockHistoryList.count():" << stockHistoryList.count()
+             << STR(" pendingRemoveStock.count():%1 ###").arg(pendingRemoveStock.count());
+}
+
+void myStockHistoryData::removePendingDelete() {
     if (stockHistoryList.count() > maxNumOfHistories) {
         int pendingRemoveCount = pendingRemoveStock.count();
         if (pendingRemoveCount > 0) {
@@ -115,8 +120,6 @@ void myStockHistoryData::oneHistoryDailyDataInserted(const QString stockCode) {
             }
         }
     }
-    qDebug() << "myStockHistoryData::replyFinished with stockHistoryList.count():" << stockHistoryList.count()
-             << " pendingRemoveStock.count()" << pendingRemoveStock.count();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,4 +141,17 @@ bool myStockHistoryData::getStockDailyData(const QString &stockCode, const QDate
         }
     }
     return false;
+}
+
+QString myStockHistoryData::stockCode2YahooStyle(const QString &stockCode) {
+    QString tmpStockCode = stockCode;
+    QString preStr = tmpStockCode.left(3);
+    if ("sh." == preStr) {
+        tmpStockCode.remove(0, 3);
+        tmpStockCode.append(STR(".ss"));
+    } else if ("sz." == preStr) {
+        tmpStockCode.remove(0, 3);
+        tmpStockCode.append(STR(".sz"));
+    } else {}
+    return tmpStockCode;
 }

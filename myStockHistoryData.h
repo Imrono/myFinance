@@ -80,9 +80,10 @@ public:
 
 public:
     ~myStockHistoryData();
-    void getStockHistory(QString stockCode);
+    void insertStockHistory(const QString &stockCode);
+    void deleteStockHistory(const QString &stockCode);
     bool getStockDailyData(const QString &stockCode, const QDateTime dateTime, myStockDailyData &stockDailyData);
-
+    void removePendingDelete();
 private:
     QStringList stockList;
     QString lastStockCode;
@@ -91,6 +92,10 @@ private:
     const int maxNumOfHistories;
     QMap<QString, historyDailyDataProcessThread *> threads;
 
+    static QString stockCode2YahooStyle(const QString &stockCode);
+
+signals:
+    void historyDailyDataReady(const QString stockCode);
 private slots:
     void oneHistoryDailyDataInserted(const QString stockCode);
 };

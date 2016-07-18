@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     qDebug() << MY_FT_RED("WELLCOM") << MY_FT_YELLOW("TO") << MY_FT_GREEN("myFinance") << MY_FT_BOLD_BLACK("PROGRAM");
 
     myStockHistoryData *stockHistoryData = myStockHistoryData::getInstance();
-    stockHistoryData->getStockHistory("sz.000333");
+    stockHistoryData->insertStockHistory("sz.000333");
 
     myAssetHistory assetHistory;
 
