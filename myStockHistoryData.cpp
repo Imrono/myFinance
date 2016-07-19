@@ -36,6 +36,7 @@ void historyDailyDataProcessThread::run() {
             continue;
         }
         //qDebug() << stockDailyData;
+        lineData.remove(lineData.lastIndexOf('\n'), 1);
         QList<QByteArray> strList = lineData.split(',');
 
         if (7 == strList.count()) {
