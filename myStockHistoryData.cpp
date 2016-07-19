@@ -7,7 +7,9 @@
 #include <QEventLoop>
 
 historyDailyDataProcessThread::historyDailyDataProcessThread(const QString &stockCode, myStockHistoryData* parent)
-    : parent(parent), stockCode(stockCode), QThread(parent) {}
+    : parent(parent), stockCode(stockCode) {
+    connect(this, SIGNAL(finished()), this, SLOT(threadFinished()));
+}
 
 historyDailyDataProcessThread::~historyDailyDataProcessThread() {}
 
@@ -16,9 +18,9 @@ void historyDailyDataProcessThread::run() {
 
     QString urlYahooHistory;
     QString prefix = STR("http://table.finance.yahoo.com/table.csv?s=");
-    urlYahooHistory = prefix + stockCode;
+    urlYahooHistory = prefix + stockCode2YahooStyle(stockCode);
 
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
     QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(urlYahooHistory)));
     MY_DEBUG_URL(urlYahooHistory);
     QEventLoop eventLoop;
@@ -29,6 +31,10 @@ void historyDailyDataProcessThread::run() {
     QList<myStockHistoryData::myStockDailyData> *tmpStockHistoryList = new QList<myStockHistoryData::myStockDailyData>();
     unsigned historyCount = 0;
     while (!lineData.isNull()) {
+        if (lineData == "Date,Open,High,Low,Close,Volume,Adj Close\n") {
+            lineData = reply->readLine();
+            continue;
+        }
         //qDebug() << stockDailyData;
         QList<QByteArray> strList = lineData.split(',');
 
@@ -47,12 +53,29 @@ void historyDailyDataProcessThread::run() {
             lineData = reply->readLine();
         }
     }
-    qDebug() << "myStockHistoryData::replyFinished with historyCount:" << historyCount;
+    qDebug() << STR("myStockHistoryData::replyFinished with %1 historyCount:%2").arg(stockCode).arg(historyCount);
 
-    mutex.lock();
     parent->stockHistoryList[stockCode] = tmpStockHistoryList;
-    mutex.unlock();
+    if (manager) {
+        delete manager;
+        manager = nullptr;
+    }
+}
+void historyDailyDataProcessThread::threadFinished() {
     emit processFinish(stockCode);
+}
+
+QString historyDailyDataProcessThread::stockCode2YahooStyle(const QString &stockCode) {
+    QString tmpStockCode = stockCode;
+    QString preStr = tmpStockCode.left(3);
+    if ("sh." == preStr) {
+        tmpStockCode.remove(0, 3);
+        tmpStockCode.append(STR(".ss"));
+    } else if ("sz." == preStr) {
+        tmpStockCode.remove(0, 3);
+        tmpStockCode.append(STR(".sz"));
+    } else {}
+    return tmpStockCode;
 }
 
 /////////////////////////////////////
@@ -83,7 +106,7 @@ void myStockHistoryData::insertStockHistory(const QString &stockCode) {
         removePendingDelete();
 
         stockHistoryList.insert(stockCode, nullptr);    //nullptr在线程中被更新
-        historyDailyDataProcessThread *thread = new historyDailyDataProcessThread(stockCode2YahooStyle(stockCode), this);
+        historyDailyDataProcessThread *thread = new historyDailyDataProcessThread(stockCode, this);
         threads.insert(stockCode, thread);
         connect(thread, SIGNAL(processFinish(QString)), this, SLOT(oneHistoryDailyDataInserted(QString)));
         thread->start();
@@ -98,12 +121,13 @@ void myStockHistoryData::deleteStockHistory(const QString &stockCode) {
 void myStockHistoryData::oneHistoryDailyDataInserted(const QString stockCode) {
     qDebug() << STR("%1 historyDailyData process finished").arg(stockCode);
     historyDailyDataProcessThread *thread = threads.value(stockCode);
+    thread->exit();
     disconnect(thread, SIGNAL(processFinish(QString)), this, SLOT(oneHistoryDailyDataInserted(QString)));
     delete thread;
     threads.remove(stockCode);
 
     emit historyDailyDataReady(stockCode);
-    qDebug() << "### historyDailyDataReady -> stockHistoryList.count():" << stockHistoryList.count()
+    qDebug() << "### oneHistoryDailyDataInserted -> stockHistoryList.count():" << stockHistoryList.count()
              << STR(" pendingRemoveStock.count():%1 ###").arg(pendingRemoveStock.count());
 }
 
@@ -127,31 +151,16 @@ bool myStockHistoryData::getStockDailyData(const QString &stockCode, const QDate
     if (!stockHistoryList.contains(stockCode))
         return false;
 
-    QList<myStockDailyData> *historyData = stockHistoryList.value(stockCode);
+    QList<myStockDailyData> *historyData = stockHistoryList[stockCode];
     int historyDailyDataCount = historyData->count();
     for (int i = 0; i < historyDailyDataCount; i++) {
-        const myStockDailyData &dailyData = historyData->at(i);
-        if (dailyData.datetime == dateTime) {
+        const myStockDailyData dailyData = historyData->at(i);
+        if (dailyData.datetime <= dateTime) {
             stockDailyData = dailyData;
             return true;
         } else if (dailyData.datetime > dateTime) {
             continue;
-        } else {
-            return false;
-        }
+        } else {}
     }
     return false;
-}
-
-QString myStockHistoryData::stockCode2YahooStyle(const QString &stockCode) {
-    QString tmpStockCode = stockCode;
-    QString preStr = tmpStockCode.left(3);
-    if ("sh." == preStr) {
-        tmpStockCode.remove(0, 3);
-        tmpStockCode.append(STR(".ss"));
-    } else if ("sz." == preStr) {
-        tmpStockCode.remove(0, 3);
-        tmpStockCode.append(STR(".sz"));
-    } else {}
-    return tmpStockCode;
 }

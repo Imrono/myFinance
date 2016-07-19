@@ -11,26 +11,28 @@
 #include <QDateTime>
 #include <QList>
 #include <QMap>
-
 #include <QThread>
-#include <QMutex>
+
 class myStockHistoryData;
 class historyDailyDataProcessThread : public QThread {
     Q_OBJECT
 public:
-    friend class myStockHistoryData;
     historyDailyDataProcessThread(const QString &stockCode, myStockHistoryData* parent);
     ~historyDailyDataProcessThread();
 
 signals:
     void processFinish(const QString stockCode);
+private slots:
+    void threadFinished();
+
 protected:
     void run() Q_DECL_OVERRIDE;
 
 private:
     myStockHistoryData* parent;
     const QString stockCode;
-    QMutex mutex;
+
+    static QString stockCode2YahooStyle(const QString &stockCode);
 };
 
 // http://table.finance.yahoo.com/table.csv?s=000001.sz
@@ -91,8 +93,6 @@ private:
     QList<QString> pendingRemoveStock;
     const int maxNumOfHistories;
     QMap<QString, historyDailyDataProcessThread *> threads;
-
-    static QString stockCode2YahooStyle(const QString &stockCode);
 
 signals:
     void historyDailyDataReady(const QString stockCode);

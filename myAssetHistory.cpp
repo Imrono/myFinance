@@ -136,6 +136,7 @@ void myAssetHistory::calcCurrentStockHolding() {
                     const myAssetData &assetHold = asset->dbAssetData.assetData;
                     if (!currentStockHolding.contains(assetHold.assetCode)) {
                         currentStockHolding.append(assetHold.assetCode);
+                        leftStock.append(assetHold.assetCode);
                     }
                 }
             }
@@ -154,6 +155,7 @@ void myAssetHistory::oneStockHistoryDataReady(QString stockCode) {
     if (0 == leftStock.count()) {
         // CALCULATE ASSET VALUE
         double stockValue = 0.0f;
+        // STOCK PART
         foreach (QString tmpStockCode, currentStockHolding) {
             myStockHistoryData::myStockDailyData stockDailyData;
             stockHistoryData->getStockDailyData(tmpStockCode, currentAssetTime, stockDailyData);
@@ -161,10 +163,29 @@ void myAssetHistory::oneStockHistoryDataReady(QString stockCode) {
             for (int i = 0; i < accountCount; i++) {
                 const myAccountNode *account = historyRoot.getAccountNode(i);
                 const myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, tmpStockCode);
-                if (asset)
-                    stockValue += stockDailyData.close*asset->dbAssetData.assetData.amount;
+                if (asset) {
+                    double value = stockDailyData.close*asset->dbAssetData.assetData.amount;
+                    stockValue += value;
+                    qDebug() << STR("$$ add %1 in %2 with value:%3").arg(asset->dbAssetData.assetData.assetCode)
+                                .arg(asset->dbAssetData.assetData.accountCode).arg(value);
+                }
             }
         }
-        qDebug() << STR("### TOTAL STOCK VALUE %1 in DATE ###").arg(stockValue).arg(currentAssetTime.toString("yyyy-MM-dd"));
+        // CASH PART
+        int accountCount = historyRoot.getAccountCount();
+        for (int i = 0; i < accountCount; i++) {
+            const myAccountNode *account = historyRoot.getAccountNode(i);
+            if (STR("券商") != account->dbAccountData.accountData.type) {
+                continue;
+            }
+            const myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, MY_CASH);
+            if (asset) {
+                stockValue += asset->dbAssetData.assetData.price;
+                qDebug() << STR("$$ add %1 in %2 with value:%3").arg(asset->dbAssetData.assetData.assetCode)
+                            .arg(asset->dbAssetData.assetData.accountCode).arg(asset->dbAssetData.assetData.price);
+
+            }
+        }
+        qDebug() << STR("### TOTAL STOCK VALUE %1 in DATE %2 ###").arg(stockValue).arg(currentAssetTime.toString("yyyy-MM-dd"));
     }
 }
