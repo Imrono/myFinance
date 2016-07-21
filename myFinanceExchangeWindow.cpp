@@ -12,22 +12,45 @@
 myFinanceExchangeWindow::myFinanceExchangeWindow(QWidget *parent, const myExchangeUI &exchangeUI, bool isPartial, bool isModifyExchange) :
     QDialog(parent), ui(new Ui::myFinanceExchangeWindow), parent(static_cast<myFinanceMainWindow *>(parent)),
     isRollback(false), stockCode(myStockCodeName::getInstance()),
-    _currentTab(nullptr), dataSource(0)
+    _currentTab(nullptr), dataSource(0), dateTime(QDateTime::currentDateTime())
 {
     qDebug() << "################## INITIAL EXCHANGE WINDOW ##################";
     rootNode = &static_cast<myFinanceMainWindow *>(parent)->getAssetModel()->getRootNode();
 
     ui->setupUi(this);
 
+    // INITIAL TABS
+    initialTabs(exchangeUI, isPartial, isModifyExchange);
+
     // ROLLBACK CHECKBOX HIDE AS DEFAULT
     ui->checkBoxRollback->setChecked(isRollback);
     ui->checkBoxRollback->hide();
 
     // COMMON UI UPDATE
-    ui->timeDateTimeEdit->setDateTime(QDateTime::currentDateTime());
+    ui->timeDateTimeEdit->setDateTime(dateTime);
     ui->typeLineEdit->setReadOnly(true);
 
-    initialTabs(exchangeUI, isPartial, isModifyExchange);
+    // ADD TABS
+    for (int i = 0; i < _myTabs.count(); i++) {
+        _myTabs[i]->setDateTime(dateTime);
+        if (STR("证券交易") == _myTabs[i]->getTabText()) {
+            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/mySecurity.png"));
+            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
+        } else if (STR("理财") == _myTabs[i]->getTabText()) {
+            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/myMoneyUp.png"));
+            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
+        } else if (STR("基金") == _myTabs[i]->getTabText()) {
+            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/myFund.png"));
+            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
+        } else if (STR("转帐") == _myTabs[i]->getTabText()) {
+            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/myTransfer.png"));
+            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
+        } else {
+            ui->tabWidget->addTab(_myTabs[i], _myTabs[i]->getTabText());
+        }
+        qDebug() << _myTabs[i]->getTabText() << "ADDED to Exchange Window";
+    }
+    ui->tabWidget->setCurrentIndex(dataSource);
 }
 
 void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool isPartial, bool isModifyExchange) {
@@ -70,27 +93,6 @@ void myFinanceExchangeWindow::initialTabs(const myExchangeUI &exchangeUI, bool i
         }
         qDebug() << "## SETUP UI MODEL FINISH ##";
     } else {  }
-
-    for (int i = 0; i < _myTabs.count(); i++) {
-        _myTabs[i]->setDateTime(dateTime);
-        if (STR("证券交易") == _myTabs[i]->getTabText()) {
-            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/mySecurity.png"));
-            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
-        } else if (STR("理财") == _myTabs[i]->getTabText()) {
-            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/myMoneyUp.png"));
-            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
-        } else if (STR("基金") == _myTabs[i]->getTabText()) {
-            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/myFund.png"));
-            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
-        } else if (STR("转帐") == _myTabs[i]->getTabText()) {
-            QIcon icon(STR(":/icon/exchangeTab/resource/icon/exchangeTab/myTransfer.png"));
-            ui->tabWidget->addTab(_myTabs[i], icon, _myTabs[i]->getTabText());
-        } else {
-            ui->tabWidget->addTab(_myTabs[i], _myTabs[i]->getTabText());
-        }
-        qDebug() << _myTabs[i]->getTabText() << "ADDED to Exchange Window";
-    }
-    ui->tabWidget->setCurrentIndex(dataSource);
 }
 
 myFinanceExchangeWindow::~myFinanceExchangeWindow() {
@@ -173,5 +175,6 @@ bool myFinanceExchangeWindow::checkDataConsistence() {
 
 void myFinanceExchangeWindow::on_timeDateTimeEdit_dateTimeChanged(const QDateTime &dateTime) {
     this->dateTime = dateTime;
+    _currentTab->setDateTime(dateTime);
     qDebug() << "DATE TIME " << dateTime.toString();
 }

@@ -15,6 +15,7 @@ void myExchangeFormTabBase::recordExchangeData(myExchangeData &tmpData) {
     parent->getCommonExchangeData(tmpData);
 }
 void myExchangeFormTabBase::setUI(const myExchangeData &exchangeData) {
+    data.id = exchangeData.id;
     if (qAbs(exchangeData.money) > MONEY_EPS) {
         usedMoneyBeforeModify = exchangeData.money;
         usedFeeBeforeModify = exchangeData.assetData.price*static_cast<float>(exchangeData.assetData.amount) - exchangeData.money;

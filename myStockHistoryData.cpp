@@ -31,6 +31,8 @@ void historyDailyDataProcessThread::run() {
     QList<myStockHistoryData::myStockDailyData> *tmpStockHistoryList = new QList<myStockHistoryData::myStockDailyData>();
     unsigned historyCount = 0;
     while (!lineData.isNull()) {
+        if ("sz.000651" == stockCode && historyCount < 10)
+            qDebug() << QString(lineData);
         if (lineData == "Date,Open,High,Low,Close,Volume,Adj Close\n") {
             lineData = reply->readLine();
             continue;
@@ -54,7 +56,6 @@ void historyDailyDataProcessThread::run() {
             lineData = reply->readLine();
         }
     }
-    qDebug() << STR("myStockHistoryData::replyFinished with %1 historyCount:%2").arg(stockCode).arg(historyCount);
 
     parent->stockHistoryList[stockCode] = tmpStockHistoryList;
     if (manager) {
@@ -63,6 +64,7 @@ void historyDailyDataProcessThread::run() {
     }
 }
 void historyDailyDataProcessThread::threadFinished() {
+    qDebug() << STR("### %1 threadFinished historyCount:%2 ###").arg(stockCode).arg(parent->stockHistoryList[stockCode]->count());
     emit processFinish(stockCode);
 }
 
@@ -100,9 +102,8 @@ void myStockHistoryData::insertStockHistory(const QString &stockCode) {
         if (pendingRemoveStock.contains(stockCode)) {
             pendingRemoveStock.removeAll(stockCode);
         } else {}
-        qDebug() << STR("### historyDailyDataReady -> %1 already exist in list ###").arg(stockCode);
+        qDebug() << STR("### historyDailyDataReady -> %1 already exist ###").arg(stockCode);
         emit historyDailyDataReady(stockCode);
-        return;
     } else {
         removePendingDelete();
 
@@ -111,25 +112,25 @@ void myStockHistoryData::insertStockHistory(const QString &stockCode) {
         threads.insert(stockCode, thread);
         connect(thread, SIGNAL(processFinish(QString)), this, SLOT(oneHistoryDailyDataInserted(QString)));
         thread->start();
-        return;
     }
+    qDebug() << STR("myStockHistoryData::insertStockHistory stockHistoryList.count:%1, pendingRemoveStock:%2")
+                .arg(stockHistoryList.count()).arg(pendingRemoveStock.count());
 }
 void myStockHistoryData::deleteStockHistory(const QString &stockCode) {
     pendingRemoveStock.append(stockCode);
     removePendingDelete();
+    qDebug() << STR("myStockHistoryData::deleteStockHistory stockHistoryList.count:%1, pendingRemoveStock:%2")
+                .arg(stockHistoryList.count()).arg(pendingRemoveStock.count());
 }
 
 void myStockHistoryData::oneHistoryDailyDataInserted(const QString stockCode) {
-    qDebug() << STR("%1 historyDailyData process finished").arg(stockCode);
     historyDailyDataProcessThread *thread = threads.value(stockCode);
-    thread->exit();
     disconnect(thread, SIGNAL(processFinish(QString)), this, SLOT(oneHistoryDailyDataInserted(QString)));
-    delete thread;
+    thread->deleteLater();
     threads.remove(stockCode);
 
+    qDebug() << STR("### historyDailyDataReady -> %1 inserted ###").arg(stockCode);
     emit historyDailyDataReady(stockCode);
-    qDebug() << "### oneHistoryDailyDataInserted -> stockHistoryList.count():" << stockHistoryList.count()
-             << STR(" pendingRemoveStock.count():%1 ###").arg(pendingRemoveStock.count());
 }
 
 void myStockHistoryData::removePendingDelete() {

@@ -13,6 +13,7 @@
 #   pragma warning (disable:4819)
 #endif
 
+// QT_NO_DEBUG_OUTPUT  -> QT qDebug() invalid
 // QT_NO_DEBUG -> QT release version macro
 
 #define MY_FT_BLACK(str)   "\033[30m"str"\033[0m"

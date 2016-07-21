@@ -156,6 +156,7 @@ public:
     ~myAccountAssetRootNode() {
         callback();
     }
+    QString toString();
     myAccountAssetRootNode &operator =(const myAccountAssetRootNode &otherNode);
 
     bool initial(bool isFetchAccount = true, bool isFetchAsset = true);

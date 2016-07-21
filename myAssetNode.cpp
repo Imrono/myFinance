@@ -318,6 +318,24 @@ bool myAccountAssetRootNode::fetchAsset() {
     return true;
 }
 
+QString myAccountAssetRootNode::toString() {
+    QString result;
+    int accountCount = rootNode.children.count();
+    for (int i = 0; i < accountCount; i++) {
+        const myAccountNode* account = static_cast<const myAccountNode*>(rootNode.children.at(i));
+        result += STR("[ACCOUNT]:%1\n").arg(account->dbAccountData.accountData.code);
+        int assetCount = rootNode.children.at(i)->children.count();
+        for (int j = 0; j < assetCount; j++) {
+            const myAssetNode* asset = static_cast<const myAssetNode*>(account->children.at(j));
+            const myAssetData &assetHold = asset->dbAssetData.assetData;
+            result += STR("  |-- <ASSET>:%1, type:%2, price:%3, amount:%4\r")
+                    .arg(assetHold.assetCode).arg(assetHold.type)
+                    .arg(assetHold.price).arg(assetHold.amount);
+        }
+    }
+    return result;
+}
+
 myAccountNode *myAccountAssetRootNode::getAccountNode(const QString &accountCode) const {
     for ( int i = 0; i != rootNode.children.size(); ++i ) {
         myAccountNode *account = static_cast<myAccountNode *>(rootNode.children.at(i));
