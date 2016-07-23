@@ -62,9 +62,12 @@ const myAccountAssetRootNode *myAssetHistory::getHistoryNode(const QDateTime &ti
     leftStock.clear();
     // historyRoot CALCUlATE
     // 1. 暂不支持时间回退，time > currentAssetTime
-    if (time >= currentAssetTime) {
-        MY_DEBUG_ERROR(STR("DATETIME:%1 < currentAssetTime:%2, CAN NOT PROCEDSS").arg(time.toString("yyyy-MM-dd")).arg(currentAssetTime.toString("yyyy-MM-dd")));
+    if (time > currentAssetTime) {
+        MY_DEBUG_ERROR(STR("DATETIME:%1 > currentAssetTime:%2, CAN NOT PROCEDSS").arg(time.toString("yyyy-MM-dd")).arg(currentAssetTime.toString("yyyy-MM-dd")));
         return nullptr;
+    } else if (time == currentAssetTime) {
+        qDebug() << "DATETIME == currentAssetTime -> " << time.toString("yyyy-MM-dd");
+        return &historyRoot;
     }
 
     int exchangeCount = exchangeListNode.getRowCount();
