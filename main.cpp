@@ -19,12 +19,11 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     qDebug() << MY_FT_RED("WELLCOM") << MY_FT_YELLOW("TO") << MY_FT_GREEN("myFinance") << MY_FT_BOLD_BLACK("PROGRAM");
-
     myStockHistoryData *stockHistoryData = myStockHistoryData::getInstance();
     stockHistoryData->insertStockHistory("sz.000333");
 
     myAssetHistory assetHistory;
-    assetHistory.calcAssetValueHistory(QDateTime(QDate(2016, 7, 20)), QDateTime(QDate(2016, 7, 19)));
+    assetHistory.prepareCalcAssetValue(QDateTime(QDate(2016, 7, 20)), QDateTime(QDate(2016, 7, 19)));
 
     QPixmap pixmap(":/SplashScreen/resource/SplashScreen/gold10years.jpg");
     QSplashScreen screen(pixmap);

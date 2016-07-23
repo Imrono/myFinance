@@ -25,7 +25,7 @@
 #define MY_FT_BOLD_BLACK(str)   "\033[1;30m"str"\033[0m"
 
 #define MY_DEBUG_SQL(str) qDebug() << "\033[34m" << str << "\033[0m"
-#define MY_DEBUG_ERROR(str) qDebug() << "\033[31m" << str << "\033[0m"
+#define MY_DEBUG_ERROR(str) qWarning() << "\033[31m" << str << "\033[0m"
 #define MY_A_TRACE(str) qDebug() << "\033[1;30m" << str << "\033[0m"
 #define MY_DEBUG_URL(str) qDebug() << "\033[33m" << str << "\033[0m"
 

@@ -5,7 +5,7 @@
 #include <QStringList>
 QSemaphore myAssetHistory::s(1);
 myAssetHistory::myAssetHistory()
-    : currentAssetTime(QDateTime::currentDateTime()), assistantThread(this)
+    : currentAssetTime(QDateTime::currentDateTime()), assistantThread(this), lastAssetValue(0.0f)
 {
     // ASSET DATA
     historyRoot.initial();
@@ -29,37 +29,69 @@ myAssetHistory::~myAssetHistory() {
 
 //////////////////////
 ///   NOT TESTED   ///
-const myAccountAssetRootNode &myAssetHistory::getHistoryNode(const QDateTime &time) {
+void myAssetHistory::doCalcAssetValue(const QDateTime &time) {
+    QMap<QString, int> assetChange;
+    const myAccountAssetRootNode *historyNode = getHistoryNode(time, assetChange);
+    Q_UNUSED(historyNode);
+
+    QMapIterator<QString, int> ii(assetChange);
+    if (!ii.hasNext()) {
+        qDebug() << STR("### TOTAL STOCK VALUE %1 in DATE %2 (not changed) ###").arg(lastAssetValue).arg(currentAssetTime.toString("yyyy-MM-dd"));
+        historyValue.insert(currentAssetTime, lastAssetValue);
+        s.release();
+    } else {
+         do {
+            ii.next();
+            if (myAccountAssetRootNode::ASSET_INSERT == ii.value()) {
+                currentStockHolding.append(ii.key());
+                stockHistoryData->insertStockHistory(ii.key());
+                leftStock.append(ii.key());
+            } else if (myAccountAssetRootNode::ASSET_DELETE == ii.value()) {
+                currentStockHolding.removeAll(ii.key());
+                stockHistoryData->deleteStockHistory(ii.key());
+            } else if (myAccountAssetRootNode::ASSET_MODIFY == ii.value()) {
+                continue;
+            } else {}
+        } while (ii.hasNext());
+    }
+}
+const myAccountAssetRootNode *myAssetHistory::getHistoryNode(const QDateTime &time, QMap<QString, int> &assetChange) {
     if (leftStock.count()) {
-        qDebug() << "ERROR with leftStock.count():" << leftStock.count();
+        MY_DEBUG_ERROR(STR("ERROR with leftStock.count():%1").arg(leftStock.count()));
     }
     leftStock.clear();
-    // historyRoot calculate
+    // historyRoot CALCUlATE
+    // 1. 暂不支持时间回退，time > currentAssetTime
     if (time >= currentAssetTime) {
-        return historyRoot;
-    } else {
-        currentAssetTime = time;
+        MY_DEBUG_ERROR(STR("DATETIME:%1 < currentAssetTime:%2, CAN NOT PROCEDSS").arg(time.toString("yyyy-MM-dd")).arg(currentAssetTime.toString("yyyy-MM-dd")));
+        return nullptr;
     }
 
     int exchangeCount = exchangeListNode.getRowCount();
-    QDateTime lastTime = exchangeListNode.getDataFromRow(exchangeCount-1).time;
+    QDateTime fromDuring = currentAssetTime, toDuring = currentAssetTime;
     for (int i = exchangeCount-1; i >= 0; i--) {
         myExchangeData tmpExchangeData = exchangeListNode.getDataFromRow(i);
-        if (lastTime != tmpExchangeData.time)
-            lastTime = tmpExchangeData.time;
 
+        // x日的value计算 -> x+1日的exchangeData
         if (tmpExchangeData.time > currentAssetTime) {
             continue;
         } else if (tmpExchangeData.time > time) {
             // do sth. with historyRoot using exchangeList.at(i)
             myExchangeData undoExchangeData = -tmpExchangeData;
-            doExchangeNode(undoExchangeData);
+            doExchangeNode(undoExchangeData, assetChange);
+            currentAssetTime = tmpExchangeData.time.addDays(-1);
+            fromDuring = currentAssetTime;
+        } else {
+            break;
         }
     }
+    currentAssetTime = time;
+    toDuring  = currentAssetTime;
 
-    return historyRoot;
+    qDebug() << historyRoot.toString().toUtf8().data();
+    return &historyRoot;
 }
-bool myAssetHistory::doExchangeNode(const myExchangeData &exchangeData) {
+bool myAssetHistory::doExchangeNode(const myExchangeData &exchangeData, QMap<QString, int> &assetChange) {
     bool ans = true;
     const myAccountNode *account = nullptr;
     const myAssetNode   *asset = nullptr;
@@ -75,7 +107,7 @@ bool myAssetHistory::doExchangeNode(const myExchangeData &exchangeData) {
             originalAssetData = GET_CONST_ASSET_NODE_DATA(asset).assetData;
         } else { }      /// insert MY_CASH
 
-        ans = doChange(moneyData) && ans;
+        ans = doChange(moneyData, assetChange) && ans;
     } else { return false;}
 
     account = nullptr;
@@ -101,24 +133,17 @@ bool myAssetHistory::doExchangeNode(const myExchangeData &exchangeData) {
             tmpAssetData.amount = 1;
             tmpAssetData.price = exchangeData.assetData.price + originalAssetData.price;
         }
-        ans = doChange(tmpAssetData) && ans;
+        ans = doChange(tmpAssetData, assetChange) && ans;
     } else { return false;}
     return ans;
 }
-bool myAssetHistory::doChange(const myAssetData &assetData) {
+bool myAssetHistory::doChange(const myAssetData &assetData, QMap<QString, int> &assetChange) {
     int exchangeType = -1;
     if (historyRoot.doChangeAssetNode(assetData, exchangeType)) {
         if (MY_CASH == assetData.assetCode) {
             return true;
         } else {
-            if (myAccountAssetRootNode::ASSET_INSERT == exchangeType) {
-                currentStockHolding.append(assetData.assetCode);
-                stockHistoryData->insertStockHistory(assetData.assetCode);
-                leftStock.append(assetData.assetCode);
-            } else if (myAccountAssetRootNode::ASSET_DELETE == exchangeType) {
-                currentStockHolding.removeAll(assetData.assetCode);
-                stockHistoryData->deleteStockHistory(assetData.assetCode);
-            } else {}
+            assetChange[assetData.assetCode] = exchangeType;
             return true;
         }
     } else {
@@ -157,9 +182,15 @@ void myAssetHistory::getHistoryDataList(const QList<QString> &currentStockHoldin
         stockHistoryData->insertStockHistory(stockCode);
     }
 }
-void myAssetHistory::calcAssetValueHistory(const QDateTime &from, const QDateTime &to) {
+void myAssetHistory::prepareCalcAssetValue(const QDateTime &from, const QDateTime &to) {
     // ASSET ASSISTANT THREAD
     assistantThread.initialTime(from, to);
+    QMap<QString, int> assetChange;
+    if (!getHistoryNode(from, assetChange)) {
+        MY_DEBUG_ERROR("SET FROM DATE FAILED!! STOPS");
+        return;
+    }
+
     assistantThread.start();
 }
 
@@ -202,6 +233,7 @@ void myAssetHistory::oneStockHistoryDataReady(QString stockCode) {
         }
         qDebug() << STR("### TOTAL STOCK VALUE %1 in DATE %2 ###").arg(stockValue).arg(currentAssetTime.toString("yyyy-MM-dd"));
         historyValue.insert(currentAssetTime, stockValue);
+        lastAssetValue = stockValue;
         s.release();
     }
 }
@@ -220,14 +252,11 @@ historyValueThread::~historyValueThread() {
 }
 
 void historyValueThread::run() {
-    int i = 0;
-    for (QDateTime time = fromTime; time >= toTime; time.addDays(-1)) {
+    for (QDateTime time = fromTime; time >= toTime; time = time.addDays(-1)) {
         qDebug() << "### historyValueThread processing " << time.toString("yyyy-MM-dd") <<  "###";
         myAssetHistory::s.acquire();
-        myAccountAssetRootNode historyNode = assetHistory->getHistoryNode(time);
-        qDebug() << historyNode.toString().toUtf8().data();
-        i ++;
+        assetHistory->doCalcAssetValue(time);
         qDebug() << "### historyValueThread processing " << time.toString("yyyy-MM-dd") <<  " finished ###";
     }
-    qDebug() << "historyValueThread finished with numOfDays:" << i;
+    qDebug() << "historyValueThread finished with numOfDays:" << toTime.daysTo(fromTime);
 }

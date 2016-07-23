@@ -5,6 +5,7 @@
 #include "myAssetNode.h"
 #include "myExchangeListNode.h"
 #include "myStockHistoryData.h"
+#include "myDatabaseDatatype.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 /// historyValueThread ////////////////////////////////////////////////////////////
@@ -48,12 +49,12 @@ public:
           exchangeListNode(exchangeListNode), assistantThread(this) {}
     ~myAssetHistory();
 
-    const myAccountAssetRootNode &getHistoryNode(const QDateTime &time);
-    bool doExchangeNode(const myExchangeData &exchangeData);
+    const myAccountAssetRootNode *getHistoryNode(const QDateTime &time, QMap<QString, int> &assetChange);
 
     static void getHistoryDataList(const QList<QString> &currentStockHolding);
     static QSemaphore s;
-    void calcAssetValueHistory(const QDateTime &from, const QDateTime &to);
+    void prepareCalcAssetValue(const QDateTime &from, const QDateTime &to);
+    void doCalcAssetValue(const QDateTime &time);
 
 private:
     QDateTime currentAssetTime;
@@ -61,13 +62,15 @@ private:
     void calcCurrentStockHolding();
     myStockHistoryData *stockHistoryData;
     QList<QString> leftStock;
+    double lastAssetValue;
     QMap<QDateTime, double> historyValue;
     historyValueThread assistantThread;
 
     myAccountAssetRootNode historyRoot;
     myExchangeListNode exchangeListNode;
 
-    bool doChange(const myAssetData &assetData);
+    bool doExchangeNode(const myExchangeData &exchangeData, QMap<QString, int> &assetChange);
+    bool doChange(const myAssetData &assetData, QMap<QString, int> &assetChange);
 
 private slots:
     void oneStockHistoryDataReady(QString stockCode);
