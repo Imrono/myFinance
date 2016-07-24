@@ -3,7 +3,6 @@
 #include "myGlobal.h"
 
 #include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 
 #include <QObject>
@@ -74,7 +73,6 @@ signals:
 
 private:
     QNetworkAccessManager *manager;
-    QNetworkRequest ntRequest;
     QNetworkReply *reply;
     QTimer *replyTimeout;
     bool isInitialized;

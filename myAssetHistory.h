@@ -43,6 +43,7 @@ class myAssetHistory : public QObject
 {
     Q_OBJECT
 public:
+    friend class historyValueThread;
     myAssetHistory();
     myAssetHistory(const myAccountAssetRootNode &root, const myExchangeListNode &exchangeListNode)
         : currentAssetTime(QDateTime::currentDateTime()), historyRoot(root),
@@ -51,8 +52,9 @@ public:
 
     const myAccountAssetRootNode *getHistoryNode(const QDateTime &time, QMap<QString, int> &assetChange);
 
-    static void getHistoryDataList(const QList<QString> &currentStockHolding);
+    // TIME POINT SYNC
     static QSemaphore s;
+    //QSemaphore s_historyTime;
     void prepareCalcAssetValue(const QDateTime &from, const QDateTime &to);
     void doCalcAssetValue(const QDateTime &time);
 
@@ -62,9 +64,9 @@ private:
     void calcCurrentStockHolding();
     myStockHistoryData *stockHistoryData;
     QList<QString> leftStock;
-    double lastAssetValue;
     QMap<QDateTime, double> historyValue;
     historyValueThread assistantThread;
+    QTime processTime;
 
     myAccountAssetRootNode historyRoot;
     myExchangeListNode exchangeListNode;
@@ -74,5 +76,7 @@ private:
 
 private slots:
     void oneStockHistoryDataReady(QString stockCode);
+private:
+    double calcCurrentAssetValue();
 };
 #endif // MYASSETHISTORY_H

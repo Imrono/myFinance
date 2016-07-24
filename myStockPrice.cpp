@@ -3,6 +3,7 @@
 
 #include <QtDebug>
 #include <QMessageBox>
+#include <QtNetwork/QNetworkRequest>
 
 myStockPrice::myStockPrice() : manager (nullptr), isInitialized(false)
   , replyTimeout(nullptr), reply(nullptr)
@@ -35,8 +36,8 @@ void myStockPrice::getStockPrice(const QStringList &list) {
             urlSina += ",";
         }
     }
-    ntRequest.setUrl(QUrl(urlSina));
-    reply = manager->get(ntRequest);
+    reply = manager->get(QNetworkRequest(QUrl(urlSina)));
+    MY_DEBUG_URL(urlSina);
     //replyTimeout->start(6000);
     //qDebug() << "### start TIMER 6s for stock price get ###";
 }
@@ -57,6 +58,11 @@ void myStockPrice::replyFinished(QNetworkReply* data) {
         QStringList codeName = parts.at(0).split("=");
         QStringList codeGet = codeName.at(0).split("_");
         QString code = codeGet.at(2);
+        if (1 == parts.count()) {
+            MY_DEBUG_ERROR(code.append("'s data is invalid"));
+            stockPrice = data->readLine();
+            continue;
+        }
         sinaData.code = code.insert(2, ".");
         sinaData.name = codeName.at(1);
         sinaData.open = parts.at(1).toDouble();

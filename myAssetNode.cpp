@@ -232,8 +232,9 @@ bool myAccountAssetRootNode::initial(bool isFetchAccount, bool isFetchAsset) {
     }
     return true;
 }
-bool myAccountAssetRootNode::callback(bool isRemoveAccount, bool isRemoveAsset) {
-    MY_A_TRACE(STR("### myAccountAssetRootNode::callback isRemoveAccount:%1 isRemoveAsset:%2 ###").arg(isRemoveAccount).arg(isRemoveAsset));
+bool myAccountAssetRootNode::callback(const QString &from, bool isRemoveAccount, bool isRemoveAsset) {
+    MY_A_TRACE(STR("### myAccountAssetRootNode::callback isRemoveAccount:%1 isRemoveAsset:%2 (from %3) ###")
+               .arg(isRemoveAccount).arg(isRemoveAsset).arg(from));
     if (!isRemoveAccount && !isRemoveAsset) {
         return true;
     }
@@ -328,9 +329,9 @@ QString myAccountAssetRootNode::toString() {
         for (int j = 0; j < assetCount; j++) {
             const myAssetNode* asset = static_cast<const myAssetNode*>(account->children.at(j));
             const myAssetData &assetHold = asset->dbAssetData.assetData;
-            result += STR("  |-- <ASSET>:%1, type:%2, price:%3, amount:%4\r")
+            result += STR("   |- <ASSET>:%1, type:%2, price:%3, amount:%4%5")
                     .arg(assetHold.assetCode).arg(assetHold.type)
-                    .arg(assetHold.price).arg(assetHold.amount);
+                    .arg(assetHold.price).arg(assetHold.amount).arg(j == assetCount-1 ? "" : "\r");
         }
     }
     return result;

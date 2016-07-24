@@ -19,8 +19,9 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     qDebug() << MY_FT_RED("WELLCOM") << MY_FT_YELLOW("TO") << MY_FT_GREEN("myFinance") << MY_FT_BOLD_BLACK("PROGRAM");
-    myStockHistoryData *stockHistoryData = myStockHistoryData::getInstance();
-    stockHistoryData->insertStockHistory("sz.000333");
+    qWarning() << "MAIN THREAD ID: " << QThread::currentThreadId();
+    //myStockHistoryData *stockHistoryData = myStockHistoryData::getInstance();
+    //stockHistoryData->insertStockHistory("sz.000333");
 
     myAssetHistory assetHistory;
     assetHistory.prepareCalcAssetValue(QDateTime(QDate(2016, 7, 20)), QDateTime(QDate(2016, 7, 19)));
@@ -40,8 +41,8 @@ int main(int argc, char *argv[])
     //AssetCode2Type::initial();
     ///////////////////////////////////////////////////////////////////////
     myFinanceMainWindow w;
-    while(timer.elapsed() < (600))  // 初始化结束后，再等600ms
-        app.processEvents();
+    //while(timer.elapsed() < (600))  // 初始化结束后，再等600ms
+    //    app.processEvents();
     w.show();
 
     screen.finish(&w);

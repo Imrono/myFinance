@@ -19,7 +19,7 @@ myAssetModel::myAssetModel(QObject *parent)
 
 myAssetModel::~myAssetModel()
 {
-    bool ans = root.callback();
+    bool ans = root.callback(STR("myAssetModel destructor"));
     Q_UNUSED(ans);
 }
 
@@ -322,7 +322,7 @@ bool myAssetModel::checkExchange(const myExchangeData &data, QString &abnormalIn
 
 bool myAssetModel::doReflashData(bool isAccount, bool isAsset) {
     beginResetModel();
-    bool ans = root.callback(isAccount, isAsset);
+    bool ans = root.callback(STR("myAssetModel::doReflashData"), isAccount, isAsset);
     ans = root.initial(isAccount, isAsset) && ans;
     endResetModel();
     return ans;
@@ -419,7 +419,7 @@ bool myAssetModel::doChangeAssetDirectly(const myIndexShell *node, changeType ty
     ans = root.doChangeAssetDirectly(node, type, data) && ans;
 
     if (isFlash) {
-        ans = root.callback(true, false) && ans;
+        ans = root.callback(STR("myAssetModel::doChangeAssetDirectly"), true, false) && ans;
         ans = root.initial(true, false) && ans;
         endResetModel();
     }
@@ -428,7 +428,7 @@ bool myAssetModel::doChangeAssetDirectly(const myIndexShell *node, changeType ty
 bool myAssetModel::doInsertAccount(myAccountData data) {
     beginResetModel();
     bool ans = root.doInsertAccount(data);
-    ans = root.callback(true, false) && ans;
+    ans = root.callback(STR("myAssetModel::doInsertAccount"), true, false) && ans;
     ans = root.initial(true, false) && ans;
     endResetModel();
     return ans;

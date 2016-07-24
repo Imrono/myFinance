@@ -7,9 +7,7 @@
 #include <QEventLoop>
 
 historyDailyDataProcessThread::historyDailyDataProcessThread(const QString &stockCode, myStockHistoryData* parent)
-    : parent(parent), stockCode(stockCode) {
-    connect(this, SIGNAL(finished()), this, SLOT(threadFinished()));
-}
+    : parent(parent), stockCode(stockCode) {}
 
 historyDailyDataProcessThread::~historyDailyDataProcessThread() {}
 
@@ -21,18 +19,27 @@ void historyDailyDataProcessThread::run() {
     urlYahooHistory = prefix + stockCode2YahooStyle(stockCode);
 
     QNetworkAccessManager *manager = new QNetworkAccessManager();
-    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(urlYahooHistory)));
+    manager->get(QNetworkRequest(QUrl(urlYahooHistory)));
     MY_DEBUG_URL(urlYahooHistory);
-    QEventLoop eventLoop;
-    connect(manager, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
-    eventLoop.exec();       //block until finish
+    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(stockHistoryFinished(QNetworkReply *)));
 
+    exec();
+    if (manager) {
+        delete manager;
+        manager = nullptr;
+    }
+    qDebug() << "### ThreadId:" << QThread::currentThreadId() << STR("(%1 historyCount:%2) THREAD eventLoop finished!!! ###")
+                .arg(stockCode).arg(parent->stockHistoryList[stockCode]->count()).toUtf8().data();
+    emit processFinish(stockCode);
+}
+void historyDailyDataProcessThread::stockHistoryFinished(QNetworkReply *reply) {
     QByteArray lineData = reply->readLine();
     QList<myStockHistoryData::myStockDailyData> *tmpStockHistoryList = new QList<myStockHistoryData::myStockDailyData>();
     unsigned historyCount = 0;
     while (!lineData.isNull()) {
         if ("sz.000651" == stockCode && historyCount < 10)
             qDebug() << QString(lineData);
+
         if (lineData == "Date,Open,High,Low,Close,Volume,Adj Close\n") {
             lineData = reply->readLine();
             continue;
@@ -56,16 +63,8 @@ void historyDailyDataProcessThread::run() {
             lineData = reply->readLine();
         }
     }
-
     parent->stockHistoryList[stockCode] = tmpStockHistoryList;
-    if (manager) {
-        delete manager;
-        manager = nullptr;
-    }
-}
-void historyDailyDataProcessThread::threadFinished() {
-    qDebug() << STR("### %1 threadFinished historyCount:%2 ###").arg(stockCode).arg(parent->stockHistoryList[stockCode]->count());
-    emit processFinish(stockCode);
+    emit quit();
 }
 
 QString historyDailyDataProcessThread::stockCode2YahooStyle(const QString &stockCode) {

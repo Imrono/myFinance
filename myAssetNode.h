@@ -154,13 +154,13 @@ public:
         : rootNode(myIndexShell::nodeRoot, myRootNodeData(), nullptr) {}
     myAccountAssetRootNode(const myAccountAssetRootNode &otherNode);
     ~myAccountAssetRootNode() {
-        callback();
+        callback(STR("myAccountAssetRootNode destructor"));
     }
     QString toString();
     myAccountAssetRootNode &operator =(const myAccountAssetRootNode &otherNode);
 
     bool initial(bool isFetchAccount = true, bool isFetchAsset = true);
-    bool callback(bool isRemoveAccount = true, bool isRemoveAsset = true);
+    bool callback(const QString &from, bool isRemoveAccount = true, bool isRemoveAsset = true);
 
     myRootNode *getRootNode() const { return const_cast<myRootNode *>(&rootNode);}
     myAccountNode *getAccountNode(const QString &accountCode) const;

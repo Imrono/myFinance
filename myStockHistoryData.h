@@ -23,7 +23,7 @@ public:
 signals:
     void processFinish(const QString stockCode);
 private slots:
-    void threadFinished();
+    void stockHistoryFinished(QNetworkReply *reply);
 
 protected:
     void run() Q_DECL_OVERRIDE;
