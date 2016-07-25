@@ -19,10 +19,13 @@ void historyDailyDataProcessThread::run() {
     urlYahooHistory = prefix + stockCode2YahooStyle(stockCode);
 
     QNetworkAccessManager *manager = new QNetworkAccessManager();
-    manager->get(QNetworkRequest(QUrl(urlYahooHistory)));
+    reply = manager->get(QNetworkRequest(QUrl(urlYahooHistory)));
     MY_DEBUG_URL(urlYahooHistory);
     connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(stockHistoryFinished(QNetworkReply *)));
+    //connect(reply, SIGNAL(readyRead()), this, SLOT(stockReadyRead()));
+    //connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(stockDownloadProgress(qint64, qint64)));
 
+    // THREAD EVENT LOOP
     exec();
     if (manager) {
         delete manager;
@@ -65,6 +68,20 @@ void historyDailyDataProcessThread::stockHistoryFinished(QNetworkReply *reply) {
     }
     parent->stockHistoryList[stockCode] = tmpStockHistoryList;
     emit quit();
+}
+void historyDailyDataProcessThread::stockReadyRead() {
+    qDebug() << stockCode << " readBufferSize:" << reply->readBufferSize();
+}
+void historyDailyDataProcessThread::stockDownloadProgress(qint64 bytesReceived, qint64 bytesTotal) {
+    float percentage = 0.0f;
+    if (0 != bytesTotal && -1 != bytesTotal) {
+        percentage = static_cast<float>(bytesReceived)/static_cast<float>(bytesTotal);
+    } else {
+        bytesTotal = 0;
+    }
+    qDebug() << stockCode << " received:" << static_cast<float>(bytesReceived)/1024 << "K,"
+             << "total:" << static_cast<float>(bytesTotal)/1024 << "K,"
+             << "percentage: " << percentage*100 << "%";
 }
 
 QString historyDailyDataProcessThread::stockCode2YahooStyle(const QString &stockCode) {

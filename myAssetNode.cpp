@@ -331,7 +331,8 @@ QString myAccountAssetRootNode::toString() {
             const myAssetData &assetHold = asset->dbAssetData.assetData;
             result += STR("   |- <ASSET>:%1, type:%2, price:%3, amount:%4%5")
                     .arg(assetHold.assetCode).arg(assetHold.type)
-                    .arg(assetHold.price).arg(assetHold.amount).arg(j == assetCount-1 ? "" : "\r");
+                    .arg(assetHold.price).arg(assetHold.amount)
+                    .arg((j == assetCount-1 && i == accountCount-1) ? "" : "\r");
         }
     }
     return result;

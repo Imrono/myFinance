@@ -24,6 +24,8 @@ signals:
     void processFinish(const QString stockCode);
 private slots:
     void stockHistoryFinished(QNetworkReply *reply);
+    void stockReadyRead();
+    void stockDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
 protected:
     void run() Q_DECL_OVERRIDE;
@@ -31,6 +33,7 @@ protected:
 private:
     myStockHistoryData* parent;
     const QString stockCode;
+    QNetworkReply *reply;
 
     static QString stockCode2YahooStyle(const QString &stockCode);
 };

@@ -192,7 +192,7 @@ void myAssetHistory::prepareCalcAssetValue(const QDateTime &from, const QDateTim
     // ASSET ASSISTANT THREAD
     assistantThread.initialTime(from, to);
     if (from < to || from > currentAssetTime) {
-        MY_DEBUG_ERROR("SET FROM DATE FAILED!! STOPS");
+        MY_DEBUG_ERROR(STR("SET FROM DATE FAILED!! STOPS"));
         return;
     }
 
@@ -200,13 +200,14 @@ void myAssetHistory::prepareCalcAssetValue(const QDateTime &from, const QDateTim
 }
 
 void myAssetHistory::oneStockHistoryDataReady(QString stockCode) {
-    qDebug() << STR("### oneStockHistoryDataReady:%1 ###").arg(stockCode);
     leftStock.removeAll(stockCode);
+    qDebug() << STR("### oneStockHistoryDataReady: %1, left: %2 ###").arg(stockCode).arg(leftStock.count());
     if (0 == leftStock.count()) {
         double stockValue = calcCurrentAssetValue();
 
         qDebug() << STR("### TOTAL STOCK VALUE %1 in DATE %2 (using %3 Msec) ###")
-                    .arg(stockValue).arg(currentAssetTime.toString("yyyy-MM-dd")).arg(processTime.elapsed());
+                    .arg(stockValue).arg(currentAssetTime.toString("yyyy-MM-dd"))
+                    .arg(processTime.elapsed()).toUtf8().data();
         s.release();
     }
 }
@@ -224,9 +225,13 @@ double myAssetHistory::calcCurrentAssetValue() {
             if (asset) {
                 double value = stockDailyData.close*asset->dbAssetData.assetData.amount;
                 assetValue += value;
-                qDebug() << STR("$$ assetValue + %1(price:%2) <- [%3 in %4]").arg(value).arg(stockDailyData.close)
+
+                // TRACE
+                QString strTrace;
+                strTrace.sprintf("%8.2f(price:%6.2f)", value, stockDailyData.close);
+                qDebug() << STR("$$ assetValue + %1 <- [%2 in %3]").arg(strTrace)
                             .arg(asset->dbAssetData.assetData.assetCode)
-                            .arg(asset->dbAssetData.assetData.accountCode);
+                            .arg(asset->dbAssetData.assetData.accountCode).toUtf8().data();
             }
         }
     }
@@ -241,7 +246,8 @@ double myAssetHistory::calcCurrentAssetValue() {
         if (asset) {
             assetValue += asset->dbAssetData.assetData.price;
             qDebug() << STR("$$ add %1 in %2 with value:%3").arg(asset->dbAssetData.assetData.assetCode)
-                        .arg(asset->dbAssetData.assetData.accountCode).arg(asset->dbAssetData.assetData.price);
+                        .arg(asset->dbAssetData.assetData.accountCode)
+                        .arg(asset->dbAssetData.assetData.price).toUtf8().data();
 
         }
     }
