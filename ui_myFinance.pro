@@ -10,6 +10,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TEMPLATE = app
 
+include(C:/Qt/qwt-6.1.3/qwt-6.1.3/qwt.prf)
+LIBS += -LC:/Qt/Qt5.5.1/5.5/msvc2010/lib -lqwt
+INCLUDEPATH += C:/Qt/Qt5.5.1/5.5/msvc2010/include/QWT/
+CONFIG += qwt
 
 SOURCES += main.cpp\
         myFinanceMainWindow.cpp \
@@ -41,7 +45,8 @@ SOURCES += main.cpp\
     myDividendsDialog_2.cpp \
     myAssetHistory.cpp \
     myExchangeListNode.cpp \
-    myStockHistoryData.cpp
+    myStockHistoryData.cpp \
+    myHistortyShow.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \
@@ -72,7 +77,8 @@ HEADERS  += myFinanceMainWindow.h \
     myDividendsDialog_2.h \
     myAssetHistory.h \
     myExchangeListNode.h \
-    myStockHistoryData.h
+    myStockHistoryData.h \
+    myHistortyShow.h
 
 FORMS    += myFinanceMainWindow.ui \
     myFinanceExchangeWindow.ui \
@@ -86,7 +92,8 @@ FORMS    += myFinanceMainWindow.ui \
     myExchangeFormMoneyUp.ui \
     myDividendsDialog.ui \
     myExchangeFormFund.ui \
-    myDividendsDialog_2.ui
+    myDividendsDialog_2.ui \
+    myHistortyShow.ui
 
 CONFIG(debug, debug|release) {
     CONFIG += console

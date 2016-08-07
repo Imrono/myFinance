@@ -5,11 +5,13 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QFile>
+#include <QElapsedTimer>
 
 #include "myFinanceExchangeWindow.h"
 #include "myInsertModifyAccount.h"
 #include "myInsertModifyAsset.h"
 #include "myModifyExchange.h"
+#include "myHistortyShow.h"
 
 myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -44,6 +46,7 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
         statueStr_1 = STR("");
     }
     statusLabel.setText(statueStr_1+statueStr_2);
+    //ui->statusBar->showMessage(statueStr_1+statueStr_2); //不能加粗显示
 
     /// treeView
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -103,6 +106,11 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     hidePrice = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myHidePrice.png"), STR("更新价格"), this);;
     connect(hidePrice, SIGNAL(triggered()), this, SLOT(onHidePriceClicked()));
     ui->mainToolBar->addAction(hidePrice);
+    ui->mainToolBar->addSeparator();
+
+    assetHistory = new QAction(QIcon(":/icon/toolBar/resource/icon/toolBar/myAssetHistory.png"), STR("资产历史变化"), this);
+    connect(assetHistory, SIGNAL(triggered()), this, SLOT(onAssetHistoryClicked()));
+    ui->mainToolBar->addAction(assetHistory);
 }
 
 myFinanceMainWindow::~myFinanceMainWindow()
@@ -237,6 +245,15 @@ void myFinanceMainWindow::priceDataReflashed() {
 void myFinanceMainWindow::onHidePriceClicked() {
     statueStr_2 = STR("");
     statusLabel.setText(statueStr_1+statueStr_2);
+}
+
+void myFinanceMainWindow::onAssetHistoryClicked() {
+    qDebug() << STR("资产历史变化 clicked");
+
+    QMap<QDateTime, double> historyValue;
+    myHistortyShow showWin(historyValue, this);
+    showWin.exec();
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

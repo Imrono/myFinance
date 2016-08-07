@@ -48,6 +48,8 @@ private slots:
     void onUpdatePriceClicked();
     void onHidePriceClicked();
 
+    void onAssetHistoryClicked();
+
 private:
     Ui::myFinanceMainWindow *ui;
     ///
@@ -80,6 +82,8 @@ private:
 
     QAction *updatePrice;
     QAction *hidePrice;
+
+    QAction *assetHistory;
 
     // statusBar
     QString statueStr_1;

@@ -17,10 +17,12 @@ myAssetHistory::myAssetHistory()
 
     // STOCK HISTORY
     stockHistoryData = myStockHistoryData::getInstance();
-    s.acquire();
-    processTime.start();
-    foreach (QString stockCode, currentStockHolding) {
-        stockHistoryData->insertStockHistory(stockCode);
+    if (currentStockHolding.count() > 0) {
+        s.acquire();
+        processTime.start();
+        foreach (QString stockCode, currentStockHolding) {
+            stockHistoryData->insertStockHistory(stockCode);
+        }
     }
     connect(stockHistoryData, SIGNAL(historyDailyDataReady(QString)), this, SLOT(oneStockHistoryDataReady(QString)));
 }
@@ -37,13 +39,12 @@ void myAssetHistory::doCalcAssetValue(const QDateTime &time) {
     const myAccountAssetRootNode *historyNode = getHistoryNode(time, assetChange);
     Q_UNUSED(historyNode);
 
-    QMapIterator<QString, int> ii(assetChange);
-    if (!ii.hasNext()) {
-        double stockValue = calcCurrentAssetValue();
-        qDebug() << STR("### TOTAL STOCK VALUE %1 in DATE %2 (using %3 Msec) (asset not changed) ###")
-                    .arg(stockValue).arg(currentAssetTime.toString("yyyy-MM-dd")).arg(processTime.elapsed());
+    QMapIterator<QString, int> ii(assetChange); 
+    if (!ii.hasNext()) {    // 1. 没有asset变化，直接计算value
+        double assetValue = calcCurrentAssetValue();
+        Q_UNUSED(assetValue);
         s.release();
-    } else {
+    } else {                // 2. 有asset变化，先取得新asset的历史信息，再计算
          do {
             ii.next();
             calcCurrentStockHolding();
@@ -203,11 +204,9 @@ void myAssetHistory::oneStockHistoryDataReady(QString stockCode) {
     leftStock.removeAll(stockCode);
     qDebug() << STR("### oneStockHistoryDataReady: %1, left: %2 ###").arg(stockCode).arg(leftStock.count());
     if (0 == leftStock.count()) {
-        double stockValue = calcCurrentAssetValue();
+        double assetValue = calcCurrentAssetValue();
+        Q_UNUSED(assetValue);
 
-        qDebug() << STR("### TOTAL STOCK VALUE %1 in DATE %2 (using %3 Msec) ###")
-                    .arg(stockValue).arg(currentAssetTime.toString("yyyy-MM-dd"))
-                    .arg(processTime.elapsed()).toUtf8().data();
         s.release();
     }
 }
@@ -252,6 +251,10 @@ double myAssetHistory::calcCurrentAssetValue() {
         }
     }
     historyValue.insert(currentAssetTime, assetValue);
+    qDebug() << STR("### TOTAL ASSET VALUE historyValue[%1] = %2 (using %3 Msec) ###")
+                .arg(currentAssetTime.toString("yyyy-MM-dd")).arg(assetValue)
+                .arg(processTime.elapsed()).toUtf8().data();
+
     return assetValue;
 }
 
@@ -269,11 +272,11 @@ historyValueThread::~historyValueThread() {
 
 void historyValueThread::run() {
     for (QDateTime time = fromTime; time >= toTime; time = time.addDays(-1)) {
-        qDebug() << "### historyValueThread processing " << time.toString("yyyy-MM-dd") <<  "###";
+        qDebug() << ">>> historyValueThread processing " << time.toString("yyyy-MM-dd") <<  "<<<";
         myAssetHistory::s.acquire();
         assetHistory->processTime.start();
         assetHistory->doCalcAssetValue(time);
-        qDebug() << "### historyValueThread processing " << time.toString("yyyy-MM-dd") <<  " finished ###";
+        qDebug() << "<<< historyValueThread processing " << time.toString("yyyy-MM-dd") <<  " finished >>>";
     }
     qDebug() << "historyValueThread finished with numOfDays:" << toTime.daysTo(fromTime);
 }

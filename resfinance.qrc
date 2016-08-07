@@ -26,5 +26,6 @@
         <file>resource/icon/toolBar/myUpdatePrice.png</file>
         <file>resource/icon/toolBar/myHidePrice.png</file>
         <file>resource/icon/toolBar/mySyncDatabase.png</file>
+        <file>resource/icon/toolBar/myAssetHistory.png</file>
     </qresource>
 </RCC>

@@ -58,6 +58,13 @@ public:
     void prepareCalcAssetValue(const QDateTime &from, const QDateTime &to);
     void doCalcAssetValue(const QDateTime &time);
 
+    void showHistoryValue() {
+        QMap<QDateTime, double>::const_iterator ii;
+        for (ii = historyValue.constBegin(); ii != historyValue.constEnd(); ++ii) {
+            qDebug() << "[" << ii.key().toString("yyyy-MM-dd") << ":" << ii.value() << "]";
+        }
+    }
+
 private:
     QDateTime currentAssetTime;
     QList<QString> currentStockHolding;

@@ -40,8 +40,10 @@ void historyDailyDataProcessThread::stockHistoryFinished(QNetworkReply *reply) {
     QList<myStockHistoryData::myStockDailyData> *tmpStockHistoryList = new QList<myStockHistoryData::myStockDailyData>();
     unsigned historyCount = 0;
     while (!lineData.isNull()) {
-        if ("sz.000651" == stockCode && historyCount < 10)
-            qDebug() << QString(lineData);
+        if ("sz.000651" == stockCode && historyCount < 10) {
+            qDebug() << stockCode << ": " << QString(lineData);
+            break;
+        }
 
         if (lineData == "Date,Open,High,Low,Close,Volume,Adj Close\n") {
             lineData = reply->readLine();
