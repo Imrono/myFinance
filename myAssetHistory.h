@@ -53,7 +53,10 @@ public:
     const myAccountAssetRootNode *getHistoryNode(const QDateTime &time, QMap<QString, int> &assetChange);
 
     // TIME POINT SYNC
-    static QSemaphore s;
+    static QSemaphore time_s;
+    // HISTORY SYNC
+    static QSemaphore historyValue_s;
+
     //QSemaphore s_historyTime;
     void prepareCalcAssetValue(const QDateTime &from, const QDateTime &to);
     void doCalcAssetValue(const QDateTime &time);
@@ -63,6 +66,10 @@ public:
         for (ii = historyValue.constBegin(); ii != historyValue.constEnd(); ++ii) {
             qDebug() << "[" << ii.key().toString("yyyy-MM-dd") << ":" << ii.value() << "]";
         }
+    }
+
+    const QMap<QDateTime, double> &getHistoryValue() {
+        return historyValue;
     }
 
 private:

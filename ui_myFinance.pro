@@ -10,8 +10,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TEMPLATE = app
 
-include(C:/Qt/qwt-6.1.3/qwt-6.1.3/qwt.prf)
-LIBS += -LC:/Qt/Qt5.5.1/5.5/msvc2010/lib -lqwt
+include(C:/Qt/qwt-6.1.3/qwt.prf)
+LIBS += -L"C:/Qt/Qt5.5.1/5.5/msvc2010/lib" -lqwt
 INCLUDEPATH += C:/Qt/Qt5.5.1/5.5/msvc2010/include/QWT/
 CONFIG += qwt
 
@@ -46,7 +46,8 @@ SOURCES += main.cpp\
     myAssetHistory.cpp \
     myExchangeListNode.cpp \
     myStockHistoryData.cpp \
-    myHistortyShow.cpp
+    myHistortyShow.cpp \
+    myDecodeStockMsg.cpp
 
 HEADERS  += myFinanceMainWindow.h \
     myAssetModel.h \

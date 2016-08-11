@@ -1,6 +1,6 @@
-#ifndef MYHISTORTYSHOW_H
+﻿#ifndef MYHISTORTYSHOW_H
 #define MYHISTORTYSHOW_H
-
+#include "myGlobal.h"
 #include <QDialog>
 #include <QMap>
 #include <QDateTime>
@@ -24,6 +24,12 @@ public:
         dt.setTime_t((int)v); //获取时间
         return dt.toString("mm:ss");  //转变为字符串  分秒  在刻度为最长的位置显示值
     }
+};
+
+class historyPlot : public QwtPlot
+{
+    historyPlot(QWidget *parent = NULL);
+    ~historyPlot();
 };
 
 namespace Ui {

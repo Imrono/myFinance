@@ -13,6 +13,8 @@
 #include "myModifyExchange.h"
 #include "myHistortyShow.h"
 
+#include "myAssetHistory.h"
+
 myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::myFinanceMainWindow),
@@ -251,7 +253,10 @@ void myFinanceMainWindow::onAssetHistoryClicked() {
     qDebug() << STR("资产历史变化 clicked");
 
     QMap<QDateTime, double> historyValue;
-    myHistortyShow showWin(historyValue, this);
+    myAssetHistory assetHistory;
+    myAssetHistory::historyValue_s.acquire();
+    assetHistory.prepareCalcAssetValue(QDateTime(QDate(2016, 8, 4)), QDateTime(QDate(2016, 7, 19)));
+    myHistortyShow showWin(assetHistory.getHistoryValue(), this);
     showWin.exec();
 
 }

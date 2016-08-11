@@ -31,6 +31,8 @@
 #define MY_DEBUG_ASSET(str) qDebug() << "\033[32m" << str << "\033[0m"
 #define MY_DEBUG_NODE_ASSET(node) MY_DEBUG_ASSET(node.toString().toUtf8().data())
 
+#define MSEC_DAY 86400000
+
 class myGlobal
 {
 public:

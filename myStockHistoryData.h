@@ -13,6 +13,16 @@
 #include <QMap>
 #include <QThread>
 
+struct myStockDailyData {
+    QDateTime datetime;
+    float open;
+    float high;
+    float low;
+    float close;
+    int   volume;
+    float adjClose;
+};
+
 class myStockHistoryData;
 class historyDailyDataProcessThread : public QThread {
     Q_OBJECT
@@ -36,6 +46,11 @@ private:
     QNetworkReply *reply;
 
     static QString stockCode2YahooStyle(const QString &stockCode);
+    static QString stockUrlYahoo(const QString &stockCode);
+    static bool stockDecodeYahoo(QByteArray &lineData, myStockDailyData &dailyData);
+    static QString stockCode2NetEaseStyle(const QString &stockCode);
+    static QString stockUrlNetEase(const QString &stockCode);
+    static bool stockDecodeNetEase(QByteArray &lineData, myStockDailyData &dailyData);
 };
 
 // http://table.finance.yahoo.com/table.csv?s=000001.sz
@@ -72,17 +87,6 @@ private:
     static CGarbo Garbo;
 
 /// CLASS PART
-public:
-    struct myStockDailyData {
-        QDateTime datetime;
-        float open;
-        float high;
-        float low;
-        float close;
-        int   volume;
-        float adjClose;
-    };
-
 public:
     ~myStockHistoryData();
     void insertStockHistory(const QString &stockCode);

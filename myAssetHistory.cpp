@@ -3,7 +3,9 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QStringList>
-QSemaphore myAssetHistory::s(1);
+QSemaphore myAssetHistory::time_s(1);
+QSemaphore myAssetHistory::historyValue_s(1);
+
 myAssetHistory::myAssetHistory()
     : currentAssetTime(QDateTime::currentDateTime()), assistantThread(this)
 {
@@ -18,7 +20,7 @@ myAssetHistory::myAssetHistory()
     // STOCK HISTORY
     stockHistoryData = myStockHistoryData::getInstance();
     if (currentStockHolding.count() > 0) {
-        s.acquire();
+        time_s.acquire();
         processTime.start();
         foreach (QString stockCode, currentStockHolding) {
             stockHistoryData->insertStockHistory(stockCode);
@@ -43,7 +45,7 @@ void myAssetHistory::doCalcAssetValue(const QDateTime &time) {
     if (!ii.hasNext()) {    // 1. 没有asset变化，直接计算value
         double assetValue = calcCurrentAssetValue();
         Q_UNUSED(assetValue);
-        s.release();
+        time_s.release();
     } else {                // 2. 有asset变化，先取得新asset的历史信息，再计算
          do {
             ii.next();
@@ -207,7 +209,7 @@ void myAssetHistory::oneStockHistoryDataReady(QString stockCode) {
         double assetValue = calcCurrentAssetValue();
         Q_UNUSED(assetValue);
 
-        s.release();
+        time_s.release();
     }
 }
 double myAssetHistory::calcCurrentAssetValue() {
@@ -215,7 +217,7 @@ double myAssetHistory::calcCurrentAssetValue() {
     double assetValue = 0.0f;
     // STOCK PART
     foreach (QString tmpStockCode, currentStockHolding) {
-        myStockHistoryData::myStockDailyData stockDailyData;
+        myStockDailyData stockDailyData;
         stockHistoryData->getStockDailyData(tmpStockCode, currentAssetTime, stockDailyData);
         int accountCount = historyRoot.getAccountCount();
         for (int i = 0; i < accountCount; i++) {
@@ -273,10 +275,11 @@ historyValueThread::~historyValueThread() {
 void historyValueThread::run() {
     for (QDateTime time = fromTime; time >= toTime; time = time.addDays(-1)) {
         qDebug() << ">>> historyValueThread processing " << time.toString("yyyy-MM-dd") <<  "<<<";
-        myAssetHistory::s.acquire();
+        myAssetHistory::time_s.acquire();
         assetHistory->processTime.start();
         assetHistory->doCalcAssetValue(time);
         qDebug() << "<<< historyValueThread processing " << time.toString("yyyy-MM-dd") <<  " finished >>>";
     }
     qDebug() << "historyValueThread finished with numOfDays:" << toTime.daysTo(fromTime);
+    myAssetHistory::historyValue_s.release();
 }

@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
     //myStockHistoryData *stockHistoryData = myStockHistoryData::getInstance();
     //stockHistoryData->insertStockHistory("sz.000333");
 
-    myAssetHistory assetHistory;
-    assetHistory.prepareCalcAssetValue(QDateTime(QDate(2016, 8, 4)), QDateTime(QDate(2016, 7, 19)));
+    //myAssetHistory assetHistory;
+    //assetHistory.prepareCalcAssetValue(QDateTime(QDate(2016, 8, 4)), QDateTime(QDate(2016, 7, 19)));
 
     QPixmap pixmap(":/SplashScreen/resource/SplashScreen/gold10years.jpg");
     QSplashScreen screen(pixmap);
