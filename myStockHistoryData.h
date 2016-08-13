@@ -47,10 +47,11 @@ private:
 
     static QString stockCode2YahooStyle(const QString &stockCode);
     static QString stockUrlYahoo(const QString &stockCode);
-    static bool stockDecodeYahoo(QByteArray &lineData, myStockDailyData &dailyData);
+    bool stockStoreYahoo(QByteArray &lineData, myStockDailyData &stockDailyData);
+
     static QString stockCode2NetEaseStyle(const QString &stockCode);
     static QString stockUrlNetEase(const QString &stockCode);
-    static bool stockDecodeNetEase(QByteArray &lineData, myStockDailyData &dailyData);
+    bool stockStoreNetEase(QByteArray &lineData, myStockDailyData &stockDailyData);
 };
 
 // http://table.finance.yahoo.com/table.csv?s=000001.sz

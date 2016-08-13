@@ -16,6 +16,7 @@ void historyDailyDataProcessThread::run() {
 
     //QString url = stockUrlYahoo(stockCode);
     QString url = stockUrlNetEase(stockCode);
+
     QNetworkAccessManager *manager = new QNetworkAccessManager();
     reply = manager->get(QNetworkRequest(QUrl(url)));
     MY_DEBUG_URL(url);
@@ -40,12 +41,11 @@ void historyDailyDataProcessThread::stockHistoryFinished(QNetworkReply *reply) {
     while (!lineData.isNull()) {
         if ("sz.000651" == stockCode && historyCount < 10) {
             qDebug() << stockCode << ": " << QString(lineData);
-            break;
         }
 
         myStockDailyData stockDailyData;
-        //if (stockDecodeYahoo(lineData, stockDailyData)) {
-        if (stockDecodeNetEase(lineData, stockDailyData)) {
+        //if (stockStoreYahoo(lineData, stockDailyData)) {
+        if (stockStoreNetEase(lineData, stockDailyData)) {
             tmpStockHistoryList->append(stockDailyData);
             historyCount ++;
         }
@@ -67,6 +67,88 @@ void historyDailyDataProcessThread::stockDownloadProgress(qint64 bytesReceived, 
     qDebug() << stockCode << " received:" << static_cast<float>(bytesReceived)/1024 << "K,"
              << "total:" << static_cast<float>(bytesTotal)/1024 << "K,"
              << "percentage: " << percentage*100 << "%";
+}
+
+QString historyDailyDataProcessThread::stockUrlYahoo(const QString &stockCode) {
+    return STR("http://table.finance.yahoo.com/table.csv?s=%1").arg(stockCode2YahooStyle(stockCode));
+}
+QString historyDailyDataProcessThread::stockCode2YahooStyle(const QString &stockCode) {
+    QString tmpStockCode = stockCode;
+    QString preStr = tmpStockCode.left(3);
+    if ("sh." == preStr) {
+        tmpStockCode.remove(0, 3);
+        tmpStockCode.append(STR(".ss"));
+    } else if ("sz." == preStr) {
+        tmpStockCode.remove(0, 3);
+        tmpStockCode.append(STR(".sz"));
+    } else {}
+    return tmpStockCode;
+}
+bool historyDailyDataProcessThread::stockStoreYahoo(QByteArray &lineData, myStockDailyData &stockDailyData) {
+    if (lineData == "Date,Open,High,Low,Close,Volume,Adj Close\n") {
+        return false;
+    }
+    //qDebug() << stockDailyData;
+    lineData.remove(lineData.lastIndexOf('\n'), 1);
+    QList<QByteArray> strList = lineData.split(',');
+
+    if (7 == strList.count()) {
+        stockDailyData.datetime = QDateTime::fromString(strList.at(0), "yyyy-MM-dd");
+        stockDailyData.open     = strList.at(1).toFloat();
+        stockDailyData.high     = strList.at(2).toFloat();
+        stockDailyData.low      = strList.at(3).toFloat();
+        stockDailyData.close    = strList.at(4).toFloat();
+        stockDailyData.volume   = strList.at(5).toInt();
+        stockDailyData.adjClose = strList.at(6).toFloat();
+
+        return true;
+    }
+    return false;
+}
+
+QString historyDailyDataProcessThread::stockCode2NetEaseStyle(const QString &stockCode) {
+    QString tmpStockCode = stockCode;
+    QString preStr = tmpStockCode.left(3);
+    if ("sh." == preStr) {
+        tmpStockCode.remove(0, 3);
+        tmpStockCode.insert(0, "0");
+    } else if ("sz." == preStr) {
+        tmpStockCode.remove(0, 3);
+        tmpStockCode.insert(0, "1");
+    } else {}
+    return tmpStockCode;
+}
+QString historyDailyDataProcessThread::stockUrlNetEase(const QString &stockCode) {
+    return STR("http://quotes.money.163.com/service/chddata.html?"
+               "code=%1&start=00000000&end=%2"
+               "&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP")
+            .arg(stockCode2NetEaseStyle(stockCode))
+            .arg(QDate::currentDate().toString("yyyyMMdd"));
+}
+bool historyDailyDataProcessThread::stockStoreNetEase(QByteArray &lineData, myStockDailyData &stockDailyData) {
+    QString title = STR("日期,股票代码,名称,收盘价,最高价,最低价,开盘价,前收盘,涨跌额,涨跌幅,换手率,成交量,成交金额,总市值,流通市值");
+    QString strData = STR(lineData);
+
+    if (strData.contains(title)) {
+        return false;
+    }
+    lineData.remove(lineData.lastIndexOf('\n'), 1);
+    QList<QByteArray> strList = lineData.split(',');
+
+    if (15 == strList.count()) {
+        stockDailyData.datetime = QDateTime::fromString(strList.at(0), "yyyy-MM-dd");
+        stockDailyData.open     = strList.at(6).toFloat();
+        stockDailyData.high     = strList.at(4).toFloat();
+        stockDailyData.low      = strList.at(5).toFloat();
+        stockDailyData.volume   = strList.at(11).toInt();
+        stockDailyData.adjClose = strList.at(7).toFloat();
+        if (0 == stockDailyData.volume)
+            stockDailyData.close    = strList.at(7).toFloat();
+        else
+            stockDailyData.close    = strList.at(3).toFloat();
+        return true;
+    }
+    return false;
 }
 
 /////////////////////////////////////
@@ -141,10 +223,8 @@ bool myStockHistoryData::getStockDailyData(const QString &stockCode, const QDate
     if (!stockHistoryList.contains(stockCode))
         return false;
 
-    QList<myStockDailyData> *historyData = stockHistoryList[stockCode];
-    int historyDailyDataCount = historyData->count();
-    for (int i = 0; i < historyDailyDataCount; i++) {
-        const myStockDailyData dailyData = historyData->at(i);
+    QList<myStockDailyData> *data = stockHistoryList[stockCode];
+    foreach(const myStockDailyData &dailyData, *data) {
         if (dailyData.datetime <= dateTime) {
             stockDailyData = dailyData;
             return true;
@@ -152,5 +232,6 @@ bool myStockHistoryData::getStockDailyData(const QString &stockCode, const QDate
             continue;
         } else {}
     }
+
     return false;
 }

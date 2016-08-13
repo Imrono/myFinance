@@ -32,6 +32,8 @@ private:
     QDateTime fromTime;
     QDateTime toTime;
     myAssetHistory *assetHistory;
+signals:
+    void historyValueThreadFinished();
 };
 
 #include <QDateTime>
@@ -54,9 +56,6 @@ public:
 
     // TIME POINT SYNC
     static QSemaphore time_s;
-    // HISTORY SYNC
-    static QSemaphore historyValue_s;
-
     //QSemaphore s_historyTime;
     void prepareCalcAssetValue(const QDateTime &from, const QDateTime &to);
     void doCalcAssetValue(const QDateTime &time);
@@ -90,6 +89,10 @@ private:
 
 private slots:
     void oneStockHistoryDataReady(QString stockCode);
+    void assistantThreadFinished();
+signals:
+    void ready4Display();
+
 private:
     double calcCurrentAssetValue();
 };

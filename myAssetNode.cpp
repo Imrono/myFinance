@@ -516,7 +516,7 @@ bool myAccountAssetRootNode::deleteOneAssetNode(myAccountNode *account, const QS
             if (assetHold.assetData.assetCode == assetCode) {
                 toRemove = i;
             } else if (assetHold.pos > pos) {
-                setAssetPositionNode(asset, assetHold.pos-1);
+                asset->dbAssetData.pos = assetHold.pos-1;
             }
         }
     account->children.removeAt(toRemove);
@@ -665,7 +665,7 @@ bool myAccountAssetRootNode::setAssetPosition(const QString &accountCode, const 
             for (int i = 0; i < assetCount; i++) {
                 myAssetNode *asset = static_cast<myAssetNode *>(account->children.at(i));
                 if (asset->dbAssetData.assetData.assetCode == assetCode) {
-                    setAssetPositionNode(asset, pos);
+                    asset->dbAssetData.pos = pos;
                     break;
                 }
             }
@@ -698,7 +698,7 @@ void myAccountAssetRootNode::sortPositionAccount() {
     QList<int> left;
     QList<int> posList;
     // 0 ~ numOfAsset-1 中找一个没用到的，给重复使用或超出范围的使用
-    int numOfAccount = rootNode.children.count();
+    const int numOfAccount = rootNode.children.count();
     for (int i = 0; i < numOfAccount; i++) {
         left.append(i);
     }
@@ -716,17 +716,18 @@ void myAccountAssetRootNode::sortPositionAccount() {
     for (int i = 0; i < numOfAccount; i++) {
         myAccountNodeData &accountInfo = GET_ACCOUNT_NODE_DATA(rootNode.children.at(i));
         if (accountInfo.pos < 0 || accountInfo.pos > numOfAccount - 1 || posList.count(accountInfo.pos)>1 ) {
+            int originalPos = accountInfo.pos;
             int tmpPos = left.back();
             if (setAccountPosition(accountInfo.accountData.code, tmpPos)) {
-                for (int j = 0; j < posList.count(); j++) {
-                    if (posList.at(j) == tmpPos) {
+                int posListcount = posList.count();
+                for (int j = 0; j < posListcount; j++) {
+                    if (posList.at(j) == originalPos) {
                         posList.removeAt(j);
                         break;
                     }
                 }
                 posList.append(accountInfo.pos);
                 left.pop_back();
-                accountInfo.pos = tmpPos;
             } else {} //sql error
         } else {}
     }
@@ -751,7 +752,7 @@ void myAccountAssetRootNode::sortPositionAsset(myAccountNode *accountNode) {
     QList<int> left;
     QList<int> posList;
     // 0 ~ numOfAsset-1 中找一个没用到的，给重复使用或超出范围的使用
-    int numOfAsset = accountNode->children.count();
+    const int numOfAsset = accountNode->children.count();
     for (int i = 0; i < numOfAsset; i++) {
         left.append(i);
     }
@@ -769,23 +770,23 @@ void myAccountAssetRootNode::sortPositionAsset(myAccountNode *accountNode) {
     for (int i = 0; i < numOfAsset; i++) {
         myAssetNodeData &assetHold = GET_ASSET_NODE_DATA(accountNode->children[i]);
         if (assetHold.pos < 0 || assetHold.pos > numOfAsset - 1 || posList.count(assetHold.pos)>1 ) {
+            int originalPos = assetHold.pos;
             int tmpPos = left.back();
             if (setAssetPosition(assetHold.assetData.accountCode, assetHold.assetData.assetCode, tmpPos)) {
-                for (int j = 0; j < posList.count(); j++) {
-                    if (posList.at(j) == assetHold.pos) {
+                const int posListcount = posList.count();
+                for (int j = 0; j < posListcount; j++) {
+                    if (posList.at(j) == originalPos) {
                         posList.removeAt(j);
                         break;
                     }
                 }
                 posList.append(tmpPos);
                 left.pop_back();
-                assetHold.pos = tmpPos;
             } else {} //sql error
         } else {}
     }
 
     // 按排好的顺序更新accountNode的children
-    numOfAsset = accountNode->children.count();
     QList<myIndexShell *> tmpChild;
     for (int i = 0; i < numOfAsset; i++) {
         for (int j = 0; j < numOfAsset; j++) {

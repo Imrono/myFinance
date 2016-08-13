@@ -1,6 +1,6 @@
 ﻿#ifndef MYHISTORTYSHOW_H
 #define MYHISTORTYSHOW_H
-#include "myGlobal.h"
+
 #include <QDialog>
 #include <QMap>
 #include <QDateTime>
@@ -28,8 +28,12 @@ public:
 
 class historyPlot : public QwtPlot
 {
-    historyPlot(QWidget *parent = NULL);
+public:
+    historyPlot(const QMap<QDateTime, double> &historyValue, QWidget *parent = NULL);
     ~historyPlot();
+
+private:
+    const QMap<QDateTime, double> historyValue;
 };
 
 namespace Ui {
@@ -46,9 +50,7 @@ public:
 
 private:
     Ui::myHistortyShow *ui;
-    QwtPlot *plot;
-
-    const QMap<QDateTime, double> historyValue;
+    historyPlot *plot;
 };
 
 #endif // MYHISTORTYSHOW_H

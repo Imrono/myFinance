@@ -4,8 +4,6 @@
 #include <QDebug>
 #include <QStringList>
 QSemaphore myAssetHistory::time_s(1);
-QSemaphore myAssetHistory::historyValue_s(1);
-
 myAssetHistory::myAssetHistory()
     : currentAssetTime(QDateTime::currentDateTime()), assistantThread(this)
 {
@@ -246,13 +244,18 @@ double myAssetHistory::calcCurrentAssetValue() {
         const myAssetNode *asset = myAccountAssetRootNode::getAssetNode(account, MY_CASH);
         if (asset) {
             assetValue += asset->dbAssetData.assetData.price;
-            qDebug() << STR("$$ add %1 in %2 with value:%3").arg(asset->dbAssetData.assetData.assetCode)
-                        .arg(asset->dbAssetData.assetData.accountCode)
-                        .arg(asset->dbAssetData.assetData.price).toUtf8().data();
 
+            // TRACE
+            QString strTrace;
+            strTrace.sprintf("%8.2f              ", asset->dbAssetData.assetData.price);
+            qDebug() << STR("$$ assetValue + %1 <- [%2 in %3]").arg(strTrace)
+                        .arg(asset->dbAssetData.assetData.assetCode)
+                        .arg(asset->dbAssetData.assetData.accountCode).toUtf8().data();
         }
     }
     historyValue.insert(currentAssetTime, assetValue);
+
+    // TRACE
     qDebug() << STR("### TOTAL ASSET VALUE historyValue[%1] = %2 (using %3 Msec) ###")
                 .arg(currentAssetTime.toString("yyyy-MM-dd")).arg(assetValue)
                 .arg(processTime.elapsed()).toUtf8().data();
@@ -260,15 +263,23 @@ double myAssetHistory::calcCurrentAssetValue() {
     return assetValue;
 }
 
+void myAssetHistory::assistantThreadFinished() {
+    emit ready4Display();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 /// historyValueThread ////////////////////////////////////////////////////////////
 
 historyValueThread::historyValueThread(const QDateTime &from, const QDateTime &to, myAssetHistory *assetHistory)
     : fromTime(from), toTime(to), assetHistory(assetHistory)
-{}
+{
+    connect(this, SIGNAL(historyValueThreadFinished()), assetHistory, SLOT(assistantThreadFinished()));
+}
 historyValueThread::historyValueThread(myAssetHistory *assetHistory)
     : fromTime(QDateTime::currentDateTime()), toTime(QDateTime::currentDateTime()), assetHistory(assetHistory)
-{}
+{
+    connect(this, SIGNAL(historyValueThreadFinished()), assetHistory, SLOT(assistantThreadFinished()));
+}
 historyValueThread::~historyValueThread() {
 }
 
@@ -281,5 +292,5 @@ void historyValueThread::run() {
         qDebug() << "<<< historyValueThread processing " << time.toString("yyyy-MM-dd") <<  " finished >>>";
     }
     qDebug() << "historyValueThread finished with numOfDays:" << toTime.daysTo(fromTime);
-    myAssetHistory::historyValue_s.release();
+    emit historyValueThreadFinished();
 }
