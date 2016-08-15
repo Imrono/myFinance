@@ -61,7 +61,7 @@ private:
     myExchangeListModel *exchangeModel;
 
     myStockCodeName *stockCode; //用于更新ui状态
-    QLabel statusLabel;
+    QLabel *statusLabel;
 
     myFinanceTreeVeiwContextMenu treeViewContextMenu;
 

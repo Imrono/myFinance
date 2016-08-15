@@ -18,13 +18,14 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::myFinanceMainWindow),
     assetModel(nullptr), exchangeModel(nullptr),
-    stockCode(myStockCodeName::getInstance()), statusLabel(this),
+    stockCode(myStockCodeName::getInstance()),
     treeViewContextMenu(this)
 {
     assetModel = new myAssetModel(this);
     exchangeModel = new myExchangeListModel(this);
 
     ui->setupUi(this);
+    statusLabel = new QLabel(this);
 
     ui->treeView->setModel(assetModel);
     //ui->treeView->setItemDelegate(delegate);
@@ -40,13 +41,13 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     connect(assetModel, SIGNAL(priceDataReflashed()), this, SLOT(priceDataReflashed()));
     connect(stockCode ,SIGNAL(codeDataReady()), this, SLOT(codeDataReady()));
 
-    ui->statusBar->addWidget(&statusLabel);
+    ui->statusBar->addWidget(statusLabel);
     if (stockCode->getIsDataReady()) {
         statueStr_1 = STR("股票代码获取成功");
     } else {
         statueStr_1 = STR("");
     }
-    statusLabel.setText(statueStr_1+statueStr_2);
+    statusLabel->setText(statueStr_1+statueStr_2);
     //ui->statusBar->showMessage(statueStr_1+statueStr_2); //不能加粗显示
 
     /// treeView
@@ -132,7 +133,7 @@ void myFinanceMainWindow::codeDataReady() {
         reflashData->setEnabled(true);
     }
     statueStr_1 = STR("股票代码获取成功");
-    statusLabel.setText(statueStr_1+statueStr_2);
+    statusLabel->setText(statueStr_1+statueStr_2);
     qDebug() << statueStr_1;
 }
 
@@ -207,7 +208,7 @@ void myFinanceMainWindow::onReflashClicked()
 {
     qDebug() << STR("刷新 clicked finished 正在读取股票代码");
     statueStr_1 = STR("正在读取股票代码");
-    statusLabel.setText(statueStr_1+statueStr_2);
+    statusLabel->setText(statueStr_1+statueStr_2);
     reflashData->setEnabled(false);
 
     assetModel->doReflashData();
@@ -240,12 +241,12 @@ void myFinanceMainWindow::priceDataReflashed() {
     statueStr_2 = STR("<b>【更新时间：%1●总资产：%2●证券账户：%3】</b>")
             .arg(dateTime.toString(STR("yyyy-MM-dd hh:mm:ss")))
             .arg(strTotalAsset).arg(strSecurityAsset);
-    statusLabel.setText(statueStr_1+statueStr_2);
+    statusLabel->setText(statueStr_1+statueStr_2);
     qDebug() << STR("价格更新 finished") << statueStr_2;
 }
 void myFinanceMainWindow::onHidePriceClicked() {
     statueStr_2 = STR("");
-    statusLabel.setText(statueStr_1+statueStr_2);
+    statusLabel->setText(statueStr_1+statueStr_2);
 }
 
 void myFinanceMainWindow::onAssetHistoryClicked() {
