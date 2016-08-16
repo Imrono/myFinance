@@ -21,10 +21,11 @@ myFinanceMainWindow::myFinanceMainWindow(QWidget *parent) :
     stockCode(myStockCodeName::getInstance()),
     treeViewContextMenu(this)
 {
-    assetModel = new myAssetModel(this);
-    exchangeModel = new myExchangeListModel(this);
-
     ui->setupUi(this);
+    assetModel = new myAssetModel(ui->treeView);
+    exchangeModel = new myExchangeListModel(ui->listView);
+
+    setWindowIcon(QIcon(":/icon/myLogo/resource/icon/myLogo.ico"));
     statusLabel = new QLabel(this);
 
     ui->treeView->setModel(assetModel);
