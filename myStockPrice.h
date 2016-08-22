@@ -37,16 +37,16 @@ struct sinaRealTimeData {
     float buy4Price;
     int   buy5Stock;
     float buy5Price;
-    int   sell1Stock;
-    float sell1Price;
-    int   sell2Stock;
-    float sell2Price;
-    int   sell3Stock;
-    float sell3Price;
-    int   sell4Stock;
-    float sell4Price;
-    int   sell5Stock;
-    float sell5Price;
+    int   bid1Stock;
+    float bid1Price;
+    int   bid2Stock;
+    float bid2Price;
+    int   bid3Stock;
+    float bid3Price;
+    int   bid4Stock;
+    float bid4Price;
+    int   bid5Stock;
+    float bid5Price;
 
     QDateTime time;
     int type;

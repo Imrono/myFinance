@@ -154,12 +154,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                 }
                 QString strValue = QString::number(totalValue, 'f', 2);
                 return QString("%1").arg(strValue);
-            } else {
-                return QVariant();
             }
-
-        } else {
-            return QVariant();
         }
     } else if (Qt::DecorationRole == role) {
 #ifdef QT_NO_DEBUG
@@ -174,7 +169,6 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
             }
         }
 #endif
-        return QVariant();
     } else if (Qt::FontRole == role) {
         if (index.column() == 2 || index.column() == 3) {
             return QFont(QString(), -1, QFont::Bold);
@@ -198,11 +192,7 @@ QVariant myAssetModel::data(const QModelIndex &index, int role) const {
                     return QColor(Qt::gray);
                 }
             }
-        } else {
-            return QVariant();
         }
-    } else {
-        return QVariant();
     }
     return QVariant();
 }

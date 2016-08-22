@@ -87,16 +87,16 @@ void myStockPrice::replyFinished(QNetworkReply* data) {
         sinaData.buy4Price = parts.at(17).toDouble();
         sinaData.buy5Stock = parts.at(18).toInt();
         sinaData.buy5Price = parts.at(19).toDouble();
-        sinaData.sell1Stock = parts.at(20).toInt();
-        sinaData.sell1Price = parts.at(21).toDouble();
-        sinaData.sell2Stock = parts.at(22).toInt();
-        sinaData.sell2Price = parts.at(23).toDouble();
-        sinaData.sell3Stock = parts.at(24).toInt();
-        sinaData.sell3Price = parts.at(25).toDouble();
-        sinaData.sell4Stock = parts.at(26).toInt();
-        sinaData.sell4Price = parts.at(27).toDouble();
-        sinaData.sell5Stock = parts.at(28).toInt();
-        sinaData.sell5Price = parts.at(29).toDouble();
+        sinaData.bid1Stock = parts.at(20).toInt();
+        sinaData.bid1Price = parts.at(21).toDouble();
+        sinaData.bid2Stock = parts.at(22).toInt();
+        sinaData.bid2Price = parts.at(23).toDouble();
+        sinaData.bid3Stock = parts.at(24).toInt();
+        sinaData.bid3Price = parts.at(25).toDouble();
+        sinaData.bid4Stock = parts.at(26).toInt();
+        sinaData.bid4Price = parts.at(27).toDouble();
+        sinaData.bid5Stock = parts.at(28).toInt();
+        sinaData.bid5Price = parts.at(29).toDouble();
 
         sinaData.time = QDateTime::fromString(parts.at(30)+" "+parts.at(31), "yyyy-MM-dd hh:mm:ss");
         sinaData.type = parts.at(32).toInt();
