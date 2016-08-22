@@ -72,7 +72,7 @@ void myStockPrice::replyFinished(QNetworkReply* data) {
         sinaData.buttom = parts.at(5).toDouble();
 
         sinaData.buy1_1  = parts.at(6).toDouble();
-        sinaData.sell1_1 = parts.at(7).toDouble();
+        sinaData.bid1_1 = parts.at(7).toDouble();
 
         sinaData.stockVolume = parts.at(8).toInt();
         sinaData.moneyVolume = parts.at(9).toInt();

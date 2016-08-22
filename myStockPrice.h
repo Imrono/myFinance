@@ -22,7 +22,7 @@ struct sinaRealTimeData {
     float buttom;
 
     float buy1_1;
-    float sell1_1;
+    float bid1_1;
 
     int   stockVolume;
     float moneyVolume;
